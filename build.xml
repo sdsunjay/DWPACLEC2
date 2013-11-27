@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="build" name="DWPACLEC2">
+   <property environment="env"/>
+   <property name="debuglevel" value="source,lines,vars"/>
+   <property name="target" value="1.7"/>
+   <property name="source" value="1.7"/>
+   <path id="project.classpath">
+      <pathelement location="lib/mysql-connector-java-5.1.15-bin.jar"/> 
+      <pathelement location="lib/aws-java-sdk-1.6.7.jar"/> 
+      <pathelement location="lib/joda-time-1.6.2.jar"/>
+  </path>
+
+   <target name="init">
+      <mkdir dir="build"/>
+      <copy includeemptydirs="false" todir="build">
+         <fileset dir="src">
+            <exclude name="**/*.launch"/>
+            <exclude name="**/*.java"/>
+         </fileset>
+      </copy>
+   </target>
+
+   <target name="clean">
+      <delete dir="build"/>
+   </target>
+
+   <target depends="build-subprojects,build-project" name="build"/>
+
+   <target name="build-subprojects"/>
+
+   <target depends="init" name="build-project">
+      <echo message="${ant.project.name}: ${ant.file}"/>
+      <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="build" source="${source}" target="${target}">
+         <src path="src"/>
+         <classpath refid="project.classpath"/>
+         <compilerarg value="-Xlint"/>
+         <compilerarg value="-Xlint:deprecation"/>
+      </javac>
+   </target>
+
+   <target name="jar" description="Package into JAR including source" depends="clean,build">
+      <copy includeemptydirs="false" todir="build">
+         <fileset dir="src">
+         </fileset>
+      </copy>
+      <jar destfile="${ant.project.name}.jar" basedir="build" compress="true">
+         <!--
+         <zipgroupfileset dir="lib" includes="*.jar"/>
+         -->
+      </jar>
+   </target>
+
+   <target name="bin-jar" description="Package into JAR excluding source" depends="clean,build">
+      <jar destfile="${ant.project.name}.jar" basedir="build" compress="true">
+         <!--
+         <zipgroupfileset dir="lib" includes="*.jar"/>
+         -->
+      </jar>
+   </target>
+
+   <!--
+   <target name="test" depends="build" description="Run all the JUnit tests.">
+      <echo message="Running all tests." />
+      <junit showoutput="true" printsummary="yes" fork="yes">
+         <formatter type="brief" usefile="false"/>
+         <classpath refid="project.classpath"/>
+         <batchtest fork="yes">
+            <fileset dir="test">
+               <include name="**/*JTest.java"/>
+            </fileset>
+         </batchtest>
+      </junit>
+   </target>
+
+   <target name="ensure-test-name" unless="test">
+      <fail message="You must run this target with -Dtest=TestName"/>
+   </target>
+
+   <target name="runtest" description="Runs the test you specify on the command line with -Dtest=" depends="build, ensure-test-name">
+      <junit showoutput="true" printsummary="yes" fork="yes">
+         <classpath refid="project.classpath" />
+         <formatter type="brief" usefile="false"/>
+         <batchtest fork="yes">
+            <fileset dir="test">
+               <include name="**/${test}.java"/>
+            </fileset>
+         </batchtest>
+      </junit>
+   </target>
+   -->
+
+<!-- checkstyle -->
+   <taskdef resource="checkstyletask.properties" classpath="./tools/checkstyle-5.6-all.jar" />
+   <target name="checkstyle" description="Check some style">
+      <checkstyle config="tools/google_style.xml">
+         <fileset dir="src" includes="**/*.java" />
+         <formatter type="plain"/>
+      </checkstyle>
+   </target>
+   <target name="style" depends="checkstyle" />
+
+
+   <!-- lint4j -->
+   <!--
+   <taskdef name="lint4j" classname="com.jutils.lint4j.ant.Lint4jAntTask">
+      <classpath>
+         <pathelement location="tools/lint4j.jar" />
+      </classpath>
+   </taskdef>
+
+   <target name="lint" description="Lint check.">
+      TODO set packages
+      <lint4j sourcepath="src" packages="com.spoons.*" level="2">
+         <classpath refid="project.classpath"/>
+      </lint4j>
+   </target>
+
+   <target name="lint4j" depends="lint" />
+   -->
+</project>

@@ -1,0 +1,22 @@
+
+DEBUG := no
+
+ifeq (yes, ${DEBUG})
+  USER_CFLAGS := -g
+else
+  USER_CFLAGS := -O3
+endif
+
+all: wpa-crack-s dummy-server dummy-master
+
+wpa-crack-s: wpa-crack-s.c cpu-crack.c cpu-crack.h common.h
+	gcc ${USER_CFLAGS} $^ -lcrypto -lpthread -o $@
+	
+dummy-server: dummy-server.c
+	gcc ${USER_CFLAGS} $^ -o $@
+
+dummy-master: dummy-master.c
+	gcc ${USER_CFLAGS} $^ -o $@
+
+clean:
+	rm -rf *.o *~ wpa-crack-s dummy-server dummy-master

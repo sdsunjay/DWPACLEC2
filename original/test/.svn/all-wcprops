@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 26
+/svn/!svn/ver/7/trunk/test
+END
+cap-02-eapol
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/!svn/ver/7/trunk/test/cap-02-eapol
+END
+cap-01-eapol.cap
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/7/trunk/test/cap-01-eapol.cap
+END
+cap-02-eapol.cap
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/7/trunk/test/cap-02-eapol.cap
+END
+cap-eapol.cap
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/5/trunk/test/cap-eapol.cap
+END
+cap-01.cap
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/7/trunk/test/cap-01.cap
+END
+cap-02-anonce
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/7/trunk/test/cap-02-anonce
+END
+cap-02-snonce
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/7/trunk/test/cap-02-snonce
+END
