@@ -122,7 +122,7 @@ int main(int argc, char** argv)
     exit(0);
     
   // print out the received information
-  //print_work(essid);
+  print_work(essid);
   
   // prepare for CPU and GPU thread creation
   
@@ -153,21 +153,25 @@ int main(int argc, char** argv)
   // create the cracking threads for CPU
   for (i=0; i<cpu_num; ++i)
   {
-    ck_td_struct* arg = (ck_td_struct*)malloc(sizeof(ck_td_struct));
-    arg->cpu_core_id = i;
-    arg->gpu_core_id = -1;
-    arg->set_affinity = 1;
-    arg->essid = essid;
-    arg->phdsk = &hdsk;
-    arg->calc_speed = calc_speed;
-    arg->final_key = final_key;
-    arg->final_key_flag = &final_key_flag;
-    
-    flag = pthread_create(&tid_vector[i], NULL, crack_cpu_thread, arg);
-    if (flag)
-      printf("can't create thread on cpu core %d: %s\n", i, strerror(flag));
-    else
-      cpu_working++;
+      ck_td_struct* arg = (ck_td_struct*)malloc(sizeof(ck_td_struct));
+      arg->cpu_core_id = i;
+      arg->gpu_core_id = -1;
+      arg->set_affinity = 1;
+      arg->essid = essid;
+      arg->phdsk = &hdsk;
+      arg->calc_speed = calc_speed;
+      arg->final_key = final_key;
+      arg->final_key_flag = &final_key_flag;
+      
+      flag = pthread_create(&tid_vector[i], NULL, crack_cpu_thread, arg);
+      if (flag)
+      {
+         printf("can't create thread on cpu core %d: %s\n", i, strerror(flag));
+      }
+      else
+      {
+         cpu_working++;
+      }
   }
   
   // create the cracking host thread for GPU

@@ -12,7 +12,8 @@
 #define ESSID "AndroidAP"
 #define BUFSIZE 384
 #define SERVPORT 3030
-#define SERVADDR "0.0.0.0"
+
+#define SERVADDR "192.168.1.173"
 //#define SERVADDR "54.241.241.203"
 
 int create_hdsk(wpa_hdsk* phdsk)

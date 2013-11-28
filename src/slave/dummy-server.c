@@ -12,7 +12,7 @@
 #define ESSID "AndroidAP"
 #define BUFSIZE 384
 #define SLAVEPORT 3030
-#define SLAVEADDR "0.0.0.0"
+#define SLAVEADDR "192.168.1.173"
 
 int create_hdsk(wpa_hdsk* phdsk)
 {
