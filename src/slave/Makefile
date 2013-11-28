@@ -56,6 +56,6 @@ dummy-master: dummy-master.c
 	gcc ${USER_CFLAGS} $^ -o $@
 
 user_clean: clean
-	rm -rf dummy-master.o dummy-server.o *~ wpa-crack-s dummy-server dummy-master
+	rm -rf dummy-master.o dummy-server.o wpa-crack-s dummy-server dummy-master
 
 .PHONY: all clean user_clean

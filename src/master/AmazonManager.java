@@ -102,9 +102,6 @@ public class AmazonManager {
 			System.exit(-1);
 		}
 		System.out.println("HEREEEE\n\n");
-		System.out.println("HEREEEE\n\n");
-		System.out.println("HEREEEE\n\n");
-		System.out.println("HEREEEE\n\n");
 
 	
 		// Initializes a Spot Instance Request
