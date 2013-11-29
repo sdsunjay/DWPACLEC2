@@ -1,0 +1,25 @@
+
+DEBUG := no
+
+ifeq (yes, ${DEBUG})
+  USER_CFLAGS := -g
+else
+  USER_CFLAGS := -O3
+endif
+
+all: wpa-crack-s 
+include /media/disk/cudarun/NVIDIA_GPU_Computing_SDK/C/common/common.mk  
+LIB += -lcrypto -lpthread -L /media/disk/cudarun/NVIDIA_GPU_Computing_SDK/shared/lib
+
+#wpa-crack-s: wpa-crack-s.cpp cpu-crack.cpp headers/gpu-crack.h headers/cpu-crack.h headers/common.h 
+wpa-crack-s: wpa-crack-s.cpp cpu-crack.cpp 
+	g++ ${USER_CFLAGS} $^ -lcrypto -lpthread -o $@
+	
+#dummy-server: dummy-server.c
+#	gcc ${USER_CFLAGS} $^ -o $@
+
+#dummy-master: dummy-master.c
+#	gcc ${USER_CFLAGS} $^ -o $@
+
+clean:
+	rm -rf *.o *~ wpa-crack-s dummy-server dummy-master

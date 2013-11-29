@@ -184,7 +184,7 @@ public class WPAMaster {
 				}
 				
 			}
-			/*
+		        //originally commented out
 			System.out.print("WPA Structure:");
 			for(int i=0; i<wpa_hdsk.length; i++)
 			{
@@ -192,8 +192,8 @@ public class WPAMaster {
 				System.out.print(String.format("%x",wpa_hdsk[i] & 0x0F));
 				System.out.print(' ');
 			}
-			System.out.println("");*/
-			
+			System.out.println("");
+		  	
 			return true;
 		}catch(Exception e)
 		{
@@ -217,16 +217,16 @@ public class WPAMaster {
 			private String m_IP;
 			private int m_Port;
 			private byte[] m_wpa_hs;
-			private String m_rs;
-			private String m_re;
+			private String m_rangeStart;
+			private String m_rangeEnd;
 			int ii=0;
 			slaveThread(String ip, int port, byte[] wpa_hs, String rangeStart, String rangeEnd)
 			{
 			   this.m_IP = ip;
 			   this.m_Port = port;
 			   this.m_wpa_hs = wpa_hs;
-			   this.m_rs = rangeStart;
-			   this.m_re = rangeEnd;
+			   this.m_rangeStart = rangeStart;
+			   this.m_rangeEnd = rangeEnd;
 			}
 			public void run() {
 			   try{
@@ -235,19 +235,20 @@ public class WPAMaster {
 			      System.out.println("IP is "+m_IP+"\nPort is : "+m_Port);
 			      DataOutputStream outToServer = new DataOutputStream(slaveSocket.getOutputStream());
 			      BufferedReader inFromServer = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
-
-			      while(ii<2)
+   
+                              while(true)
+			      //while(ii<2)
 			      {
 				 ii++;
-				 System.out.println("I ("+ii+ ") am here");
+				 //System.out.println("I ("+ii+ ") am here");
 				 char[] cmdChar = new char[1];
 				 inFromServer.read(cmdChar);
 				 System.out.println("cmdChar"+cmdChar);
 				 if(cmdChar[0] == 'r')
 				 {
-				    outToServer.write(m_rs.getBytes());
+				    outToServer.write(m_rangeStart.getBytes());
 				    outToServer.flush();
-				    outToServer.write(m_re.getBytes());
+				    outToServer.write(m_rangeEnd.getBytes());
 				    outToServer.flush();
 				    outToServer.write(m_wpa_hs);
 				    outToServer.flush();
@@ -256,13 +257,14 @@ public class WPAMaster {
 				    outToServer.write(SSID);
 				    outToServer.flush();
 				    //length of ESSID
-				    System.out.println("HERE1\n");
+				    //System.out.println("HERE1\n");
 				    //ESSID
 				 }
-				 //else if(cmdChar[0] == 'a')
-				 else
+				 else if(cmdChar[0] == 'a')
 				 {
-				    System.out.println("HERE2\n");
+                                 //else
+				 //{
+				   // System.out.println("HERE2\n");
 				    char[] length = new char[1];
 				    inFromServer.read(length);
 
@@ -273,7 +275,6 @@ public class WPAMaster {
 				    WPAPassword = new String(result);
 				    System.out.println("Key Found! ["+WPAPassword+"]");
 				    System.out.println(result);
-
 				    break;
 				 }
 			      }

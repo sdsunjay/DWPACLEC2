@@ -1,4 +1,4 @@
-#define _GNU_SOURCE
+//#define _GNU_SOURCE
 
 #include <time.h>
 #include <stdio.h>
@@ -11,7 +11,7 @@
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
 
-#include "cpu-crack.h"
+#include "headers/cpu-crack.h"
 
 #ifndef uchar
 #define uchar unsigned char

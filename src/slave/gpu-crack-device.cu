@@ -1,5 +1,5 @@
 
-#include "gpu-crack.h"
+#include "headers/gpu-crack.h"
 
 /* 
     Optimized SHA1 function written by author of Pyrit:

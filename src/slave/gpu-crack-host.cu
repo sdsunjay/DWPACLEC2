@@ -19,12 +19,12 @@
 #include <openssl/sha.h>
 
 // Helper functions common to CUDA SDK samples
-#include "sdkHelper.h"
-#include "shrQATest.h"
-#include "shrUtils.h"
+#include "headers/sdkHelper.h"
+#include "headers/shrQATest.h"
+#include "headers/shrUtils.h"
 
-#include "cpu-crack.h"
-#include "gpu-crack.h"
+#include "headers/cpu-crack.h"
+#include "headers/gpu-crack.h"
 
 #ifndef uchar
 #define uchar unsigned char
@@ -134,10 +134,10 @@ precompute ( const char *key , const char *essid_pre , kernel_input_buffer *gpu_
     GET_BE( gpu_input -> e2.h4 , temp , 16 );
 }
 
-int areWeDone()
-{
+//int areWeDone()
+//{
 
-}
+//}
 // This is where the information from the .cap file is used
 // Check if the key was found, by verifying the MIC
 inline
