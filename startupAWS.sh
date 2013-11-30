@@ -29,8 +29,8 @@ read abcd
 
 cd ~
 echo cloning my repo
-git clone -b my-br git@github.com:sdsunjay/DWPACLEC2.git
+git clone git@github.com:sdsunjay/DWPACLEC2.git
 
 cd ~/DWPACLEC2/src/slave
 make
-cd ~/DWPACLEC2/bin/linux/release/wpa-crack-s 3030
+~/DWPACLEC2/bin/linux/release/wpa-crack-s 3030
