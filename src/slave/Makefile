@@ -51,7 +51,7 @@ include SDK/common.mk
 #../../common/common.mk
 
 # Extra libs (Should be specified AFTER common.mk)
-LIB += -lcrypto -lpthread -L SDK/lib -L /usr/local/cuda/lib64
+LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /usr/local/cuda/lib64
 
 #LIB += -lcrypto -lpthread -L /opt/cuda/lib
 #LIB += -lcrypto -lpthread -L /media/disk/cudarun/NVIDIA_GPU_Computing_SDK/shared/lib
