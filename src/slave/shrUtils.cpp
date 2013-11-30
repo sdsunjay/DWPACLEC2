@@ -14,7 +14,7 @@
 // *********************************************************************
 
 // includes
-#include <shrUtils.h>
+#include "headers/shrUtils.h"
 #include <cmd_arg_reader.h>
 #include <stdio.h>
 #include <string.h>
@@ -23,7 +23,6 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <stdio.h>
 
 using namespace std;
 
