@@ -42,7 +42,10 @@ verbose := 1
 #INCLUDES  := -I/opt/cuda/samples/common/inc
 #include /opt/cuda/samples/common/inc
 #HAD TO EDIT COMMON.mk to explicitly set nvcc location
+#BELOW WORKS DO NOT MODIFY
 include /media/disk/cudarun/NVIDIA_GPU_Computing_SDK/C/common/common.mk  
+#include /home/calpoly/DWPACLEC2/src/slave/findcudalib.mk
+
 #include /opt/cuda
 
 #../../common/common.mk
