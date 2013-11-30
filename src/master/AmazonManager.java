@@ -36,6 +36,7 @@ import com.amazonaws.services.ec2.model.RequestSpotInstancesResult;
 import com.amazonaws.services.ec2.model.SpotInstanceRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 
+import java.io.File;
 
 public class AmazonManager {
 
@@ -83,11 +84,11 @@ public class AmazonManager {
 
       if(isWPADataReady)
       {
-         System.out.println("WPA Data IS ready);
+         System.out.println("WPA Data IS ready");
       }
       else
       {
-         System.out.println("WPA Data is NOT ready);
+         System.out.println("WPA Data is NOT ready");
          System.out.println("Exitting");
          System.exit(-1);
       }
