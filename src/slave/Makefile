@@ -43,7 +43,7 @@ verbose := 1
 #include /opt/cuda/samples/common/inc
 #HAD TO EDIT COMMON.mk to explicitly set nvcc location
 #BELOW WORKS DO NOT MODIFY
-include NVIDIA_GPU_Computing_SDK/C/common/common.mk  
+include SDK/common.mk  
 #include /home/calpoly/DWPACLEC2/src/slave/findcudalib.mk
 
 #include /opt/cuda
@@ -51,7 +51,7 @@ include NVIDIA_GPU_Computing_SDK/C/common/common.mk
 #../../common/common.mk
 
 # Extra libs (Should be specified AFTER common.mk)
-LIB += -lcrypto -lpthread -L NVIDIA_GPU_Computing_SDK/shared/lib -L NVIDIA_GPU_Computing_SDK/shared/lib64 -L /opt/cuda/lib64
+LIB += -lcrypto -lpthread -L SDK/lib -L /usr/local/cuda/lib64
 
 #LIB += -lcrypto -lpthread -L /opt/cuda/lib
 #LIB += -lcrypto -lpthread -L /media/disk/cudarun/NVIDIA_GPU_Computing_SDK/shared/lib

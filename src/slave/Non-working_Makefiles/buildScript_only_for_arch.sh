@@ -7,7 +7,7 @@ nvcc -c gpu-crack-device.cu
 echo compiling gpu-crack-device.o
 nvcc -c gpu-crack-host.cu 
 echo compiling wpa-crack-s 
-g++ -L/opt/cuda/lib64 -lcudart -lcrypto -lpthread -o wpa-crack-s wpa-crack-s.o gpu-crack-host.o gpu-crack-device.o cpu-crack.o 
+g++ -L/usr/local/cuda/lib64 -lcudart -lcrypto -lpthread -o wpa-crack-s wpa-crack-s.o gpu-crack-host.o gpu-crack-device.o cpu-crack.o 
 
 
 #echo removing object files
