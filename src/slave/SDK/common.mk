@@ -61,7 +61,9 @@ SHAREDDIR  := $(ROOTDIR)/../../shared/
 #NVCC       := /opt/cuda/bin/nvcc 
 
 #for aws gpu
-NVCC       := /usr/local/cuda-5.5/bin/nvcc
+#/usr/local/cuda-5.5/bin/nvcc
+#for tesla and probably everything else
+NVCC       := /usr/local/cuda/bin/nvcc
 CXX        := g++ -fPIC
 CC         := gcc -fPIC
 LINK       := g++ -fPIC

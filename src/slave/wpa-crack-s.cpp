@@ -189,10 +189,7 @@ int main(int argc, char** argv)
   cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
   printf("number of CPU processors: %d\n", cpu_num);
   
-  // get the number of GPU devices
-  //COULD NOT GET THIS TO COMPILE NO MATTER WHAT
-  //gpu_num = num_of_gpus();
-  gpu_num=1;
+  gpu_num = num_of_gpus();
   printf("number of GPU devices: %d\n", gpu_num);
   
   // connect to the master
