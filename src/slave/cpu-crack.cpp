@@ -189,9 +189,11 @@ void* crack_cpu_thread(void *arg)
    {
       // get the password range
       range = fetch_pwd('c', NULL, NULL);
-      if (range.start == -1)
-	 break;
-
+      if (range.start !=0)
+      {
+         printf("Range does not start at 0\n");
+         break;
+      }
       // loop through each key in range
       for (cur_key_digit = range.start; cur_key_digit <= range.end; ++cur_key_digit)
       {    

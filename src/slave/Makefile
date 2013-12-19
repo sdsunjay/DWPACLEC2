@@ -43,16 +43,22 @@ verbose := 1
 #include /opt/cuda/samples/common/inc
 #HAD TO EDIT COMMON.mk to explicitly set nvcc location
 #BELOW WORKS DO NOT MODIFY
-include SDK/common.mk  
-#include /home/calpoly/DWPACLEC2/src/slave/findcudalib.mk
-
-#include /opt/cuda
-
-#../../common/common.mk
-
+MYOS := $(shell uname --all)
+TEST := $(findstring arch,$(MYOS))
+#GUESS := $(shell uname --all\ | awk -v N=2 \'{echo $$N}\')
+ifeq ($(TEST),arch)
+   include SDK/arch_common.mk  
+   #THIS WORKS ONLY FOR ARCH
+   LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /opt/cuda/lib64
+else
+   include SDK/common.mk  
+   LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /usr/local/cuda/lib64
+endif
 # Extra libs (Should be specified AFTER common.mk)
-LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /usr/local/cuda/lib64
+#THIS OWRKS FOR OTHER LINUS OS's
 
+
+#include /home/calpoly/DWPACLEC2/src/slave/findcudalib.mk
 #LIB += -lcrypto -lpthread -L /opt/cuda/lib
 #LIB += -lcrypto -lpthread -L /media/disk/cudarun/NVIDIA_GPU_Computing_SDK/shared/lib
 #LIB += -lcrypto -lpthread  -L /opt/cuda
@@ -70,4 +76,7 @@ all: $(TARGET)
 user_clean: clean
 	rm -rf *~ wpa-crack-s ../../bin
 
-.PHONY: all clean user_clean
+.PHONY: all clean user_clean print_vars
+
+print_vars:
+	echo $(TEST)
