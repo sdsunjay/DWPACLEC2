@@ -29,7 +29,7 @@ public class sunjaymain {
 
    //THE LINE BELOW WORKS
    final static String IPADDRESS = "54.200.231.53";
-   final static int PORTNUM = 3030; 
+   final static int PORTNUM = 7373; 
    final static int slaveCount = 1; 
       /**
        * @param args
