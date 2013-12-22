@@ -64,7 +64,7 @@ void sha1_process ( const SHA_DEV_CTX *ctx , SHA_DEV_CTX *data ) {
 // using assignments in each iteration
 #define F(x,y,z) (z ^ (x & (y ^ z)))
 #define K 0x5A827999
-  
+
     P( A, B, C, D, E, W[0]  );
     P( E, A, B, C, D, W[1]  );
     P( D, E, A, B, C, W[2]  );
@@ -85,13 +85,13 @@ void sha1_process ( const SHA_DEV_CTX *ctx , SHA_DEV_CTX *data ) {
     P( D, E, A, B, C, R(17) );
     P( C, D, E, A, B, R(18) );
     P( B, C, D, E, A, R(19) );
-  
+
 #undef K
 #undef F
 
 #define F(x,y,z) (x ^ y ^ z)
 #define K 0x6ED9EBA1
-  
+
     P( A, B, C, D, E, R(20) );
     P( E, A, B, C, D, R(21) );
     P( D, E, A, B, C, R(22) );
@@ -112,13 +112,13 @@ void sha1_process ( const SHA_DEV_CTX *ctx , SHA_DEV_CTX *data ) {
     P( D, E, A, B, C, R(37) );
     P( C, D, E, A, B, R(38) );
     P( B, C, D, E, A, R(39) );
-  
+
 #undef K
 #undef F
-  
+
 #define F(x,y,z) ((x & y) | (z & (x | y)))
 #define K 0x8F1BBCDC
-  
+
     P( A, B, C, D, E, R(40) );
     P( E, A, B, C, D, R(41) );
     P( D, E, A, B, C, R(42) );
@@ -139,13 +139,13 @@ void sha1_process ( const SHA_DEV_CTX *ctx , SHA_DEV_CTX *data ) {
     P( D, E, A, B, C, R(57) );
     P( C, D, E, A, B, R(58) );
     P( B, C, D, E, A, R(59) );
-  
+
 #undef K
 #undef F
 
 #define F(x,y,z) (x ^ y ^ z)
 #define K 0xCA62C1D6
-  
+
     P( A, B, C, D, E, R(60) );
     P( E, A, B, C, D, R(61) );
     P( D, E, A, B, C, R(62) );
@@ -166,7 +166,7 @@ void sha1_process ( const SHA_DEV_CTX *ctx , SHA_DEV_CTX *data ) {
     P( D, E, A, B, C, R(77) );
     P( C, D, E, A, B, R(78) );
     P( B, C, D, E, A, R(79) );
-  
+
 #undef K
 #undef F
 
@@ -184,14 +184,14 @@ void crack_gpu_kernel ( kernel_input_buffer *inbuffer , kernel_output_buffer *ou
 
     // Loop variable
     int i;
-    
+
     // Hash value of previous round
     SHA_DEV_CTX prev_ctx;
     // Part of the PMK (20 bytes first part, 12 bytes second part)
     SHA_DEV_CTX pmk_ctx;
-    
+
     // Thread ID
-    const int id = blockIdx.x * blockDim.x + threadIdx.x;  
+    const int id = blockIdx.x * blockDim.x + threadIdx.x;
     // Is ID out of range?
     if ( id >= max_num )
         return;
@@ -199,24 +199,24 @@ void crack_gpu_kernel ( kernel_input_buffer *inbuffer , kernel_output_buffer *ou
     // First round's hash (for PMK1) is stored in e1
     COPY_DEVCTX( prev_ctx , inbuffer[id].e1 );
     COPY_DEVCTX( pmk_ctx , prev_ctx );
-    
+
     // PMK Part 1 (20 bytes): Finish the remaining 4095 rounds
     for ( i = 1 ; i <= 4095 ; i++ ) {
-    
+
         sha1_process ( &inbuffer[id].ctx_ipad , &prev_ctx );
         sha1_process ( &inbuffer[id].ctx_opad , &prev_ctx );
-        
+
         // Keep XORing all the rounds
         pmk_ctx.h0 ^= prev_ctx.h0;
         pmk_ctx.h1 ^= prev_ctx.h1;
-        pmk_ctx.h2 ^= prev_ctx.h2; 
+        pmk_ctx.h2 ^= prev_ctx.h2;
         pmk_ctx.h3 ^= prev_ctx.h3;
         pmk_ctx.h4 ^= prev_ctx.h4;
     }
-    
+
     // Store PMK Part 1 in the output buffer
     COPY_DEVCTX( outbuffer[id].pmk1 , pmk_ctx );
-    
+
     // First round's hash (for PMK2) is stored in e2
     COPY_DEVCTX( prev_ctx , inbuffer[id].e2 );
     COPY_DEVCTX( pmk_ctx , prev_ctx );

@@ -21,7 +21,7 @@
 #define uint unsigned int
 #endif
 
-inline void calc_pmk(char *key, char *essid_pre, uchar pmk[40])
+inline void calc_pmk(const char *key,size_t len, char *essid_pre, uchar pmk[40])
 {
   int i, j, slen;
   uchar buffer[64];
@@ -37,7 +37,10 @@ inline void calc_pmk(char *key, char *essid_pre, uchar pmk[40])
   /* setup the inner and outer contexts */
 
   memset(buffer, 0, sizeof(buffer));
-  memcpy(buffer, key, strlen(key));
+  //ORIGINAL
+  //memcpy(buffer, key, strlen(key));
+  //SUNJAY
+  memcpy(buffer, key, len);
 
   for(i=0; i<64; i++)
     buffer[i] ^= 0x36;
@@ -54,7 +57,10 @@ inline void calc_pmk(char *key, char *essid_pre, uchar pmk[40])
   /* iterate HMAC-SHA1 over itself <b>8192<b> times */
 
   essid[slen-1] = '\1';
-  HMAC(EVP_sha1(), (uchar*)key, strlen(key), (uchar*)essid, slen, pmk, NULL);
+  //ORIGINAL
+  //HMAC(EVP_sha1(), (uchar*)key, strlen(key), (uchar*)essid, slen, pmk, NULL);
+  //SUNJAY
+  HMAC(EVP_sha1(), (uchar*)key, len, (uchar*)essid, slen, pmk, NULL);
   memcpy(buffer, pmk, 20);
 
   for(i=1; i<4096; i++)
@@ -72,7 +78,10 @@ inline void calc_pmk(char *key, char *essid_pre, uchar pmk[40])
   }
 
   essid[slen-1] = '\2';
-  HMAC(EVP_sha1(), (uchar*)key, strlen(key), (uchar*)essid, slen, pmk+20, NULL);
+  //ORIGINAL
+  //HMAC(EVP_sha1(), (uchar*)key, strlen(key), (uchar*)essid, slen, pmk+20, NULL);
+  //SUNJAY
+  HMAC(EVP_sha1(), (uchar*)key, len, (uchar*)essid, slen, pmk+20, NULL);
   memcpy(buffer, pmk+20, 20);
 
   for(i=1; i<4096; i++)
@@ -98,7 +107,7 @@ pwd_range fetch_pwd(char type, const unsigned long* first, const unsigned long* 
   static pwd_range range;
   static unsigned long current_self;
   static unsigned long last_self;
-  
+
   if (first && last) // called by master thread only to do initialization
   {
     current_self = *first;
@@ -131,7 +140,7 @@ pwd_range fetch_pwd(char type, const unsigned long* first, const unsigned long* 
        }
        else
        {
-	  len = PWD_BATCH_SIZE_GPU;        
+	  len = PWD_BATCH_SIZE_GPU;
        }
        range.start = current_self;
        range.end = (current_self+len-1>last_self)?last_self:(current_self+len-1);
@@ -196,7 +205,7 @@ void* crack_cpu_thread(void *arg)
       }
       // loop through each key in range
       for (cur_key_digit = range.start; cur_key_digit <= range.end; ++cur_key_digit)
-      {    
+      {
 	 // calculate the calculation speed
 	 if (cnt == 0)
 	    gettimeofday(&tlast, NULL);
@@ -213,14 +222,19 @@ void* crack_cpu_thread(void *arg)
 	 memset(pmk, 0, sizeof(pmk));
 	 memset(pke, 0, sizeof(pke));
 	 memset(ptk, 0, sizeof(ptk));
-	 memset(mic, 0, sizeof(mic));      
+	 memset(mic, 0, sizeof(mic));
 
-	 // convert the key from digit to string
+         //SUNJAY
+	 //key=getKey(cur_key_digit);
+         // convert the key from digit to string
 	 sprintf(key, "%08lu", cur_key_digit);
 
-	 //printf("CPU Password: %s\n",key);	
+	 //printf("CPU Password: %s\n",key);
 	 // calculate the PMK
-	 calc_pmk(key, essid, pmk);
+	//original below 
+         calc_pmk(key,strlen(key), essid, pmk);
+        //SUNJAY
+         //calc_pmk("hello", essid, pmk);
 
 	 // pre-compute the key expansion buffer
 	 memcpy(pke, "Pairwise key expansion", 23);

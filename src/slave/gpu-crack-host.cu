@@ -210,7 +210,7 @@ crack_gpu_thread ( void *arg ) {
 
     // ESSID
     char essid[32];
-    
+
     // Password (key) in string format
     char key[128];
     memset ( key , 0 , sizeof ( key ) );
@@ -227,10 +227,10 @@ crack_gpu_thread ( void *arg ) {
     char* final_key_flag = ck_td_arg->final_key_flag;
     memset(essid, 0, sizeof(essid));
     memcpy(essid, ck_td_arg->essid, 32);
-  
+
     // Normal Loop Variable
     int i = 0;
-    
+
     // Loop variable for the password range
     unsigned long cur_key_digit = 0;
 
@@ -241,23 +241,23 @@ crack_gpu_thread ( void *arg ) {
     // Password range for each GPU
     pwd_range *range;
     range = (pwd_range*) malloc ( sizeof ( pwd_range ) * gpu_num );
-    
+
     // Number of working GPUs
     int gpu_working = 0;
     // Number of PMKs being computed in one dispatch
     int num_keys = 0;
-    
+
     // Input Buffer of the GPUs
     kernel_input_buffer *gpu_input = (kernel_input_buffer*) malloc ( sizeof ( kernel_input_buffer ) * PWD_BATCH_SIZE_GPU * gpu_num );
     // Output Buffer of the GPUs
     kernel_output_buffer *gpu_output = (kernel_output_buffer*) malloc ( sizeof ( kernel_output_buffer ) * PWD_BATCH_SIZE_GPU * gpu_num );
-    
+
     // Buffers in the GPU Memory space
     kernel_input_buffer **device_input;
     kernel_output_buffer **device_output;
     device_input = (kernel_input_buffer**) malloc ( sizeof ( kernel_input_buffer* ) * gpu_num );
     device_output = (kernel_output_buffer**) malloc ( sizeof ( kernel_output_buffer* ) * gpu_num );
-    
+
     // Allocate device memory beforehand itself, we can reuse it again and again
     int devMemSize;
     for ( i = 0 ; i < gpu_num ; ++i ) {
@@ -267,8 +267,8 @@ crack_gpu_thread ( void *arg ) {
         devMemSize = sizeof ( kernel_output_buffer ) * PWD_BATCH_SIZE_GPU;
         checkCudaErrors ( cudaMalloc ( (void**) &device_output[i] , devMemSize ) );
     }
-    
-    // Repeatedly get password ranges to dispatch to the GPUs
+
+    // Repeatedly get password ranges to dispatch to the GPU(s)
     while ( 1 ) {
 
         // Get the password range for each gpu
@@ -279,13 +279,13 @@ crack_gpu_thread ( void *arg ) {
                 break;
             ++gpu_working;
         }
-        
+
         // Check if password range is over
         if ( gpu_working <= 0 ) {
 
             // Tell main thread we are terminating
             calc_speed[ cpu_num ] = -1;
-            
+
             // Free resources
             free ( range );
             free ( gpu_input );
@@ -297,30 +297,32 @@ crack_gpu_thread ( void *arg ) {
             }
             free ( device_input );
             free ( device_output );
-            
+
             return NULL;
         }
-        
+
         // Start time of the computation (including memory transfers Host mem <==> Device mem)
         gettimeofday ( &tprev , NULL );
-        
+
         // Precompute the iKeypads, oKeypads and 1st Round Hashes
         num_keys = 0;
+        //for the number of GPUs working
         for ( i = 0 ; i < gpu_working ; ++i ) {
+            //for each unique password in our range
             for ( cur_key_digit = range[i].start ; cur_key_digit <= range[i].end ; ++cur_key_digit ) {
-                
+
                 // Convert the key from digit to string
                 sprintf ( key , "%08lu" , cur_key_digit );
-               
+
 	       //printf("GPU Password: %s\n",key);	
                 // Calculate the Kernel input buffer values for this key
-                precompute ( key , essid , & gpu_input[ ( i * PWD_BATCH_SIZE_GPU ) + ( cur_key_digit - range[i].start ) ] );
-                
+                precompute ( key, essid , & gpu_input[ ( i * PWD_BATCH_SIZE_GPU ) + ( cur_key_digit - range[i].start ) ] );
+
                 // Count the total number of keys
                 ++num_keys;
             }
         }
-        
+
         // Now let the GPUs do the work
         /*
          * We need to be careful here. The calls to CUDA runtime API are asynchronous.
@@ -337,14 +339,14 @@ crack_gpu_thread ( void *arg ) {
          * dispatch work to the second GPU until the first GPU finishes computation :P
          */
         for ( i = 0 ; i < gpu_working ; ++i ) 
-	{    
+	{
             // Set the GPU Device we are currently dispatching work to crack
             checkCudaErrors ( cudaSetDevice ( i ) );
 
             // Copy the Input buffers from the Host to Device (GPU) Memory
             devMemSize = sizeof ( kernel_input_buffer ) * PWD_BATCH_SIZE_GPU;
             checkCudaErrors ( cudaMemcpy ( device_input[i] , gpu_input + (i * PWD_BATCH_SIZE_GPU) , devMemSize , cudaMemcpyHostToDevice ) );
-            
+
             // Calculate the PMKs using GPU
             int max_num = range[i].end - range[i].start + 1;
             int blocksPerGrid = ( max_num + THREADS_PER_BLOCK - 1 ) / THREADS_PER_BLOCK;
@@ -354,43 +356,47 @@ crack_gpu_thread ( void *arg ) {
 
         // Copy the Output buffers to the Host from Device (GPU) Memory in SEPARATE FOR LOOP
         for ( i = 0 ; i < gpu_working ; ++i ) {
-            
+
             // Set the GPU Device we are currently dispatching work to crack
             checkCudaErrors ( cudaSetDevice ( i ) );
-            
+
             // Copy the Output buffers to the Host from Device (GPU) Memory
             devMemSize = sizeof ( kernel_output_buffer ) * PWD_BATCH_SIZE_GPU;
             checkCudaErrors ( cudaMemcpy ( gpu_output + (i * PWD_BATCH_SIZE_GPU) , device_output[i] , devMemSize , cudaMemcpyDeviceToHost ) );
         }
-        
+
         // Check if the key (password) was found
         for ( i = 0 ; i < gpu_working ; ++i ) {
             for ( cur_key_digit = range[i].start ; cur_key_digit <= range[i].end ; ++cur_key_digit ) {
-                
+
                 // Verify the MIC
                 if ( is_key_found ( & gpu_output[ ( i * PWD_BATCH_SIZE_GPU ) + ( cur_key_digit - range[i].start ) ] , phdsk ) ) {
 
                     // !!!!! We found the key !!!!!
-                    
+
                     // End time of computation (including memory transfers Host mem <==> Device mem)
                     gettimeofday ( &tnow , NULL );
-        
+
                     // Report speed to main thread
                     calc_speed[ cpu_num ] = (float) num_keys / ( tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F );
-                    
+
                     // Sleep a little so that the main thread will read the speed
                     sleep ( 1 );
-                    
+
                     // Convert the key from digit to string
-                    sprintf ( key , "%08lu" , cur_key_digit );
-                    
+                    //ORIGINAL
+                    //sprintf ( key , "%08lu" , cur_key_digit );
+                    //SUNJAY
+                    sprintf ( final_key , "%08lu" , cur_key_digit );
+
                     // Report the key to the main thread
-                    memcpy ( final_key , key , strlen ( key ) );
+                    //ORIGINALLY WAS NOT COMMENTED OUT
+                    //memcpy ( final_key , key , strlen ( key ) );
                     *final_key_flag = 1;
 
                     // Tell main thread we are terminating
                     calc_speed[ cpu_num ] = -1;
-                    
+
                     // Free resources
                     free ( range );
                     free ( gpu_input );
@@ -402,15 +408,15 @@ crack_gpu_thread ( void *arg ) {
                     }
                     free ( device_input );
                     free ( device_output );
-                    
+
                     return NULL;
                 }
             }
         }
-        
+
         // End time of computation (including memory transfers Host mem <==> Device mem)
         gettimeofday ( &tnow , NULL );
-        
+
         // Report speed to main thread
         calc_speed[ cpu_num ] = (float) num_keys / ( tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F );
     }

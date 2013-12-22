@@ -182,6 +182,7 @@ int main(int argc, char** argv)
   if (argc != 2)
   {
     printf("usage: %s <port>\n", argv[0]);
+    printf("sunjay has opened port# 7373 for this\n");
     exit(0);
   }
   
@@ -250,14 +251,14 @@ int main(int argc, char** argv)
     arg->calc_speed = calc_speed;
     arg->final_key = final_key;
     arg->final_key_flag = &final_key_flag;
-    
+
     flag = pthread_create(&tid_vector[i], NULL, crack_cpu_thread, arg);
     if (flag)
       printf("can't create thread on cpu core %d: %s\n", i, strerror(flag));
     else
       cpu_working++;
   }
-  
+
   // create the cracking host thread for GPU
   // the host thread will dispatch work to all available GPU devices
   ck_td_struct* arg = (ck_td_struct*)malloc(sizeof(ck_td_struct));
