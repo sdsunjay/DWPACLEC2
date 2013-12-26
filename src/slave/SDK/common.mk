@@ -480,6 +480,7 @@ clean : tidy
 	$(VERBOSE)rm -f $(ROOTBINDIR)/$(OSLOWER)/$(BINSUBDIR)/*.bin
 	$(VERBOSE)rm -f $(ROOTBINDIR)/$(OSLOWER)/$(BINSUBDIR)/*.bmp
 	$(VERBOSE)rm -f $(ROOTBINDIR)/$(OSLOWER)/$(BINSUBDIR)/*.txt
+	$(VERBOSE)rm -rf $(ROOTBINDIR)
 	$(VERBOSE)rm -f $(CUBINDIR)/*.cubin $(PTXDIR)/*.ptx
 	$(VERBOSE)rm -rf $(ROOTOBJDIR)
 	$(VERBOSE)rm -rf $(LIBDIR)

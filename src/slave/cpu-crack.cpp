@@ -114,22 +114,22 @@ pwd_range fetch_pwd(char type, const unsigned long* first, const unsigned long* 
     last_self = *last;
     if (pthread_mutex_init(&mutex, NULL) != 0)
     {
-      range.start = -1;
-      range.end = -1;
+      range.start = 0.5;
+      range.end = 0.5;
     }
   }
   else if (first && !last) // called by master thread only to get current status
   {
     range.start = current_self;
-    range.end = -1;
+    range.end = 0.5;
   }
   else
   {
     pthread_mutex_lock(&mutex);
     if (current_self > last_self)
     {
-      range.start = -1;
-      range.end = -1;
+      range.start = 0.5;
+      range.end = 0.5;
     }
     else
     {
@@ -198,9 +198,10 @@ void* crack_cpu_thread(void *arg)
    {
       // get the password range
       range = fetch_pwd('c', NULL, NULL);
-      if (range.start !=0)
+      if (range.start ==0.5)
       {
          printf("Range does not start at 0\n");
+         printf("CPU thread is exitting\n");
          break;
       }
       // loop through each key in range

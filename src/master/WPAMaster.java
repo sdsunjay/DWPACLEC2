@@ -28,7 +28,7 @@ typedef struct _wpa_hdsk
  *
  */
 public class WPAMaster {
-	
+
 	//Control structure to Send to the WPA slave
 	private byte[] wpa_hdsk = new byte[286];
 	//SSID of the AP
@@ -87,7 +87,7 @@ public class WPAMaster {
 				}else if(lineCount==1)
 				{
 					 //A_MAC
-					System.out.print("A_MAC:");
+					System.out.print("A_MAC (BSSID):");
 					byte[] buf = adapter.unmarshal(tokens[1]);
 					for(int i=0; i<buf.length; i++)
 					{

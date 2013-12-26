@@ -2,8 +2,16 @@
 *.o
 *.ko
 
+#cap files
+*.cap
+*.pcap
+*.hccap
+*.hcap
+
 # Libraries
 #*.a
+#dictionary files
+*.dic
 
 # Shared objects (inc. Windows DLLs)
 *.dll
@@ -18,5 +26,9 @@
 #swap files
 *.swp
 
+#text files
+*.txt
+
 #secret stuff
+*.pem
 *.properties

@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
          char *token  = strtok(buff, "\n");
          for (; token; token = strtok(NULL, "\n"))
             printf ("%s\n", token);
-      }*/
+      }
       //int len = fread(buff, 1, size/100, f);
       fclose(f);
    }
