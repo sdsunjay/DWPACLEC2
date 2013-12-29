@@ -26,7 +26,7 @@ WPA_DEBUG := no
 ifeq (yes, ${WPA_DEBUG})
   USER_CFLAGS += -g
 else
-  USER_CFLAGS += -O3
+  USER_CFLAGS += -O3 
 endif
 
 # Do not link with CUTIL
@@ -49,10 +49,10 @@ TEST := $(findstring arch,$(MYOS))
 ifeq ($(TEST),arch)
    include SDK/arch_common.mk  
    #THIS WORKS ONLY FOR ARCH
-   LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /opt/cuda/lib64
+   LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /opt/cuda/lib64 `mysql_config --cflags` `mysql_config --libs`
 else
    include SDK/common.mk  
-   LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /usr/local/cuda/lib64
+   LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /usr/local/cuda/lib64 `mysql_config --cflags` `mysql_config --libs`
 endif
 # Extra libs (Should be specified AFTER common.mk)
 #THIS OWRKS FOR OTHER LINUS OS's

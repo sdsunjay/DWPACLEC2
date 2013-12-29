@@ -12,6 +12,7 @@
 #include "headers/common.h"
 #include "headers/cpu-crack.h"
 #include "headers/gpu-crack.h"
+using namespace std;
 int wait_connect(int* psd, char* port)
 {
   int sd = -1, rc = -1, on = 1;

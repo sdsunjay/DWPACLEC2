@@ -9,6 +9,28 @@
 #define PWD_BATCH_SIZE_GPU 50000
 //#define PWD_BATCH_SIZE_GPU 100000
 
+//SUNJAY
+//FOR DATABASE
+#define hostName "localhost"
+#define userId "root"
+#define password "6f141H64TyPi"
+#define DB_NAME "DWPA"
+
+
+//FOR DATABASE
+/*
+class FFError
+{
+   public:
+      std::string    Label;
+
+      FFError( ) { Label = (char *)"Generic Error"; }
+      FFError( char *message ) { Label = message; }
+      ~FFError() { }
+      inline const char*   GetMessage  ( void )   { return Label.c_str(); }
+};
+*/
+
 // WPA 4-way handshake structure
 typedef struct _wpa_hdsk
 {

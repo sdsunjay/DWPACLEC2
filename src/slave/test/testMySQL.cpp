@@ -14,6 +14,11 @@
 #include <errno.h>
 #include <stdio.h>
 
+#define hostName "localhost"
+#define userId "root"
+#define password "6f141H64TyPi"
+#define DB_NAME "DWPA"
+
 class FFError
 {
    public:
@@ -30,7 +35,6 @@ using namespace std;
 //globals
 struct timeval start, end;
 float elapsed = 0;
-
 
 
 void do_time_stuff(int flag)
@@ -55,7 +59,8 @@ void do_time_stuff(int flag)
    // printf("\n%d passphrases tested in %.2f seconds:  %.2f passphrases/second\n", i, elapsed, i / elapsed);
 }
 
-int mysqlSelection(int limit, int offset,MYSQL *MySQLConnection)
+//mysql db connection
+int mysqlSelection(MYSQL* MySQLConnection, int limit, int offset)
 {
 
 
@@ -74,11 +79,14 @@ int mysqlSelection(int limit, int offset,MYSQL *MySQLConnection)
 
    try
    {
-      
       //sprintf(sqlSelStatement, "%s",listOfWords[i]->begin);
       //string sqlSelStatement = "SELECT WORD,LENGTH FROM DICT LIMIT 1000000000";
-      string sqlSelStatement = "SELECT WORD FROM DICT LIMIT 1000000000";
-      mysqlStatus = mysql_query( MySQLConnection, sqlSelStatement.c_str() );
+      char query[100];
+      //sprintf(query,"SELECT WORD FROM DICT LIMIT 100;");
+      sprintf(query, "SELECT DICT.WORD FROM DICT LIMIT %d OFFSET %d;",limit,offset);
+      printf("Query is: %s\n",query);
+      // string sqlSelStatement = "SELECT WORD FROM DICT LIMIT 1000000000";
+      mysqlStatus = mysql_query(MySQLConnection,query);
 
       if (mysqlStatus)
          throw FFError( (char*)mysql_error(MySQLConnection) );
@@ -104,7 +112,7 @@ int mysqlSelection(int limit, int offset,MYSQL *MySQLConnection)
       }
 
 
-      /*
+
       // Print column headers
 
       mysqlFields = mysql_fetch_fields(mysqlResult);
@@ -113,19 +121,21 @@ int mysqlSelection(int limit, int offset,MYSQL *MySQLConnection)
       {
       printf("%s\t",mysqlFields[jj].name);
       }
-      printf("\n");*/
-/*
+      printf("\n");
+
       // print query results
+      int ii;
+      ii=0;
       while(mysqlRow = mysql_fetch_row(mysqlResult)) // row pointer in the result set
       {
-         //for(int ii=0; ii < numFields; ii++)
-         //{
-         printf("%s\t", mysqlRow[0] ? mysqlRow[0] : "NULL");  // Not NULL then print
-         //needs to be fixed
-         //printf("%d\t", mysqlRow[1] ? mysqlRow[1] : "NULL");  // Not NULL then print
-         //}
+         for(ii=0; ii < numFields; ii++)
+         {
+            printf("%s\t", mysqlRow[ii] ? mysqlRow[ii] : "NULL");  // Not NULL then print
+            //needs to be fixed
+            //printf("%d\t", mysqlRow[1] ? mysqlRow[1] : "NULL");  // Not NULL then print
+         }
          printf("\n");
-      }*/
+      }
 
       if(mysqlResult)
       {
@@ -142,54 +152,71 @@ int mysqlSelection(int limit, int offset,MYSQL *MySQLConnection)
 
    do_time_stuff(2);
 }
-int main()
+
+//not local connection to db
+//http://stackoverflow.com/questions/16424828/how-to-connect-mysql-database-using-c
+
+
+//local connection
+//MySQLConnection is now a global, so no params passed
+int mysqlConnect(MYSQL *MySQLConnection)
 {
+
    // --------------------------------------------------------------------
    //     // Connect to the database
-
-   MYSQL      *MySQLConRet;
-   MYSQL      *MySQLConnection = NULL;
-
-   string hostName = "localhost";
-   string userId   = "root";
-   string password = "6f141H64TyPi"; /* set me first */
-   string DB = "DWPA";
 
    MySQLConnection = mysql_init( NULL );
 
    try
    {
-      MySQLConRet = mysql_real_connect( MySQLConnection,
-            hostName.c_str(), 
-            userId.c_str(), 
-            password.c_str(), 
-            DB.c_str(), 
-            0, 
-            NULL,
-            0 );
-
-      if ( MySQLConRet == NULL )
+      if(!mysql_real_connect(MySQLConnection, // MySQL obeject
+               hostName, // Server Host
+               userId,// User name of user
+               password,// Password of the database
+               DB_NAME,// Database name
+               0,// port number
+               NULL,// Unix socket  ( for us it is Null )
+               0))
+      {
          throw FFError( (char*) mysql_error(MySQLConnection) );
-
+      }
       printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection));
       printf("MySQL Client Info: %s \n", mysql_get_client_info());
       printf("MySQL Server Info: %s \n", mysql_get_server_info(MySQLConnection));
 
    }
-   catch ( FFError e )
+   catch (FFError e )
    {
       printf("%s\n",e.Label.c_str());
       return 1;
    }
+   return 0;
+}
+
+int main()
+{
+
+   MYSQL* MySQLConnection = NULL;
+   //connect
+   int flag;
+   flag=mysqlConnect(MySQLConnection);
 
 
-   int limit=100;
-   int offset=0;
-   mysqlSelection(limit,offset,MySQLConnection);
-
-   // --------------------------------------------------------------------
-   // Close datbase connection
-   mysql_close(MySQLConnection);
-
+   if(MySQLConnection!=NULL)
+   {
+      //query
+      int limit=100;
+      int offset=0;
+      mysqlSelection(MySQLConnection,limit,offset);
+      // --------------------------------------------------------------------
+      // Close datbase connection
+      mysql_close(MySQLConnection);
+   }
+   else
+   {
+      fprintf(stderr,"MySQLConnection is null\n");
+      return 1;
+   }
+   //mysql_close(MySQLConnection);
    return 0;
 }
