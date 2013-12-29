@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -12,7 +13,58 @@
 #include "headers/common.h"
 #include "headers/cpu-crack.h"
 #include "headers/gpu-crack.h"
+
+class FFError
+{
+   public:
+      std::string    Label;
+
+      FFError( ) { Label = (char *)"Generic Error"; }
+      FFError( char *message ) { Label = message; }
+      ~FFError() { }
+      inline const char*   GetMessage  ( void )   { return Label.c_str(); }
+};
+
 using namespace std;
+int sunjay;
+MYSQL* MySQLConnection = NULL;
+
+int connect_to_db()
+{
+
+
+   // --------------------------------------------------------------------
+   //     // Connect to the database
+
+   MySQLConnection = mysql_init( NULL );
+
+   try
+   {
+      if(!mysql_real_connect(MySQLConnection, // MySQL obeject
+               hostName, // Server Host
+               userId,// User name of user
+               password,// Password of the database
+               DB_NAME,// Database name
+               0,// port number
+               NULL,// Unix socket  ( for us it is Null )
+               0))
+      {
+         throw FFError( (char*) mysql_error(MySQLConnection) );
+      }
+      printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection));
+      printf("MySQL Client Info: %s \n", mysql_get_client_info());
+      printf("MySQL Server Info: %s \n", mysql_get_server_info(MySQLConnection));
+
+   }
+   catch (FFError e )
+   {
+      printf("%s\n",e.Label.c_str());
+      return 1;
+   }
+   return 0;
+}
+
+
 int wait_connect(int* psd, char* port)
 {
   int sd = -1, rc = -1, on = 1;
@@ -201,6 +253,19 @@ int main(int argc, char** argv)
   if (flag)
     exit(0);
     
+
+   //if successfully connected to the database, so we can make queries, process
+   if(connect_to_db()==0)
+   {
+      printf("Connecting to DB: ");
+      printf("Successful\n");
+   }
+   else
+   {
+      printf("Connecting to DB: ");
+       printf("fail\n");
+       exit(0);
+   }
   // request for work from the master
   printf("requesting for work from the master ... ");
   flag = master_request(sd, &first_pwd, &last_pwd, &hdsk, essid);
@@ -213,7 +278,8 @@ int main(int argc, char** argv)
   
   // print out the received information
   print_work(&first_pwd, &last_pwd, &hdsk, essid);
-  
+
+
   // prepare for CPU and GPU thread creation
   range = fetch_pwd('\0', &first_pwd, &last_pwd);
   if ( range.start != 0)
@@ -362,6 +428,8 @@ int main(int argc, char** argv)
   close(sd);
   free(calc_speed);
   
+   // Close database connection
+   mysql_close(MySQLConnection);
   return 0;
 }
 

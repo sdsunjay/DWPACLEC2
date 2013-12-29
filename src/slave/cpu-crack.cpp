@@ -1,6 +1,4 @@
 //#define _GNU_SOURCE
-#include <iostream>
-#include <mysql/mysql.h>
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +6,7 @@
 #include <sched.h>
 #include <pthread.h>
 #include <sys/time.h>
-
+#include <string>
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
 
@@ -26,7 +24,8 @@
 //globals
 struct timeval start_time, end_time;
 float elapsed_time = 0;
-
+extern int sunjay;
+extern MYSQL* MySQLConnection;
 class FFError
 {
    public:
@@ -56,6 +55,7 @@ inline void calc_pmk(const char *key,size_t len, char *essid_pre, uchar pmk[40])
    //ORIGINAL
    //memcpy(buffer, key, strlen(key));
    //SUNJAY
+   sunjay=5;
    memcpy(buffer, key, len);
 
    for(i=0; i<64; i++)
@@ -193,8 +193,8 @@ void do_time_stuff(int flag)
 void* crack_cpu_thread(void *arg)
 {
    char essid[32];
-   //char key[128];
-  char* key;
+   char key[128];
+  //char* key;
    uchar pmk[40];
    uchar pke[100];
    uchar ptk[80];
@@ -202,13 +202,12 @@ void* crack_cpu_thread(void *arg)
 
 
    //connection to DB
-   MYSQL* MySQLConnection = NULL;
    MYSQL_RES      *mysqlResult = NULL;
    MYSQL_ROW       mysqlRow;
    unsigned int numRows;
    unsigned int numFields;
-   char query[50];
    //////
+   char query[50];
 
    ck_td_struct* ck_td_arg = (ck_td_struct*)arg;
    wpa_hdsk* phdsk = ck_td_arg->phdsk;
@@ -229,7 +228,8 @@ void* crack_cpu_thread(void *arg)
    struct timeval tlast;
    int flag = 0;
    pwd_range range;
-   unsigned long cur_key_digit;
+   //Original
+   //unsigned long cur_key_digit;
 
    // set cpu affinity
    if (ck_td_arg->set_affinity)
@@ -242,37 +242,6 @@ void* crack_cpu_thread(void *arg)
          printf("thread %u set setaffinity failed: %s\n", (unsigned)tid, strerror(flag));
    }
 
-   //if successfully connected to the database, so we can make queries, process
-   // if(mysqlConnect(MySQLConnection)==0)
-
-   // --------------------------------------------------------------------
-   //     // Connect to the database
-
-   MySQLConnection = mysql_init( NULL );
-
-   try
-   {
-      if(!mysql_real_connect(MySQLConnection, // MySQL obeject
-               hostName, // Server Host
-               userId,// User name of user
-               password,// Password of the database
-               DB_NAME,// Database name
-               0,// port number
-               NULL,// Unix socket  ( for us it is Null )
-               0))
-      {
-         throw FFError( (char*) mysql_error(MySQLConnection) );
-      }
-      printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection));
-      printf("MySQL Client Info: %s \n", mysql_get_client_info());
-      printf("MySQL Server Info: %s \n", mysql_get_server_info(MySQLConnection));
-
-   }
-   catch (FFError e )
-   {
-      printf("%s\n",e.Label.c_str());
-      return NULL;
-   }
    // --------------------------------------------------------------------
    // do the calculation
    //keep going until we find the password
@@ -319,7 +288,7 @@ void* crack_cpu_thread(void *arg)
          else
          {
             printf("Result set is empty");
-            return NULL;
+            //return NULL;
          }
          //loop through all the rows in the result set
          while(mysqlRow = mysql_fetch_row(mysqlResult)) // row pointer in the result set
@@ -351,7 +320,7 @@ void* crack_cpu_thread(void *arg)
 
             //printf("CPU Password: %s\n",key);
             // calculate the PMK
-            key=mysqlRow[0];
+            strcpy(key,mysqlRow[0]);
             calc_pmk(key,strlen(key), essid, pmk);
             //SUNJAY
             //calc_pmk("hello", essid, pmk);
@@ -403,12 +372,6 @@ void* crack_cpu_thread(void *arg)
             //closes the while loop through the result set
          }
 
-
-         if(mysqlResult)
-         {
-            mysql_free_result(mysqlResult);
-            mysqlResult = NULL;
-         }
          //closes the try
       }
       catch ( FFError e )
@@ -422,15 +385,20 @@ void* crack_cpu_thread(void *arg)
          break;
       //close the big while
    }
-   // Close datbase connection
-   mysql_close(MySQLConnection);
 /*}
 else
 {
-   fprintf(stderr,"MySQLConnection is null\n");
+fprintf(stderr,"MySQLConnection is null\n");
    //return NULL;
-}*/
+   }*/
+
+if(mysqlResult)
+{
+   mysql_free_result(mysqlResult);
+   mysqlResult = NULL;
+}
 calc_speed[cpu_core_id] = -1; // this indicates the thread is returned
+printf("Leaving CPU-crack\n");
 return NULL;
 }
 

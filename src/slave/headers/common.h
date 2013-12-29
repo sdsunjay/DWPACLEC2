@@ -3,6 +3,7 @@
 #define _COMMON_H_
 
 #include <pthread.h>
+#include <mysql/mysql.h>
 
 // how many passwords to feed to a CPU/GPU crack thread every time
 #define PWD_BATCH_SIZE_CPU 1000
@@ -62,6 +63,7 @@ typedef struct _pwd_range
   unsigned long start;
   unsigned long end;
 } pwd_range;
-
+//global db connector
+//extern MYSQL* MySQLConnection = NULL;
 #endif
 
