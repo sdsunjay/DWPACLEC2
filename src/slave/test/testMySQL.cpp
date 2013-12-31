@@ -19,6 +19,7 @@
 #define password "6f141H64TyPi"
 #define DB_NAME "DWPA"
 
+MYSQL* MySQLConnection = NULL;
 class FFError
 {
    public:
@@ -60,7 +61,7 @@ void do_time_stuff(int flag)
 }
 
 //mysql db connection
-int mysqlSelection(MYSQL* MySQLConnection, int limit, int offset)
+int mysqlSelection(int limit, int offset)
 {
 
 
@@ -114,26 +115,29 @@ int mysqlSelection(MYSQL* MySQLConnection, int limit, int offset)
 
 
       // Print column headers
-
+/*
       mysqlFields = mysql_fetch_fields(mysqlResult);
 
       for(int jj=0; jj < numFields; jj++)
       {
       printf("%s\t",mysqlFields[jj].name);
       }
-      printf("\n");
+      printf("\n");*/
 
       // print query results
       int ii;
       ii=0;
+      char key[128];
       while(mysqlRow = mysql_fetch_row(mysqlResult)) // row pointer in the result set
       {
-         for(ii=0; ii < numFields; ii++)
-         {
-            printf("%s\t", mysqlRow[ii] ? mysqlRow[ii] : "NULL");  // Not NULL then print
+         //for(ii=0; ii < numFields; ii++)
+         //{
+               strcpy(key,mysqlRow[ii]);
+               printf("KEY:%s[1space] ",key);
+              printf("mysqlrow[ii]:%s", mysqlRow[ii] ? mysqlRow[ii] : "NULL");  // Not NULL then print
             //needs to be fixed
             //printf("%d\t", mysqlRow[1] ? mysqlRow[1] : "NULL");  // Not NULL then print
-         }
+        // }
          printf("\n");
       }
 
@@ -159,7 +163,7 @@ int mysqlSelection(MYSQL* MySQLConnection, int limit, int offset)
 
 //local connection
 //MySQLConnection is now a global, so no params passed
-int mysqlConnect(MYSQL *MySQLConnection)
+int mysqlConnect()
 {
 
    // --------------------------------------------------------------------
@@ -196,10 +200,9 @@ int mysqlConnect(MYSQL *MySQLConnection)
 int main()
 {
 
-   MYSQL* MySQLConnection = NULL;
    //connect
    int flag;
-   flag=mysqlConnect(MySQLConnection);
+   flag=mysqlConnect();
 
 
    if(MySQLConnection!=NULL)
@@ -207,7 +210,7 @@ int main()
       //query
       int limit=100;
       int offset=0;
-      mysqlSelection(MySQLConnection,limit,offset);
+      mysqlSelection(limit,offset);
       // --------------------------------------------------------------------
       // Close datbase connection
       mysql_close(MySQLConnection);

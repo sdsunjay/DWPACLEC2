@@ -26,10 +26,10 @@ class FFError
 };
 
 using namespace std;
-int sunjay;
-MYSQL* MySQLConnection = NULL;
+//in case there are 12 cpu threads
+MYSQL* MySQLConnection[12];
 
-int connect_to_db()
+int connect_to_db(MYSQL* MySQLConnection)
 {
 
 
@@ -52,8 +52,8 @@ int connect_to_db()
          throw FFError( (char*) mysql_error(MySQLConnection) );
       }
       printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection));
-      printf("MySQL Client Info: %s \n", mysql_get_client_info());
-      printf("MySQL Server Info: %s \n", mysql_get_server_info(MySQLConnection));
+      //printf("MySQL Client Info: %s \n", mysql_get_client_info());
+      //printf("MySQL Server Info: %s \n", mysql_get_server_info(MySQLConnection));
 
    }
    catch (FFError e )
@@ -241,8 +241,8 @@ int main(int argc, char** argv)
   
   // get the number of CPU processors
   cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
+   //cpu_num=2; 
   printf("number of CPU processors: %d\n", cpu_num);
-  
   gpu_num = num_of_gpus();
   printf("number of GPU devices: %d\n", gpu_num);
   
@@ -253,20 +253,8 @@ int main(int argc, char** argv)
   if (flag)
     exit(0);
     
-
-   //if successfully connected to the database, so we can make queries, process
-   if(connect_to_db()==0)
-   {
-      printf("Connecting to DB: ");
-      printf("Successful\n");
-   }
-   else
-   {
-      printf("Connecting to DB: ");
-       printf("fail\n");
-       exit(0);
-   }
-  // request for work from the master
+  
+ // request for work from the master
   printf("requesting for work from the master ... ");
   flag = master_request(sd, &first_pwd, &last_pwd, &hdsk, essid);
   printf("%s\n", flag==0?"done":"failed");
@@ -306,7 +294,24 @@ int main(int argc, char** argv)
   // Start time of the computation
   gettimeofday ( &tprev , NULL );
 
-  // create the cracking threads for CPU
+//open db connections for each thread
+  
+  for (i=0; i<cpu_num; ++i)
+  {
+        //if successfully connected to the database, so we can make queries, process
+   if(connect_to_db(MySQLConnection[i])==0)
+   {
+      printf("Connecting to DB: ");
+      printf("Successful\n");
+   }
+   else
+   {
+      printf("Connecting to DB: ");
+       printf("fail\n");
+       exit(0);
+   }
+}
+   // create the cracking threads for CPU
   for (i=0; i<cpu_num; ++i)
   {
     ck_td_struct* arg = (ck_td_struct*)malloc(sizeof(ck_td_struct));
@@ -319,6 +324,7 @@ int main(int argc, char** argv)
     arg->final_key = final_key;
     arg->final_key_flag = &final_key_flag;
 
+   
     flag = pthread_create(&tid_vector[i], NULL, crack_cpu_thread, arg);
     if (flag)
       printf("can't create thread on cpu core %d: %s\n", i, strerror(flag));
@@ -354,7 +360,8 @@ int main(int argc, char** argv)
   printf ( "...\n" );
   while (1)
   {
-    // print the calculation speed
+      printf("In WPS-cack-s\n");   
+ // print the calculation speed
     cpu_speed_all = 0;
     gpu_speed_all = 0;
     for (i=0; i<cpu_num; ++i)
@@ -428,8 +435,6 @@ int main(int argc, char** argv)
   close(sd);
   free(calc_speed);
   
-   // Close database connection
-   mysql_close(MySQLConnection);
   return 0;
 }
 
