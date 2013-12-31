@@ -6,7 +6,7 @@
 #include <mysql/mysql.h>
 
 // how many passwords to feed to a CPU/GPU crack thread every time
-#define PWD_BATCH_SIZE_CPU 1000
+#define PWD_BATCH_SIZE_CPU 10000
 #define PWD_BATCH_SIZE_GPU 50000
 //#define PWD_BATCH_SIZE_GPU 100000
 

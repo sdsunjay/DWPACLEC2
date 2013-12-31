@@ -24,7 +24,7 @@
 //globals
 struct timeval start_time, end_time;
 float elapsed_time = 0;
-extern MYSQL* MySQLConnection[12];
+extern MYSQL* MySQLConnection[8];
 class FFError
 {
    public:
@@ -237,9 +237,8 @@ void* crack_cpu_thread(void *arg)
       CPU_SET(cpu_core_id, &set);
       printf("pid is :%d\n",cpu_core_id);
       printf("Setting connector\n");
-    //  MySQLConnection = &(MySQLConnection[cpu_core_id]);
-     printf("MySQL Connection Info: %s \n", mysql_get_host_info(&(MySQLConnection[cpu_core_id])));
-   
+      printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[cpu_core_id]));
+
       flag = pthread_setaffinity_np(tid, sizeof(cpu_set_t), &set);
       if (flag)
          printf("thread %u set setaffinity failed: %s\n", (unsigned)tid, strerror(flag));
@@ -250,8 +249,8 @@ void* crack_cpu_thread(void *arg)
    //keep going until we find the password
    while (1)
    {
-         printf("in CPU crack loop\n");
- // get the password range
+      //printf("in CPU crack loop\n");
+      // get the password range
       range = fetch_pwd('c', NULL, NULL);
       if (range.start ==0.5)
       {
@@ -261,146 +260,133 @@ void* crack_cpu_thread(void *arg)
       }
       // loop through each key in range
 
-      ////SUNJAY ***************
-
-
       // --------------------------------------------------------------------
       // Perform a SQL SELECT and retrieve data
-      try
+      //sprintf(query, "SELECT DISTINCT(DICT.WORD) FROM DICT LIMIT %d OFFSET %lu;",PWD_BATCH_SIZE_CPU,(range.start+1000));
+      sprintf(query, "SELECT WORD FROM DICT LIMIT %d OFFSET %lu;",PWD_BATCH_SIZE_CPU,(range.start));
+      //printf("Query is: %s\n",query);
+      printf("Range start is : %lu\n",range.start);
+
+      mysqlStatus = mysql_query(MySQLConnection[cpu_core_id],query);
+      if (mysqlStatus)
       {
-         //sprintf(query, "SELECT DISTINCT(DICT.WORD) FROM DICT LIMIT %d OFFSET %lu;",PWD_BATCH_SIZE_CPU,(range.start+1000));
-         sprintf(query, "SELECT * FROM DICT LIMIT %d OFFSET %lu;",PWD_BATCH_SIZE_CPU,(range.start));
-         printf("Query is: %s\n",query);
-         
-
-         mysqlStatus = mysql_query(&(MySQLConnection[cpu_core_id]),query);
-         //sleep(10000);
-         if (mysqlStatus)
-         {
-            printf("Unable to connect, quitting\n");
-            exit(1);
-            //throw FFError( (char*)mysql_error(MySQLConnection) );
-         }
-         else
-            mysqlResult = mysql_store_result(&(MySQLConnection[cpu_core_id])); // Get the Result Set
-         if (mysqlResult)  // there are rows
-         {
-            // # of rows in the result set
-            numRows = mysql_num_rows(mysqlResult);
-
-            // # of Columns (mFields) in the latest results set
-            //       numFields = mysql_field_count(MySQLConnection);
-
-            // Returns the number of columns in a result set specified
-            numFields = mysql_num_fields(mysqlResult);
-
-            printf("Number of rows=%u  Number of fields=%u \n",numRows,numFields);
-         }
-         else
-         {
-            printf("Result set is empty");
-            return NULL;
-         }
-         //loop through all the rows in the result set
-         //         while(mysqlRow = mysql_fetch_row(mysqlResult)) // row pointer in the result se
-         // mysqlRow = mysql_fetch_row(mysqlResult);
-         for (cur_key_digit = range.start; cur_key_digit <= range.end; ++cur_key_digit)
-         {
-            //printf("iterating through result\n");
-            // calculate the calculation speed
-            if (cnt == 0)
-               gettimeofday(&tlast, NULL);
-            else if (cnt%cnt_int == 0)
-            {
-               gettimeofday(&tnow, NULL);
-               calc_speed[cpu_core_id] = 1.0*cnt_int/(tnow.tv_sec-tlast.tv_sec+(tnow.tv_usec-tlast.tv_usec)*0.000001);
-               gettimeofday(&tlast, NULL);
-            }
-            cnt++;
-
-            // reset variables for the new word
-            memset(key, 0, sizeof(key));
-            memset(pmk, 0, sizeof(pmk));
-            memset(pke, 0, sizeof(pke));
-            memset(ptk, 0, sizeof(ptk));
-            memset(mic, 0, sizeof(mic));
-
-            //ORIGINAL
-            // convert the key from digit to string
-            sprintf(key, "%08lu", cur_key_digit);
-            ////SUNJAY ***************
-
-
-
-            //printf("CPU Password: %s\n",key);
-            // calculate the PMK
-            //strcpy(key,mysqlRow[0]);
-            //strcpy(key,"1234567890");
-            //printf("KEY:\n%s\n",key);
-            calc_pmk(key,strlen(key), essid, pmk);
-            //SUNJAY
-            //calc_pmk("hello", essid, pmk);
-
-            // pre-compute the key expansion buffer
-            memcpy(pke, "Pairwise key expansion", 23);
-            if (memcmp(phdsk->smac, phdsk->amac, 6) < 0)
-            {
-               memcpy(pke+23, phdsk->smac, 6);
-               memcpy(pke+29, phdsk->amac, 6);
-            }
-            else
-            {
-               memcpy(pke+23, phdsk->amac, 6);
-               memcpy(pke+29, phdsk->smac, 6);
-            }
-
-            if (memcmp(phdsk->snonce, phdsk->anonce, 32) < 0)
-            {
-               memcpy(pke+35, phdsk->snonce, 32);
-               memcpy(pke+67, phdsk->anonce, 32);
-            }
-            else
-            {
-               memcpy(pke+35, phdsk->anonce, 32);
-               memcpy(pke+67, phdsk->snonce, 32);
-            }
-
-            // calculate the PTK
-            for (i=0; i<4; i++)
-            {
-               pke[99] = i;
-               HMAC(EVP_sha1(), pmk, 32, pke, 100, ptk + i*20, NULL);
-            }
-
-            // calculate the MIC
-            if (phdsk->keyver == 1)
-               HMAC(EVP_md5(), ptk, 16, phdsk->eapol, phdsk->eapol_size, mic, NULL);
-            else
-               HMAC(EVP_sha1(), ptk, 16, phdsk->eapol, phdsk->eapol_size, mic, NULL);
-
-            // check if MIC agrees
-            if (memcmp(mic, phdsk->keymic, 16) == 0)
-            {
-               memcpy(final_key, key, strlen(key));
-               *final_key_flag = 1;
-               printf("key found, break\n");
-               break;
-            }
-           // printf("%lu",cur_key_digit);
-            //closes the while loop through the result set
-         }
-
-         //closes the try
+         printf("Unable to connect, quitting\n");
+         exit(1);
       }
-      catch ( FFError e )
+      else
+         mysqlResult = mysql_store_result(MySQLConnection[cpu_core_id]); // Get the Result Set
+      if (mysqlResult)  // there are rows
       {
-         printf("%s\n",e.Label.c_str());
-         mysql_close(MySQLConnection);
+         // # of rows in the result set
+         numRows = mysql_num_rows(mysqlResult);
+
+         // # of Columns (mFields) in the latest results set
+         //       numFields = mysql_field_count(MySQLConnection);
+
+         // Returns the number of columns in a result set specified
+         numFields = mysql_num_fields(mysqlResult);
+
+         printf("Number of rows=%u  Number of fields=%u \n",numRows,numFields);
+      }
+      else
+      {
+         printf("Result set is empty");
+         mysql_close(MySQLConnection[cpu_core_id]);
          return NULL;
       }
+      //loop through all the rows in the result set
+      //         while(mysqlRow = mysql_fetch_row(mysqlResult)) // row pointer in the result se
+      // mysqlRow = mysql_fetch_row(mysqlResult);
+      for (cur_key_digit = range.start; cur_key_digit <= range.end; ++cur_key_digit)
+      {
+         //printf("iterating through result\n");
+         // calculate the calculation speed
+         if (cnt == 0)
+            gettimeofday(&tlast, NULL);
+         else if (cnt%cnt_int == 0)
+         {
+            gettimeofday(&tnow, NULL);
+            calc_speed[cpu_core_id] = 1.0*cnt_int/(tnow.tv_sec-tlast.tv_sec+(tnow.tv_usec-tlast.tv_usec)*0.000001);
+            gettimeofday(&tlast, NULL);
+         }
+         cnt++;
+
+         // reset variables for the new word
+         memset(key, 0, sizeof(key));
+         memset(pmk, 0, sizeof(pmk));
+         memset(pke, 0, sizeof(pke));
+         memset(ptk, 0, sizeof(ptk));
+         memset(mic, 0, sizeof(mic));
+
+         //ORIGINAL
+         // convert the key from digit to string
+         sprintf(key, "%08lu", cur_key_digit);
+         ////SUNJAY ***************
+
+
+
+         //printf("CPU Password: %s\n",key);
+         // calculate the PMK
+         //strcpy(key,mysqlRow[0]);
+         //strcpy(key,"1234567890");
+         //printf("KEY:\n%s\n",key);
+         calc_pmk(key,strlen(key), essid, pmk);
+         //SUNJAY
+         //calc_pmk("hello", essid, pmk);
+
+         // pre-compute the key expansion buffer
+         memcpy(pke, "Pairwise key expansion", 23);
+         if (memcmp(phdsk->smac, phdsk->amac, 6) < 0)
+         {
+            memcpy(pke+23, phdsk->smac, 6);
+            memcpy(pke+29, phdsk->amac, 6);
+         }
+         else
+         {
+            memcpy(pke+23, phdsk->amac, 6);
+            memcpy(pke+29, phdsk->smac, 6);
+         }
+
+         if (memcmp(phdsk->snonce, phdsk->anonce, 32) < 0)
+         {
+            memcpy(pke+35, phdsk->snonce, 32);
+            memcpy(pke+67, phdsk->anonce, 32);
+         }
+         else
+         {
+            memcpy(pke+35, phdsk->anonce, 32);
+            memcpy(pke+67, phdsk->snonce, 32);
+         }
+
+         // calculate the PTK
+         for (i=0; i<4; i++)
+         {
+            pke[99] = i;
+            HMAC(EVP_sha1(), pmk, 32, pke, 100, ptk + i*20, NULL);
+         }
+
+         // calculate the MIC
+         if (phdsk->keyver == 1)
+            HMAC(EVP_md5(), ptk, 16, phdsk->eapol, phdsk->eapol_size, mic, NULL);
+         else
+            HMAC(EVP_sha1(), ptk, 16, phdsk->eapol, phdsk->eapol_size, mic, NULL);
+
+         // check if MIC agrees
+         if (memcmp(mic, phdsk->keymic, 16) == 0)
+         {
+            memcpy(final_key, key, strlen(key));
+            *final_key_flag = 1;
+            printf("key found, break\n");
+            break;
+         }
+         // printf("%lu",cur_key_digit);
+         //closes the while loop through the result set
+      }
+
       // check if the final key is found
       if (*final_key_flag)
       {
+         printf("final key found\n");
          break;
       }
       //close the big while
@@ -411,7 +397,6 @@ void* crack_cpu_thread(void *arg)
      fprintf(stderr,"MySQLConnection is null\n");
    //return NULL;
    }*/
-
 if(mysqlResult)
 {
    printf("Entered if mysqlResult\n");
@@ -421,7 +406,7 @@ if(mysqlResult)
 calc_speed[cpu_core_id] = -1; // this indicates the thread is returned
 printf("Leaving CPU-crack\n");
 // Close database connection
-mysql_close(MySQLConnection);
+mysql_close(MySQLConnection[cpu_core_id]);
 return NULL;
 }
 

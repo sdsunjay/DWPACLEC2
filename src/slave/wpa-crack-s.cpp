@@ -26,21 +26,21 @@ class FFError
 };
 
 using namespace std;
-//in case there are 12 cpu threads
-MYSQL* MySQLConnection[12];
+//in case there are 8 cpu threads
+MYSQL* MySQLConnection[8];
 
-int connect_to_db(MYSQL* MySQLConnection)
+int connect_to_db(int id)
 {
 
 
    // --------------------------------------------------------------------
    //     // Connect to the database
 
-   MySQLConnection = mysql_init( NULL );
+   MySQLConnection[id] = mysql_init( NULL );
 
    try
    {
-      if(!mysql_real_connect(MySQLConnection, // MySQL obeject
+      if(!mysql_real_connect(MySQLConnection[id], // MySQL obeject
                hostName, // Server Host
                userId,// User name of user
                password,// Password of the database
@@ -49,9 +49,9 @@ int connect_to_db(MYSQL* MySQLConnection)
                NULL,// Unix socket  ( for us it is Null )
                0))
       {
-         throw FFError( (char*) mysql_error(MySQLConnection) );
+         throw FFError( (char*) mysql_error(MySQLConnection[id]) );
       }
-      printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection));
+    ///  printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection));
       //printf("MySQL Client Info: %s \n", mysql_get_client_info());
       //printf("MySQL Server Info: %s \n", mysql_get_server_info(MySQLConnection));
 
@@ -299,10 +299,11 @@ int main(int argc, char** argv)
   for (i=0; i<cpu_num; ++i)
   {
         //if successfully connected to the database, so we can make queries, process
-   if(connect_to_db(MySQLConnection[i])==0)
+   if(connect_to_db(i)==0)
    {
       printf("Connecting to DB: ");
       printf("Successful\n");
+      printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
    }
    else
    {
