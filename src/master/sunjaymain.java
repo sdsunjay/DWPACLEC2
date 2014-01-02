@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.sdhama.DWPACLEC2;
+//package com.sdhama.DWPACLEC2;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class sunjaymain {
 
 
    //THE LINE BELOW WORKS
-   final static String IPADDRESS = "54.200.231.53";
+   final static String IPADDRESS = "66.214.64.87";
    final static int PORTNUM = 7373; 
    final static int slaveCount = 1; 
       /**
