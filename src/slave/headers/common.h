@@ -6,7 +6,7 @@
 #include <mysql/mysql.h>
 
 // how many passwords to feed to a CPU/GPU crack thread every time
-#define PWD_BATCH_SIZE_CPU 10000
+#define PWD_BATCH_SIZE_CPU 2000
 #define PWD_BATCH_SIZE_GPU 50000
 //#define PWD_BATCH_SIZE_GPU 100000
 
@@ -16,21 +16,11 @@
 #define userId "root"
 #define password "6f141H64TyPi"
 #define DB_NAME "DWPA"
-
-
-//FOR DATABASE
-/*
-class FFError
-{
-   public:
-      std::string    Label;
-
-      FFError( ) { Label = (char *)"Generic Error"; }
-      FFError( char *message ) { Label = message; }
-      ~FFError() { }
-      inline const char*   GetMessage  ( void )   { return Label.c_str(); }
-};
-*/
+#define TABLE_NAME "DICT"
+#define COLUMN_NAME "WORD"
+#define LONGEST_PASSWORD 128
+//for test machine we have 8 cpu threads and 1 gpu thread for a total of 9 connections
+#define NUM_DB_CONNECTIONS 9 
 
 // WPA 4-way handshake structure
 typedef struct _wpa_hdsk
@@ -63,7 +53,5 @@ typedef struct _pwd_range
   unsigned long start;
   unsigned long end;
 } pwd_range;
-//global db connector
-//extern MYSQL* MySQLConnection = NULL;
 #endif
 

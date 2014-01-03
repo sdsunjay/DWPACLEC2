@@ -24,7 +24,7 @@
 //globals
 struct timeval start_time, end_time;
 float elapsed_time = 0;
-extern MYSQL* MySQLConnection[8];
+extern MYSQL* MySQLConnection[NUM_DB_CONNECTIONS];
 class FFError
 {
    public:
@@ -201,10 +201,10 @@ void* crack_cpu_thread(void *arg)
    //connection to DB
    MYSQL_RES      *mysqlResult = NULL;
    MYSQL_ROW       mysqlRow;
-   unsigned int numRows;
-   unsigned int numFields;
-  // MYSQL* MySQLConnection;
-//////
+   int mysqlStatus = 0;
+   //unsigned int numRows;
+   //unsigned int numFields;
+   //for the query
    char query[50];
 
    ck_td_struct* ck_td_arg = (ck_td_struct*)arg;
@@ -219,7 +219,6 @@ void* crack_cpu_thread(void *arg)
    pthread_t tid;
    tid = pthread_self();
    int i = 0;
-   int mysqlStatus = 0;
    unsigned long cnt = 0;
    int cnt_int = 250;
    struct timeval tnow;
@@ -227,7 +226,7 @@ void* crack_cpu_thread(void *arg)
    int flag = 0;
    pwd_range range;
    //Original
-   unsigned long cur_key_digit;
+   //unsigned long cur_key_digit;
 
    // set cpu affinity
    if (ck_td_arg->set_affinity)
@@ -235,9 +234,9 @@ void* crack_cpu_thread(void *arg)
       cpu_set_t set;
       CPU_ZERO(&set);
       CPU_SET(cpu_core_id, &set);
-      printf("pid is :%d\n",cpu_core_id);
-      printf("Setting connector\n");
-      printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[cpu_core_id]));
+     // printf("ID is :%d\n",cpu_core_id);
+      //printf("Setting connector\n");
+      //printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[cpu_core_id]));
 
       flag = pthread_setaffinity_np(tid, sizeof(cpu_set_t), &set);
       if (flag)
@@ -258,14 +257,11 @@ void* crack_cpu_thread(void *arg)
          printf("CPU thread is exitting\n");
          break;
       }
-      // loop through each key in range
-
       // --------------------------------------------------------------------
       // Perform a SQL SELECT and retrieve data
-      //sprintf(query, "SELECT DISTINCT(DICT.WORD) FROM DICT LIMIT %d OFFSET %lu;",PWD_BATCH_SIZE_CPU,(range.start+1000));
-      sprintf(query, "SELECT WORD FROM DICT LIMIT %d OFFSET %lu;",PWD_BATCH_SIZE_CPU,(range.start));
+      sprintf(query, "SELECT WORD FROM DICT LIMIT %d OFFSET %lu;",PWD_BATCH_SIZE_CPU,range.start);
       //printf("Query is: %s\n",query);
-      printf("Range start is : %lu\n",range.start);
+      //printf("Range start is : %lu\n",range.start);
 
       mysqlStatus = mysql_query(MySQLConnection[cpu_core_id],query);
       if (mysqlStatus)
@@ -278,15 +274,15 @@ void* crack_cpu_thread(void *arg)
       if (mysqlResult)  // there are rows
       {
          // # of rows in the result set
-         numRows = mysql_num_rows(mysqlResult);
+         //numRows = mysql_num_rows(mysqlResult);
 
          // # of Columns (mFields) in the latest results set
          //       numFields = mysql_field_count(MySQLConnection);
 
          // Returns the number of columns in a result set specified
-         numFields = mysql_num_fields(mysqlResult);
+         //numFields = mysql_num_fields(mysqlResult);
 
-         printf("Number of rows=%u  Number of fields=%u \n",numRows,numFields);
+         //printf("Number of rows=%u  Number of fields=%u \n",numRows,numFields);
       }
       else
       {
@@ -295,9 +291,9 @@ void* crack_cpu_thread(void *arg)
          return NULL;
       }
       //loop through all the rows in the result set
-      //         while(mysqlRow = mysql_fetch_row(mysqlResult)) // row pointer in the result se
       // mysqlRow = mysql_fetch_row(mysqlResult);
-      for (cur_key_digit = range.start; cur_key_digit <= range.end; ++cur_key_digit)
+      //for (cur_key_digit = range.start; cur_key_digit <= range.end; ++cur_key_digit)
+      while(mysqlRow = mysql_fetch_row(mysqlResult)) // row pointer in the result se
       {
          //printf("iterating through result\n");
          // calculate the calculation speed
@@ -320,14 +316,14 @@ void* crack_cpu_thread(void *arg)
 
          //ORIGINAL
          // convert the key from digit to string
-         sprintf(key, "%08lu", cur_key_digit);
+        // sprintf(key, "%08lu", cur_key_digit);
          ////SUNJAY ***************
 
 
 
          //printf("CPU Password: %s\n",key);
          // calculate the PMK
-         //strcpy(key,mysqlRow[0]);
+         strcpy(key,mysqlRow[0]);
          //strcpy(key,"1234567890");
          //printf("KEY:\n%s\n",key);
          calc_pmk(key,strlen(key), essid, pmk);
@@ -379,7 +375,6 @@ void* crack_cpu_thread(void *arg)
             printf("key found, break\n");
             break;
          }
-         // printf("%lu",cur_key_digit);
          //closes the while loop through the result set
       }
 
