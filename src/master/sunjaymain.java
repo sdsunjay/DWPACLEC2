@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-
+import java.util.Scanner;
 public class sunjaymain {
 
    //final static String IPADDRESS="ec2-54-241-241-203.us-west-1.compute.amazonaws.com";
@@ -36,8 +36,12 @@ public class sunjaymain {
        */
       public static void main(String[] args) {
 
+         System.out.println("Enter path of WPA Handshake Info.");
+         Scanner s = new Scanner(System.in);
+         
          //File Storing WPA Handshake Info
-         String capFilePath = "cap.txt";  
+         String capFilePath = s.next();  
+         
          //Master object to control slave machines
          WPAMaster master = new WPAMaster();
          //Read The Handshake File
@@ -78,29 +82,33 @@ public class sunjaymain {
          if(isWPADataReady)
          {
             master.StartConnectingToSlave(IPADDRESS, PORTNUM, "00000000", "99999999");
-         }
-
-         //ALL AMAZON PART COMMENTED BECAUSE NO CREDENTIALS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-         /**********************DOOOOOOOOOOO NOOOOOOOOOOOTTTTTT Delete*********************/
-         //Testing continuous for the success of the cracking process
-         while(true)
-         {
-            try{
-               if(master.WPAPassword=="")
-               {
-                  Thread.sleep(1000);
-               }else
-               {
-                  //Done
-                  System.out.println("Congratulations!!!!");
-                  break;
-               }
-            }catch(Exception e)
+
+            /**********************DOOOOOOOOOOO NOOOOOOOOOOOTTTTTT Delete*********************/
+            //Testing continuous for the success of the cracking process
+            while(true)
             {
-               e.printStackTrace();
+               try{
+                  if(master.WPAPassword=="")
+                  {
+                     Thread.sleep(1000);
+                  }else
+                  {
+                     //Done
+                     System.out.println("Congratulations!!!!");
+                     break;
+                  }
+               }catch(Exception e)
+               {
+                  e.printStackTrace();
+               }
             }
          }
+         else
+         {
+               System.out.println("Goodbye.");
+         }
+         //ALL AMAZON PART COMMENTED BECAUSE NO CREDENTIALS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       }
 }

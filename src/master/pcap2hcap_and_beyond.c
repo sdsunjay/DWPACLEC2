@@ -38,13 +38,12 @@
 #define AP_MAX 1024*1024
 #define HSHAKE_MAX 1024*1024
 //change to 1 to output hccap to file
-#define OUTPUT_HCCAP 0
+//#define OUTPUT_HCCAP 0
 //change to 1 to output verbose info
-#define PRINT_TO_SCREEN 1
+//#define PRINT_TO_SCREEN 1
 
 //my special file
-#define NAME_OF_OUTPUT_FILE "cap.txt"
-
+//#define NAME_OF_OUTPUT_FILE "cap.txt"
 typedef struct pcap_hdr_s
 {
     unsigned int magic_number;   /* magic number */
@@ -121,7 +120,7 @@ int		csv=0;		/* csv mode (-g) */
 /* usage routine */
 void usage(char *self)
 {
-    printf("Usage: %s <pcapfile> [<hcapfile>] [-b] [-g]\nWhen -b provided, checks are less strict meaning that bad handshakes will be displayed\nWhen -g provided, pcap2hcap will automatically choose the best handshake\n\n",self);
+    printf("Usage: %s <pcapfile> <output_file_name> <print_to_screen_flag (0|1) > [<hcapfile>] [-b] [-g]\nWhen -b provided, checks are less strict meaning that bad handshakes will be displayed\nWhen -g provided, pcap2hcap will automatically choose the best handshake\n\n",self);
 }
 
 
@@ -921,51 +920,60 @@ void print_info(handshake_t hs,char* filename,int screen)
 
 }
 
-void write_out_hshakes(int id,char *filename,char* filename1, int printH, int printScreen)
+void write_out_hshakes(int id,char* filename1,int printH, int printScreen)
 {
    int fd,a,m1;
 
+   bzero(hccap.essid,36);
+   strcpy(hccap.essid,hshake2[id].essid);
+   m1=0;
+
+   if (memcmp(hshake2[id].amac,hshake2[id].smac,6)>0) {m1=1;}
+   if (m1==1)
+   {
+      memcpy(hccap.mac1,hshake2[id].smac,6);
+      memcpy(hccap.mac2,hshake2[id].amac,6);
+   }
+   else
+   {
+      memcpy(hccap.mac1,hshake2[id].amac,6);
+      memcpy(hccap.mac2,hshake2[id].smac,6);
+   }
+
+   m1=0;
+   if (memcmp(hshake2[id].anonce,hshake2[id].snonce,32)>0) {m1=1;}
+   if (m1==1)
+   {
+      memcpy(hccap.nonce1,hshake2[id].snonce,32);
+      memcpy(hccap.nonce2,hshake2[id].anonce,32);
+   }
+   else
+   {
+      memcpy(hccap.nonce1,hshake2[id].anonce,32);
+      memcpy(hccap.nonce2,hshake2[id].snonce,32);
+   }
+   memcpy(hccap.eapol,hshake2[id].eapol,256);
+   hccap.eapol_size = hshake2[id].eapol_size;
+   hccap.keyver = hshake2[id].keyver;
+   memcpy(hccap.keymic,hshake2[id].finalkey,16);
+
    if(printH)
    {
-      bzero(hccap.essid,36);
-      strcpy(hccap.essid,hshake2[id].essid);
-      m1=0;
-
-      if (memcmp(hshake2[id].amac,hshake2[id].smac,6)>0) {m1=1;}
-      if (m1==1)
-      {
-         memcpy(hccap.mac1,hshake2[id].smac,6);
-         memcpy(hccap.mac2,hshake2[id].amac,6);
-      }
-      else
-      {
-         memcpy(hccap.mac1,hshake2[id].amac,6);
-         memcpy(hccap.mac2,hshake2[id].smac,6);
-      }
-
-      m1=0;
-      if (memcmp(hshake2[id].anonce,hshake2[id].snonce,32)>0) {m1=1;}
-      if (m1==1)
-      {
-         memcpy(hccap.nonce1,hshake2[id].snonce,32);
-         memcpy(hccap.nonce2,hshake2[id].anonce,32);
-      }
-      else
-      {
-         memcpy(hccap.nonce1,hshake2[id].anonce,32);
-         memcpy(hccap.nonce2,hshake2[id].snonce,32);
-      }
-      memcpy(hccap.eapol,hshake2[id].eapol,256);
-      hccap.eapol_size = hshake2[id].eapol_size;
-      hccap.keyver = hshake2[id].keyver;
-      memcpy(hccap.keymic,hshake2[id].finalkey,16);
-
+      int c;
+      printf("\n");
+      //fflush(stdout);
+      
+     while ((c = getchar()) != '\n' && c != EOF);
+     printf("Enter filename (must be less than 20 chars) for HCCAP\n");
+      char filename[21];
+      fgets(filename,20, stdin);
+      filename[strnlen(filename,20)-1] = '\0';
       fd=open(filename,O_WRONLY|O_CREAT,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
-       if (fd<1)
-         {
+      if (fd<1)
+      {
          printf("Cannot open hccap file for writing: %s\n",filename);
          //exit(1);
-         }
+      }
       write(fd,&hccap,sizeof(hccap));
       close(fd);
       printf("Output hccap written to: %s\n\n",filename);
@@ -974,95 +982,107 @@ void write_out_hshakes(int id,char *filename,char* filename1, int printH, int pr
    {
       printf("hccap NOT written.\n");
    }
-      print_info(hshake2[id],filename1,printScreen);
+   print_info(hshake2[id],filename1,printScreen);
+}
+
+
+int get_best_hshake()
+{
+   int a;
+
+   for (a=0;a<hshake2_c;a++) if (hshake2[a].good==3) return a;
+   for (a=0;a<hshake2_c;a++) if (hshake2[a].good==2) return a;
+   for (a=0;a<hshake2_c;a++) if (hshake2[a].good==1) return a;
+   printf("Unable to find good handshake.\n");
+   return -1;
+}
+
+
+/*this runs stuff */
+int main(int argc,char **argv)
+{
+
+   int selected;
+   //whether or not to print info to screen, 1 - yes, 0 - no.
+   int PRINT_TO_SCREEN;  
+   if (argc<4)
+   {
+      usage(argv[0]);
+      exit(0);
+   }
+   PRINT_TO_SCREEN=atoi(argv[3]);
+   printf("Reading %s\nWritting to %s\n",argv[1],argv[2]);
+   printf("Output HCAP file? 1- yes, 0 - no\n");
+   int OUTPUT_HCCAP_FLAG;
+   OUTPUT_HCCAP_FLAG=getchar();
+
+   //scanf("%d ",&OUTPUT_HCCAP_FLAG);
+
+   if (argv[4])
+   {
+      if (strcmp(argv[4],"-b")==0) incorrect=1;
+      if (strcmp(argv[4],"-g")==0) getbest=1;
+      if (strcmp(argv[4],"-c")==0) csv=1;
+   }
+   if (argv[5])
+   {
+      if (strcmp(argv[5],"-b")==0) incorrect=1;
+      if (strcmp(argv[5],"-g")==0) getbest=1;
+      if (strcmp(argv[5],"-c")==0) csv=1;
+   }
+   if (argv[6])
+   {
+      if (strcmp(argv[6],"-b")==0) incorrect=1;
+      if (strcmp(argv[6],"-g")==0) getbest=1;
+      if (strcmp(argv[6],"-c")==0) csv=1;
    }
 
+   parse_pcap(argv[1]);
+   rate_hshakes();
 
-   int get_best_hshake()
+   if (csv==1)
    {
-      int a;
-
-      for (a=0;a<hshake2_c;a++) if (hshake2[a].good==3) return a;
-      for (a=0;a<hshake2_c;a++) if (hshake2[a].good==2) return a;
-      for (a=0;a<hshake2_c;a++) if (hshake2[a].good==1) return a;
-      printf("Unable to find good handshake.\n");
-      return -1;
+      print_hshakes_csv();
+      exit(1);
    }
-
-
-   /*this runs stuff */
-   int main(int argc,char **argv)
+   else if (getbest==1)
    {
-      int selected;
-      if (argc<2)
+      print_hshakes();
+      selected=get_best_hshake();
+      printf("Getting best handshake\n");
+      if (selected==-1) 
       {
-         usage(argv[0]);
-         //exit(0);
-      }
-
-      if (argv[3])
-      {
-         if (strcmp(argv[3],"-b")==0) incorrect=1;
-         if (strcmp(argv[3],"-g")==0) getbest=1;
-         if (strcmp(argv[3],"-c")==0) csv=1;
-      }
-      if (argv[4])
-      {
-         if (strcmp(argv[4],"-b")==0) incorrect=1;
-         if (strcmp(argv[4],"-g")==0) getbest=1;
-         if (strcmp(argv[4],"-c")==0) csv=1;
-      }
-      if (argv[5])
-      {
-         if (strcmp(argv[5],"-b")==0) incorrect=1;
-         if (strcmp(argv[5],"-g")==0) getbest=1;
-         if (strcmp(argv[5],"-c")==0) csv=1;
-      }
-
-      parse_pcap(argv[1]);
-      rate_hshakes();
-
-      if (csv==1)
-      {
-         print_hshakes_csv();
+         printf("Quitting!\n");
          exit(1);
       }
-      else if (getbest==1)
+      //printf("Chosen handshake #%d\n",selected);
+   }
+   else
+   {
+      while (selected<0)
       {
          print_hshakes();
-         selected=get_best_hshake();
          printf("Getting best handshake\n");
-         if (selected==-1) 
+         //printf("Enter an ID to include into the output hcap file: ");
+         //fgets(buf,255,stdin);
+         selected=get_best_hshake();
+         //selected=atoi(buf);
+         if (hshake2[selected].good<1) 
          {
-            printf("Quitting!\n");
-            exit(1);
+            printf("Bad ID, try again!\n");
+            selected=-1;
          }
-         //printf("Chosen handshake #%d\n",selected);
-      }
-      else
-      {
-         while (selected<0)
-         {
-            print_hshakes();
-            printf("Getting best handshake\n");
-            //printf("Enter an ID to include into the output hcap file: ");
-            //fgets(buf,255,stdin);
-            selected=get_best_hshake();
-            //selected=atoi(buf);
-            if (hshake2[selected].good<1) 
-            {
-               printf("Bad ID, try again!\n");
-               selected=-1;
-            }
-         }
-      }
-
-      if (hshake2[selected].good>0)
-      {
-         write_out_hshakes(selected,argv[2],NAME_OF_OUTPUT_FILE,OUTPUT_HCCAP,PRINT_TO_SCREEN);
-      }
-      else
-      {
-         printf("No good .cap file\n");
       }
    }
+
+   if (hshake2[selected].good>0)
+   {
+      //write_out_hshakes(int id,char* filename1, int printH, int printScreen)
+      write_out_hshakes(selected,argv[2],OUTPUT_HCCAP_FLAG,PRINT_TO_SCREEN);
+   }
+   else
+   {
+      printf("No good .cap file found\n");
+   }
+   return 0;
+}
