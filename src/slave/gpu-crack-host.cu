@@ -245,7 +245,7 @@ int query_and_fill(int db_connector_index, int gpu_num,char* essid, unsigned lon
    }
    else
       mysqlResult = mysql_store_result(MySQLConnection[db_connector_index]); // Get the Result Set
-   if (mysqlResult)  // there are rows
+  /* if (mysqlResult)  // there are rows
    {
       // # of rows in the result set
       numRows = mysql_num_rows(mysqlResult);
@@ -253,8 +253,8 @@ int query_and_fill(int db_connector_index, int gpu_num,char* essid, unsigned lon
       // Returns the number of columns in a result set specified
       numFields = mysql_num_fields(mysqlResult);
 
-      printf("Number of rows=%u  Number of fields=%u \n",numRows,numFields);
-   }
+      //printf("Number of rows=%u  Number of fields=%u \n",numRows,numFields);
+   }*/
    if(!mysqlResult)
    {
       printf("Result set is empty");
@@ -482,7 +482,7 @@ crack_gpu_thread ( void *arg ) {
        * But, the copying of data from Device to Host (Synch) should be in a SEPARATE FOR LOOP. Otherwise, we cannot
        * dispatch work to the second GPU until the first GPU finishes computation :P
        */
-      printf("There are %d GPUs working\n",gpu_working);
+      //printf("There are %d GPUs working\n",gpu_working);
       for ( gpu_iter = 0 ; gpu_iter < gpu_working ; ++gpu_iter ) 
       {
          // Set the GPU Device we are currently dispatching work to crack
