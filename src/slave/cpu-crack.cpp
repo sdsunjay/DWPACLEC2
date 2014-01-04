@@ -259,14 +259,15 @@ void* crack_cpu_thread(void *arg)
       }
       // --------------------------------------------------------------------
       // Perform a SQL SELECT and retrieve data
-      sprintf(query, "SELECT WORD FROM DICT LIMIT %d OFFSET %lu;",PWD_BATCH_SIZE_CPU,range.start);
+      // There should not be a terminating ';'
+      sprintf(query, "SELECT %s FROM %s LIMIT %d OFFSET %lu",COLUMN_NAME,TABLE_NAME,PWD_BATCH_SIZE_CPU,range.start);
       //printf("Query is: %s\n",query);
       //printf("Range start is : %lu\n",range.start);
 
       mysqlStatus = mysql_query(MySQLConnection[cpu_core_id],query);
       if (mysqlStatus)
       {
-         printf("Unable to connect, quitting\n");
+         printf("CPU Thread: MySQL Error:\nQuitting");
          exit(1);
       }
       else

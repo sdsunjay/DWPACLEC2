@@ -171,15 +171,15 @@ int master_answer(int sd, char* key)
   
   count = write(sd, &("a"), 1);
   if(count != 1)
-    return -1;
+    return 0;
   count = write(sd, &len, 1);
   if(count != 1)
-    return -1;
+    return 0;
   count = write(sd, key, len);
   if(count != len)
-    return -1;
+    return 0;
   
-  return 0;
+  return 1;
 }
 
 void print_work(unsigned long* pfpwd, unsigned long* plpwd, wpa_hdsk* phdsk, char* essid)
@@ -467,11 +467,11 @@ int main(int argc, char** argv)
          float total_time = tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F;
          printf ( "Time Taken: %.2f seconds, i.e. %.2f hours\n" , total_time , total_time / 3600 );
 
-         printf("send back the key to the master ... ");
+         printf("Sending the key back to the master ... ");
          flag = master_answer(sd, final_key);
-         printf("%s\n", flag==0?"done":"failed");
-         if (flag==0)
+         if (flag)
          {
+            printf("done\n");
             close(sd);
             free(calc_speed);
             printf("Final key has been found, quitting\n");
@@ -479,6 +479,7 @@ int main(int argc, char** argv)
          }
          else
          {
+            printf("failed\n");
             char name_of_file[256];
             fprintf(stderr,"Unable to send key to master\n");
             sprintf(name_of_file,"%s_WPA_PASSWORD_%.2f",essid,total_time);

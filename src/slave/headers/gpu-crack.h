@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 // Number of threads per GPU core
-#define THREADS_PER_BLOCK 64
+#define THREADS_PER_BLOCK 128
 
 // SHA_CTX struct for the device
 typedef struct {
