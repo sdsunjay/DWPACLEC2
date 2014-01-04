@@ -411,14 +411,14 @@ void* crack_cpu_thread(void *arg)
    if(mysqlResult)
    {
       printf("Entered if mysqlResult\n");
-      mysql_free_result(mysqlResult);
-      mysqlResult = NULL;
+      //mysql_free_result(mysqlResult);
+      //mysqlResult = NULL;
    }
    calc_speed[cpu_core_id] = -1; // this indicates the thread is returned
    printf("%d keys checked\n",num_keys);
    printf("Leaving CPU-crack\n");
    // Close database connection
    mysql_close(MySQLConnection[cpu_core_id]);
-   //return NULL;
+   return NULL;
 }
 

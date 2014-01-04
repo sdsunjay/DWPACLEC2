@@ -503,8 +503,9 @@ int main(int argc, char** argv)
       {
          printf("no thread calculating, exit\n");
          close(sd);
-         free(calc_speed);
-         exit(0);
+        // free(calc_speed);
+         break;
+         //  exit(0);
       }
    }
    printf("Key not found\n");

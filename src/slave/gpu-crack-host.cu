@@ -336,10 +336,10 @@ void cleanUp(int cpu_num,int gpu_num,int num_keys)
    char total_number_of_keys[128];
    sprintf(total_number_of_keys,"%d",num_keys);
    printf("GPU(s) tested ");
-   for(i=0;i<strlen(total_number_of_keys);i++)
+   for(i=(strlen(total_number_of_keys)-1);i>=0;i--)
    {
       printf("%c",total_number_of_keys[i]);
-      if((i+1)%3==0)
+      if((i-1)%3==0)
       {
          printf(",");
       }
@@ -660,5 +660,6 @@ stop:
       calc_speed[ cpu_num ] = -1;
       gettimeofday ( &tnow , NULL );
       cleanUp(cpu_num,gpu_num,num_keys);
+      cudaDeviceReset();
       return NULL;
       }

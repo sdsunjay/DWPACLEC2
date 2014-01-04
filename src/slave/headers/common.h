@@ -6,9 +6,9 @@
 #include <mysql/mysql.h>
 
 // how many passwords to feed to a CPU/GPU crack thread every time
-#define PWD_BATCH_SIZE_CPU 5000
+#define PWD_BATCH_SIZE_CPU 1000
 //#define PWD_BATCH_SIZE_GPU 50000
-#define PWD_BATCH_SIZE_GPU 128000
+#define PWD_BATCH_SIZE_GPU 64000
 
 //SUNJAY
 //FOR DATABASE
