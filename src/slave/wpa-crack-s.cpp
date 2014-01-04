@@ -423,27 +423,27 @@ int main(int argc, char** argv)
       // print the calculation speed
       //cpu_speed_all = 0;
       //gpu_speed_all = 0;
-      /**
-        for (i=0; i<cpu_num; ++i)
-        {
-        if (calc_speed[i] == -1)
-        {
-        calc_speed[i] = -2;
-        cpu_working--;
-        }
-        else if (calc_speed[i] > 0)
-        cpu_speed_all += calc_speed[i];
-        }
+
+      for (i=0; i<cpu_num; ++i)
+      {
+         if (calc_speed[i] == -1)
+         {
+            calc_speed[i] = -2;
+            cpu_working--;
+         }
+         //else if (calc_speed[i] > 0)
+         //cpu_speed_all += calc_speed[i];
+      }
 
       // Speed of all GPUs
       if (calc_speed[cpu_num] == -1)
       {
-      calc_speed[cpu_num] = -2;
-      gpu_working--;
+         calc_speed[cpu_num] = -2;
+         gpu_working--;
       }
-      else if (calc_speed[cpu_num] > 0)
-      gpu_speed_all += calc_speed[cpu_num];
-       */
+      //else if (calc_speed[cpu_num] > 0)
+      //gpu_speed_all += calc_speed[cpu_num];
+
       // delete the last output line (http://stackoverflow.com/questions/1348563)
       //fputs("\033[A\033[2K",stdout);
       //rewind(stdout);
@@ -454,7 +454,7 @@ int main(int argc, char** argv)
 
       // reset for some time (this only blocks the current thread)
       // this seems unnecessary..
-      sleep(1);
+      // sleep(1);
 
       // check if the correct key is found
       if (final_key_flag)
@@ -508,6 +508,11 @@ int main(int argc, char** argv)
       }
    }
    printf("Key not found\n");
+   // End time of computation
+   gettimeofday ( &tnow , NULL );
+   // Report total time
+   float total_time = tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F;
+   printf ( "Time Taken: %.2f seconds, i.e. %.2f hours\n" , total_time , total_time / 3600 );
    // release resources
    close(sd);
    free(calc_speed);

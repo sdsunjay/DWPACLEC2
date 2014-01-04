@@ -1,0 +1,1 @@
+sudo nvprof -o nvprof_output -s --print-gpu-trace --print-api-trace  ../../bin/linux/release/wpa-crack-s 7373
