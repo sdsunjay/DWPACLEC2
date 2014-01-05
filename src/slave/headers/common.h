@@ -7,8 +7,8 @@
 
 // how many passwords to feed to a CPU/GPU crack thread every time
 #define PWD_BATCH_SIZE_CPU 1000
-//#define PWD_BATCH_SIZE_GPU 50000
-#define PWD_BATCH_SIZE_GPU 64000
+#define PWD_BATCH_SIZE_GPU 100000
+//#define PWD_BATCH_SIZE_GPU 10000
 
 //SUNJAY
 //FOR DATABASE
@@ -16,7 +16,7 @@
 #define userId "root"
 #define password "6f141H64TyPi"
 #define DB_NAME "DWPA"
-#define TABLE_NAME "DICT"
+#define TABLE_NAME "DICT1"
 #define COLUMN_NAME "WORD"
 #define LONGEST_PASSWORD 128
 //for test machine we have 8 cpu threads and 1 gpu thread for a total of 9 connections

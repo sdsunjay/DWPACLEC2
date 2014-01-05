@@ -408,14 +408,14 @@ void* crack_cpu_thread(void *arg)
       //close the big while
    }
    //gettimeofday(&tnow, NULL);
-   if(mysqlResult)
+  /* if(mysqlResult)
    {
-      printf("Entered if mysqlResult\n");
+      //printf("Entered if mysqlResult\n");
       //mysql_free_result(mysqlResult);
       //mysqlResult = NULL;
-   }
+   }*/
    calc_speed[cpu_core_id] = -1; // this indicates the thread is returned
-   printf("%d keys checked\n",num_keys);
+   printf("CPU thread has checked %d keys total.\n",num_keys);
    printf("Leaving CPU-crack\n");
    // Close database connection
    mysql_close(MySQLConnection[cpu_core_id]);

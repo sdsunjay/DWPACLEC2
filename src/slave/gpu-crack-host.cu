@@ -336,15 +336,16 @@ void cleanUp(int cpu_num,int gpu_num,int num_keys)
    char total_number_of_keys[128];
    sprintf(total_number_of_keys,"%d",num_keys);
    printf("GPU(s) tested ");
-   for(i=(strlen(total_number_of_keys)-1);i>=0;i--)
+   /*for(i=(strlen(total_number_of_keys)-1);i>=0;i--)
    {
       printf("%c",total_number_of_keys[i]);
       if((i-1)%3==0)
       {
          printf(",");
       }
-   }
-   printf(" keys total.\n",num_keys);
+   }*/
+   printf("%d",num_keys);
+   printf(" keys total.\n");
    printf("GPU thread exitting\n");
 
 }
@@ -357,8 +358,8 @@ crack_gpu_thread ( void *arg ) {
 
    //ORIGINAL
    // Password (key) in string format
-   char key[128];
-   memset ( key , 0 , sizeof ( key ) );
+   //char key[128];
+   //memset ( key , 0 , sizeof ( key ) );
 
    // Params passed in arguments
    ck_td_struct* ck_td_arg = (ck_td_struct*)arg;
