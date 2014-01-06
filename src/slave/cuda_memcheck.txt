@@ -1,2 +1,0 @@
-sudo cuda-memcheck --leak-check full ../../bin/linux/release/wpa-crack-s 7373
-

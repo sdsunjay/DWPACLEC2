@@ -12,9 +12,12 @@
 
 //SUNJAY
 //FOR DATABASE
-#define hostName "localhost"
-#define userId "root"
-#define password "6f141H64TyPi"
+#define hostName "54.219.126.14"
+//#define hostName "localhost"
+//#define userId "root"
+#define userId "calpoly"
+#define password "751DW6MegYf1"
+//#define password "6f141H64TyPi"
 #define DB_NAME "DWPA"
 #define TABLE_NAME "DICT1"
 #define COLUMN_NAME "WORD"

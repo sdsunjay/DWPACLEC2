@@ -38,8 +38,8 @@ int main()
 	}
 	catch (int e )
 	{
-		printf("An error occurred\n");
-		return 1;
+		printf("Unable to connect to DB. Quitting.\n");
+                return 1;
 	}
 
 

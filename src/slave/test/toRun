@@ -1,1 +1,0 @@
-gcc -I/usr/include/mysql  make_queries.c -lmysqlclient -lz 

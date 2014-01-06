@@ -75,7 +75,11 @@ endif
 all: 
 	$(TARGET) 
 run:
-	@echo Run with: sudo ../../bin/linux/release/wpa-crack-s 7373
+	sudo ../../bin/linux/release/wpa-crack-s 7373
+cuda-memcheck:
+	sudo cuda-memcheck --leak-check full ../../bin/linux/release/wpa-crack-s 7373
+nvprof:
+	sudo nvprof -o nvprof_output --print-gpu-trace --print-api-trace  ../../bin/linux/release/wpa-crack-s 7373	
 #dummy-server dummy-master
 
 #dummy-server: test.c

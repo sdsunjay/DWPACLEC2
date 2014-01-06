@@ -287,14 +287,14 @@ public class WPAMaster  {
 	    }
 	    catch(Exception e)
 	    {
-	       e.printStackTrace();
+	       //e.printStackTrace();
+	       System.err.println("Sleeping for 2 seconds");
+	       Thread.sleep(2 * 1000);
 	       System.err.println("Unable to connect\nInstance Not Ready..Press any key to try again.");
 	       try
 	       {
 		  /*read 1 input from stdin*/
 		  char c = (char) System.in.read();
-		  System.err.println("Sleeping for 3 seconds");
-		  Thread.sleep(3 * 1000);
 		  run();
 	       }
 	       catch (InterruptedException ex)
