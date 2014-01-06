@@ -327,23 +327,9 @@ void cleanUp(int cpu_num,int gpu_num,int num_keys)
    printf("GPU thread: closing DB connection\n");
    mysql_close(MySQLConnection[cpu_num]);
    int i;
-   /*
-      printf("Freeing password list\n");
-      for(i = 0; i <gpu_num*PWD_BATCH_SIZE_GPU ; i++) {
-      free(passwordList[i]);
-      }
-      free(passwordList);*/
    char total_number_of_keys[128];
    sprintf(total_number_of_keys,"%d",num_keys);
    printf("GPU(s) tested ");
-   /*for(i=(strlen(total_number_of_keys)-1);i>=0;i--)
-   {
-      printf("%c",total_number_of_keys[i]);
-      if((i-1)%3==0)
-      {
-         printf(",");
-      }
-   }*/
    printf("%d",num_keys);
    printf(" keys total.\n");
    printf("GPU thread exitting\n");
@@ -661,6 +647,6 @@ stop:
       calc_speed[ cpu_num ] = -1;
       gettimeofday ( &tnow , NULL );
       cleanUp(cpu_num,gpu_num,num_keys);
-      cudaDeviceReset();
+      //cudaDeviceReset();
       return NULL;
       }
