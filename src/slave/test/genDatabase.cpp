@@ -55,9 +55,13 @@ int main()
 		if(c=='n')
 			return(1);
 	}
+	
+	//we need to creat cal poly at local host and calpoly for remote connections
+	//see below for more explanation.
+	//http://stackoverflow.com/questions/10236000/allow-all-remote-connections-mysql
 	//CREATE USER ##
-	printf("CREATE USER 'calpoly'@'66.214.64.87' IDENTIFIED BY '751DW6MegYf1'\n");
-	if(mysql_query(MySQLConnection, "CREATE USER 'calpoly'@'66.214.64.87' IDENTIFIED BY '7751DW6MegYf1'")) 
+	printf("CREATE USER 'calpoly'@'localhost' IDENTIFIED BY '751DW6MegYf1'\n");
+	if(mysql_query(MySQLConnection, "CREATE USER 'calpoly'@'localhost' IDENTIFIED BY '7751DW6MegYf1'")) 
 	{
 		printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
 		printf("Proceed anyway? (y | n)");
@@ -66,9 +70,9 @@ int main()
 		if(c=='n')
 			return(1);
 	}
-	printf("GRANT SELECT ON *.* TO 'calpoly'@'66.214.64.87'\n");
+	printf("GRANT SELECT ON *.* TO 'calpoly'@'localhost'\n");
 	//## GRANT PERMISSIONS ##
-	if(mysql_query(MySQLConnection, "GRANT SELECT ON *.* TO 'calpoly'@'66.214.64.87'"))	
+	if(mysql_query(MySQLConnection, "GRANT SELECT ON *.* TO 'calpoly'@'localhost' WITH GRANT OPTION'"))	
 	{
 		printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
 		printf("Proceed anyway? (y | n)");
@@ -84,13 +88,50 @@ int main()
 		printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
 		return(1);
 	}
+
+	printf("CREATE USER 'calpoly'@'%%' IDENTIFIED BY '751DW6MegYf1'\n");
+	if(mysql_query(MySQLConnection, "CREATE USER 'calpoly'@'%' IDENTIFIED BY '7751DW6MegYf1'")) 
+	{
+		printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
+		printf("Proceed anyway? (y | n)");
+		c = getchar();
+		getchar();
+		if(c=='n')
+			return(1);
+	}
+	printf("GRANT SELECT ON *.* TO 'calpoly'@'%'\n");
+	//## GRANT PERMISSIONS ##
+	if(mysql_query(MySQLConnection, "GRANT SELECT ON *.* TO 'calpoly'@'%' WITH GRANT OPTION'"))	
+	{
+		printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
+		printf("Proceed anyway? (y | n)");
+		c = getchar();
+		getchar();
+		if(c=='n')
+			return(1);
+	}
+	//## FLUSH Priviledges
+	printf("FLUSH PRIVILEGES\n");	
+	if(mysql_query(MySQLConnection, "FLUSH PRIVILEGES") )
+	{
+		printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
+		printf("Proceed anyway? (y | n)");
+		c = getchar();
+		getchar();
+		if(c=='n')
+			return(1);
+	}
 	// --------------------------------------------------------------------
 	//  Now that database has been created set default database
 	printf("USE DWPA\n");
 	if (mysql_query(MySQLConnection, "USE DWPA") )
 	{
 		printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
-		return(1);
+		printf("Proceed anyway? (y | n)");
+		c = getchar();
+		getchar();
+		if(c=='n')
+			return(1);
 	}
 
 	// --------------------------------------------------------------------
@@ -99,13 +140,21 @@ int main()
 	if (mysql_query(MySQLConnection, "CREATE TABLE DICT1 (WORD CHAR(20) NOT NULL UNIQUE,LENGTH TINYINT UNSIGNED NOT NULL,CHECK (LENGTH>7), PRIMARY KEY (WORD)) CHARACTER SET ascii") )
 	{
 		printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
-		return(1);
+		printf("Proceed anyway? (y | n)");
+		c = getchar();
+		getchar();
+		if(c=='n')
+			return(1);
 	}
 	printf("CREATE TABLE DICT (WORD CHAR(20) NOT NULL UNIQUE,LENGTH TINYINT UNSIGNED NOT NULL,CHECK (LENGTH>7), PRIMARY KEY (WORD)) CHARACTER SET ascii\n");
 	if (mysql_query(MySQLConnection, "CREATE TABLE DICT (WORD CHAR(20) NOT NULL UNIQUE,LENGTH TINYINT UNSIGNED NOT NULL,CHECK (LENGTH>7), PRIMARY KEY (WORD)) CHARACTER SET ascii") )
 	{
 		printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
-		return(1);
+		printf("Proceed anyway? (y | n)");
+		c = getchar();
+		getchar();
+		if(c=='n')
+			return(1);
 	}
 	printf("SET sql_mode = 'STRICT_TRANS_TABLES'");
 	if (mysql_query(MySQLConnection, "SET sql_mode = 'STRICT_TRANS_TABLES'") )
