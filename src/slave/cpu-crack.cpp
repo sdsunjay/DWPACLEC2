@@ -271,8 +271,8 @@ void* crack_cpu_thread(void *arg)
       mysqlStatus = mysql_query(MySQLConnection[cpu_core_id],query);
       if (mysqlStatus)
       {
-         printf("CPU Thread: MySQL Error:\nQuitting");
-         exit(1);
+         printf("CPU Thread: MySQL Error:\nQuitting\n");
+         break;
       }
       else
       {

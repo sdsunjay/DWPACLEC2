@@ -62,7 +62,7 @@ ifeq ($(TEST),arch)
 else
    include SDK/common.mk  
    #THIS WORKS FOR OTHER OS's.
-   LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /usr/local/cuda/lib64 `mysql_config --cflags` `mysql_config --libs`
+   LIB += -lcrypto -lpthread -lsqlite3 -L SDK/I_AM_LIB -L /usr/local/cuda/lib64 `mysql_config --cflags` `mysql_config --libs`
 endif
 # Extra libs (Should be specified AFTER common.mk)
 
@@ -75,7 +75,11 @@ endif
 all: 
 	$(TARGET) 
 run:
-	sudo ../../bin/linux/release/wpa-crack-s 7373
+	ifeq ($(TEST),arch)
+		sudo ../../bin/linux/release/wpa-crack-s 7373
+	else
+		../../bin/linux/release/wpa-crack-s 7373
+	endif
 cuda-memcheck:
 	sudo cuda-memcheck --leak-check full ../../bin/linux/release/wpa-crack-s 7373
 nvprof:

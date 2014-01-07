@@ -10,6 +10,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include  <signal.h>
+#include <sqlite3.h>
+#include <iostream>
 
 #include "headers/common.h"
 #include "headers/cpu-crack.h"
@@ -31,9 +33,11 @@ using namespace std;
 //global db connector
 MYSQL* MySQLConnection[NUM_DB_CONNECTIONS];
 
-int read_from_file(char* name_of_file)
+// read an entire line into memory
+char buf[MAX_CHARS_PER_LINE];
+int verbose=1;
+int read_from_file(char* name_of_file,sqlite3_stmt* stmt)
 {
-
    //the number of words we have skipped due to length.
    int skipped = 0;
    //the number of words greater than 7 and less than 63
@@ -49,37 +53,122 @@ int read_from_file(char* name_of_file)
    // read each line of the file
    while (!fin.eof())
    {
-      // read an entire line into memory
-      char buf[MAX_CHARS_PER_LINE];
-      fin.getline(buf, MAX_CHARS_PER_LINE);
-      int length = strnlen(buf,MAX_CHARS_PER_LINE);
+      fin.getline(buf,12);
+      int length = strnlen(buf,12);
 
       /* Test length of word.  IEEE 802.11i indicates the passphrase must be
        * at least 8 characters in length, and no more than 63 characters in
        * length.
        */
       if (length < MIN_CHARS_PER_LINE || length > MAX_CHARS_PER_LINE) {
-	 /*if (verbose) {
-	   printf("Invalid passphrase length: %s (%d).\n",
-	   passphrase, (int)strlen(passphrase));
-	   } */
+	 if (verbose) {
+	    fprintf(stderr, "Invalid passphrase length: %s (%d).\n",buf, length);
+	    fprintf(stderr, "Skipped a word\n");
+	 } 
 	 /*
 	  *                           * Output message to user*/
-	 // fprintf(stderr, "Skipped a word\n");
 	 skipped++;
 	 //continue;
       } else {
 	 /* This word is good, increment the words tested counter */
 	 wordsAdded++;
-	 // printf("Added a word\n");
-	 printf("Length: %d\tWord: %s\n",length,buf);
+
+	 sqlite3_bind_text(stmt, 1, buf, -1, SQLITE_TRANSIENT);
+	 sqlite3_bind_int(stmt, 2, length);
+	 sqlite3_step(stmt);     /* Execute the SQL Statement */
+	 sqlite3_clear_bindings(stmt);   /* Clear bindings */
+	 sqlite3_reset(stmt);        /* Reset VDBE */
+	 if(verbose)
+	 {
+	    printf("Length: %d\tWord: %s\n",length,buf);
+	 }
       }
    }
    printf("Skipped %d words due to length\n",skipped);
    printf("Added %d words to the database\n",wordsAdded);
    return wordsAdded;
 }
+int open_lite_db(char* output_file, char* input_file)
+{
 
+   sqlite3 *db;
+   char *zErrMsg = 0;
+   int rc;
+   int BUFFER_SIZE = 100;
+   char sSQL [BUFFER_SIZE];
+   sqlite3_stmt *createStmt;
+   sqlite3_stmt* stmt;
+   rc = sqlite3_open(output_file, &db);
+   if(rc){
+      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+      sqlite3_close(db);
+      return(1);
+   }
+
+   string createQuery = "CREATE TABLE IF NOT EXISTS DICT1 (WORD CHAR(20) NOT NULL UNIQUE PRIMARY KEY,LENGTH TINYINT UNSIGNED NOT NULL,CHECK (LENGTH>7));";
+   cout << "Creating Table Statement" << endl;
+   sqlite3_prepare(db, createQuery.c_str(), createQuery.size(), &createStmt, NULL);
+   cout << "Stepping Table Statement" << endl;
+   if (sqlite3_step(createStmt) != SQLITE_DONE) cout << "Didn't Create Table!" << endl;
+
+   sqlite3_exec(db, "PRAGMA synchronous = OFF", NULL, NULL, &zErrMsg);
+   sqlite3_exec(db, "PRAGMA journal_mode = MEMORY", NULL, NULL, &zErrMsg);
+   //sSQL = "\0";
+   sprintf(sSQL, "INSERT INTO DICT1(WORD,LENGTH) VALUES (@buf, @length)");
+   sqlite3_prepare(db,  sSQL, BUFFER_SIZE, &stmt, NULL);
+   sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &zErrMsg);
+   read_from_file(input_file,stmt);
+}
+int handle_db_connect(int c)
+{
+
+   printf("What would you like to do?\n");
+   printf("1 - Retry\n2 - read passwords from a file\n3 - Specific different database\n4 - Quit\n" );
+   c = getchar();
+   getchar();
+   if(c=='1')
+   {
+      return 1;
+   }
+   if(c=='2')
+   {
+      char input_filename[30];
+      char output_filename[30];
+      printf("File must have 1 password per line\n");
+      printf("Name of file to read from: \n");
+      if(read(STDIN_FILENO,input_filename,25)<=0)
+      {
+	 fprintf(stderr,"You messed up\n");
+      }
+      printf("Name of file to store sqlite DB: \n");
+
+      if(read(STDIN_FILENO,output_filename,25)<=0)
+      {
+	 fprintf(stderr,"You messed up\n");
+      }
+      if(open_lite_db(output_filename,input_filename)!=0)
+      {
+	 printf("Sucess\n");
+      }
+      else
+      {
+	 printf("Fail\n");
+      }
+      return 0;
+
+   }
+   else if (c=='3')
+   {
+      printf("Not yet supported\n");
+      return 0;
+   }
+   else if ( c=='4')
+   {
+      return 0;
+
+   }
+   return 0;
+}
 int connect_to_db(int id)
 {
    // --------------------------------------------------------------------
@@ -113,41 +202,7 @@ int connect_to_db(int id)
 	    return(1);
 	 else if(c=='y')
 	 {
-	    printf("What would you like to do?\n");
-	    printf("1 - Retry\n2 - read passwords from a file\n3 - Specific different database\n4 - Quit\n" );
-	    c = getchar();
-	    getchar();
-	    if(c=='2')
-	    {
-	       printf("File must have 1 password per line\n");
-	       char user_entered_filename[30];
-	       printf("Name of file to read from: \n");
-	       if(read(STDIN_FILENO,user_entered_filename,25)<=0)
-	       {
-		  fprintf(stderr,"You messed up\n");
-	       }
-	       if(read_from_file(user_entered_filename)!=0)
-	       {
-		  printf("Sucess\n");
-	       }
-	       else
-	       {
-		  printf("Fail\n");
-	       }
-	       return 1;
-
-	    }
-	    else if (c=='3')
-	    {
-	       printf("Not yet supported\n");
-	       return(1);
-	    }
-	    else if ( c=='4')
-	    {
-	       return(1);
-
-	    }
-
+	    c=handle_db_connect(c);
 	 }
 	 else
 	 {
@@ -392,7 +447,9 @@ int main(int argc, char** argv)
    {
       printf("Connecting to DB: ");
       printf("fail\n");
+      printf("Will not attempt to connect to %s DB again\n",DB_NAME);
       db_flag=0;
+      return 0;
    }
 
    // connect to the master
