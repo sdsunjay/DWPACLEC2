@@ -40,182 +40,229 @@ int connect_to_db(int id)
 
    MySQLConnection[id] = mysql_init( NULL );
 
-   try
+   //read user input   
+   int c;
+
+   //timeout after this many seconds of trying to connect
+   int timeout = 4;
+
+   mysql_options(MySQLConnection[id], MYSQL_OPT_CONNECT_TIMEOUT, (const char *)&timeout);
+   do
    {
       if(!mysql_real_connect(MySQLConnection[id], // MySQL obeject
-               hostName, // Server Host
-               userId,// User name of user
-               password,// Password of the database
-               DB_NAME,// Database name
-               0,// port number
-               NULL,// Unix socket  ( for us it is Null )
-               0))
+	       hostName, // Server Host
+	       userId,// User name of user
+	       password,// Password of the database
+	       DB_NAME,// Database name
+	       0,// port number
+	       NULL,// Unix socket  ( for us it is Null )
+	       0))
       {
-         throw FFError( (char*) mysql_error(MySQLConnection[id]) );
-      }
-    ///  printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection));
-      //printf("MySQL Client Info: %s \n", mysql_get_client_info());
-      //printf("MySQL Server Info: %s \n", mysql_get_server_info(MySQLConnection));
+	 printf("Error %u: %s\n", mysql_errno(MySQLConnection[id]), mysql_error(MySQLConnection[id]));
+	 printf("Proceed anyway? (y | n)");
+	 c = getchar();
+	 getchar();
+	 if(c=='n')
+	    return(1);
+	 else if(c=='y')
+	 {
+	    printf("What would you like to do?\n");
+	    printf("1 - Retry\n2 - read passwords from a file\n3 - Specific different database\n4 - Quit" );
+	    c = getchar();
+	    getchar();
+	    if(c=='2')
+	    {
+	       char user_entered_filename[30];
+	       printf("Name of file to read from: \n");
+	       if(read(STDIN_FILENO,user_entered_filename,25)<=0)
+	       {
+		  fprintf(stderr,"You messed up\n");
+	       }
+	       FILE *f = fopen(user_entered_filename, "r");
+	       if (f == NULL)
+	       {
+		  fprintf(stderr,"Error opening %s\n",user_entered_filename);
+		  exit(1);
+	       }
+	       return 1;
 
-   }
-   catch (FFError e )
-   {
-      printf("%s\n",e.Label.c_str());
-      printf("ERROR Connecting to DB\n");
-      return 1;
-   }
+	    }
+	    else if (c=='3')
+	    {
+	       printf("Not yet supported\n");
+	       return(1);
+	    }
+	    else if ( c=='4')
+	    {
+	       return(1);
+
+	    }
+
+	 }
+	 else
+	 {
+	    printf("Invalid. Quitting\n");
+	    return(1);
+	 }
+      }
+      //	 throw FFError( (char*) mysql_error(MySQLConnection[id]) );
+   }while(c=='y');
+   ///  printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection));
+   //printf("MySQL Client Info: %s \n", mysql_get_client_info());
+   //printf("MySQL Server Info: %s \n", mysql_get_server_info(MySQLConnection));
+
    return 0;
 }
 
 
 int wait_connect(int* psd,int port)
 {
-  int sd = -1, rc = -1, on = 1;
-  struct sockaddr_in serveraddr, their_addr;
-  
-  // get a socket descriptor
-  if((sd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    return -1;
-    
-  // allow socket descriptor to be reusable
-  if((rc = setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on))) < 0)
-  {
-    close(sd);
-    return -1;
-  }
-  
-  // bind to an address
-  memset(&serveraddr, 0, sizeof(struct sockaddr_in));
-  serveraddr.sin_family = AF_INET;
-  serveraddr.sin_port = htons(port);
-  serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-  if((rc = bind(sd, (struct sockaddr*)&serveraddr, sizeof(serveraddr))) < 0)
-  {
-    close(sd);
-    return -1;
-  }
-    
-  // up to 1 client can be queued
-  if((rc = listen(sd, 1)) < 0)
-  {
-    close(sd);
-    return -1;
-  }
+   int sd = -1, rc = -1, on = 1;
+   struct sockaddr_in serveraddr, their_addr;
 
-  // accept the incoming connection request
-  socklen_t sin_size = sizeof(struct sockaddr_in);
-  if((*psd = accept(sd, (struct sockaddr*)&their_addr, &sin_size)) < 0)
-  {
-    close(sd);
-    return -1;
-  }
-  
-  return 0;
+   // get a socket descriptor
+   if((sd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+      return -1;
+
+   // allow socket descriptor to be reusable
+   if((rc = setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on))) < 0)
+   {
+      close(sd);
+      return -1;
+   }
+
+   // bind to an address
+   memset(&serveraddr, 0, sizeof(struct sockaddr_in));
+   serveraddr.sin_family = AF_INET;
+   serveraddr.sin_port = htons(port);
+   serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
+   if((rc = bind(sd, (struct sockaddr*)&serveraddr, sizeof(serveraddr))) < 0)
+   {
+      close(sd);
+      return -1;
+   }
+
+   // up to 1 client can be queued
+   if((rc = listen(sd, 1)) < 0)
+   {
+      close(sd);
+      return -1;
+   }
+
+   // accept the incoming connection request
+   socklen_t sin_size = sizeof(struct sockaddr_in);
+   if((*psd = accept(sd, (struct sockaddr*)&their_addr, &sin_size)) < 0)
+   {
+      close(sd);
+      return -1;
+   }
+
+   return 0;
 }
 
 int master_request(int sd, unsigned long* pfpwd, unsigned long* plpwd, wpa_hdsk* phdsk, char* essid)
 {
-  char buf[512];
-  char buf2[32];
-  char essid_len = 0;
-  int count = 0, rc = 0;
-  int tcnt = 17+sizeof(wpa_hdsk);
-  
-  count = write(sd, &("r"), 1);
-  if(count != 1)
-    return -1;
+   char buf[512];
+   char buf2[32];
+   char essid_len = 0;
+   int count = 0, rc = 0;
+   int tcnt = 17+sizeof(wpa_hdsk);
 
-  count = 0;
-  memset(buf, 0, 512);
-  while (count < tcnt)
-  {
-    rc = read(sd, &buf[count], 512-count);
-    
-    if (rc <= 0)
+   count = write(sd, &("r"), 1);
+   if(count != 1)
       return -1;
-    else
-      count += rc;
-  }
-  memset(buf2, 0, 32);
-  memcpy(buf2, buf, 8);
-  *pfpwd = atol(buf2);
-  memset(buf2, 0, 32);
-  memcpy(buf2, &buf[8], 8);
-  *plpwd = atol(buf2);
-  memcpy(phdsk, &buf[16], sizeof(wpa_hdsk));
-  essid_len = buf[16+sizeof(wpa_hdsk)];
-  while (count < tcnt+essid_len)
-  {
-    rc = read(sd, &buf[count], 512-count);
-    
-    if (count <= 0)
-      return -1;
-    else
-      count += rc;
-  }
-  memset(essid, 0, 32);
-  memcpy(essid, &buf[17+sizeof(wpa_hdsk)], essid_len);
-  
-  // reset the key mic field in eapol frame to zero for later calculation
-  memset(&(phdsk->eapol[81]), 0, 16);
 
-  return 0;
+   count = 0;
+   memset(buf, 0, 512);
+   while (count < tcnt)
+   {
+      rc = read(sd, &buf[count], 512-count);
+
+      if (rc <= 0)
+	 return -1;
+      else
+	 count += rc;
+   }
+   memset(buf2, 0, 32);
+   memcpy(buf2, buf, 8);
+   *pfpwd = atol(buf2);
+   memset(buf2, 0, 32);
+   memcpy(buf2, &buf[8], 8);
+   *plpwd = atol(buf2);
+   memcpy(phdsk, &buf[16], sizeof(wpa_hdsk));
+   essid_len = buf[16+sizeof(wpa_hdsk)];
+   while (count < tcnt+essid_len)
+   {
+      rc = read(sd, &buf[count], 512-count);
+
+      if (count <= 0)
+	 return -1;
+      else
+	 count += rc;
+   }
+   memset(essid, 0, 32);
+   memcpy(essid, &buf[17+sizeof(wpa_hdsk)], essid_len);
+
+   // reset the key mic field in eapol frame to zero for later calculation
+   memset(&(phdsk->eapol[81]), 0, 16);
+
+   return 0;
 }
 
 int master_answer(int sd, char* key)
 {
-  unsigned char len = 0;
-  int count = 0;
-  
-  len = strlen(key);
-  
-  count = write(sd, &("a"), 1);
-  if(count != 1)
-    return 0;
-  count = write(sd, &len, 1);
-  if(count != 1)
-    return 0;
-  count = write(sd, key, len);
-  if(count != len)
-    return 0;
-  
-  return 1;
+   unsigned char len = 0;
+   int count = 0;
+
+   len = strlen(key);
+
+   count = write(sd, &("a"), 1);
+   if(count != 1)
+      return 0;
+   count = write(sd, &len, 1);
+   if(count != 1)
+      return 0;
+   count = write(sd, key, len);
+   if(count != len)
+      return 0;
+
+   return 1;
 }
 
 void print_work(unsigned long* pfpwd, unsigned long* plpwd, wpa_hdsk* phdsk, char* essid)
 {
-  int i = 0;
-  
-  printf("----------------------------------------\n");
-  printf("password range: %08lu to %08lu\n", *pfpwd, *plpwd);
-  printf("essid: %s\n", essid);
-  printf("s-mac: %02x", phdsk->smac[0]);
-  for (i=1; i<6; ++i)
-    printf(":%02x", phdsk->smac[i]);
-  putchar('\n');
-  printf("a-mac: %02x", phdsk->amac[0]);
-  for (i=1; i<6; ++i)
-    printf(":%02x", phdsk->amac[i]);
-  putchar('\n');
-  printf("s-nonce: ");
-  for (i=0; i<32; ++i)
-    printf("%02x", phdsk->snonce[i]);
-  putchar('\n');
-  printf("a-nonce: ");
-  for (i=0; i<32; ++i)
-    printf("%02x", phdsk->anonce[i]);
-  putchar('\n');
-  printf("key version: %u (%s)\n", phdsk->keyver, phdsk->keyver==1?"HMAC-MD5":"HMAC-SHA1-128");
-  printf("key mic: ");
-  for (i=0; i<16; ++i)
-    printf("%02x", phdsk->keymic[i]);
-  putchar('\n');
-  printf("eapol frame content size: %u bytes\n", phdsk->eapol_size);
-  printf("eapol frame content (with mic reset): \n");
-  for (i=1; i<=phdsk->eapol_size; ++i)
-    printf("%02x%c", phdsk->eapol[i-1], i%16==0?'\n':' ');
-  putchar('\n');
-  printf("----------------------------------------\n");
+   int i = 0;
+
+   printf("----------------------------------------\n");
+   printf("password range: %08lu to %08lu\n", *pfpwd, *plpwd);
+   printf("essid: %s\n", essid);
+   printf("s-mac: %02x", phdsk->smac[0]);
+   for (i=1; i<6; ++i)
+      printf(":%02x", phdsk->smac[i]);
+   putchar('\n');
+   printf("a-mac: %02x", phdsk->amac[0]);
+   for (i=1; i<6; ++i)
+      printf(":%02x", phdsk->amac[i]);
+   putchar('\n');
+   printf("s-nonce: ");
+   for (i=0; i<32; ++i)
+      printf("%02x", phdsk->snonce[i]);
+   putchar('\n');
+   printf("a-nonce: ");
+   for (i=0; i<32; ++i)
+      printf("%02x", phdsk->anonce[i]);
+   putchar('\n');
+   printf("key version: %u (%s)\n", phdsk->keyver, phdsk->keyver==1?"HMAC-MD5":"HMAC-SHA1-128");
+   printf("key mic: ");
+   for (i=0; i<16; ++i)
+      printf("%02x", phdsk->keymic[i]);
+   putchar('\n');
+   printf("eapol frame content size: %u bytes\n", phdsk->eapol_size);
+   printf("eapol frame content (with mic reset): \n");
+   for (i=1; i<=phdsk->eapol_size; ++i)
+      printf("%02x%c", phdsk->eapol[i-1], i%16==0?'\n':' ');
+   putchar('\n');
+   printf("----------------------------------------\n");
 }
 void INThandler(int sig)
 {
@@ -230,12 +277,12 @@ void INThandler(int sig)
    {   
       //int i;
       //'agressive loop optimization' complains about this
-      
+
       //not sure how to have cpu_num passed in
-      
+
       //for(i=0;i<=10;i++)
       //{
-        // mysql_close(MySQLConnection[i]);
+      // mysql_close(MySQLConnection[i]);
       //}
       exit(0);
    }
@@ -336,15 +383,15 @@ int main(int argc, char** argv)
       //if successfully connected to the database, so we can make queries, process
       if(connect_to_db(i)==0)
       {
-         printf("DB_connector_index: %d CPU %d: Connecting to DB: ",i,i);
-         printf("Successful\n");
-         // printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
+	 printf("DB_connector_index: %d CPU %d: Connecting to DB: ",i,i);
+	 printf("Successful\n");
+	 // printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
       }
       else
       {
-         printf("Connecting to DB: ");
-         printf("fail\n");
-         exit(0);
+	 printf("Connecting to DB: ");
+	 printf("fail\n");
+	 exit(0);
       }
    }
    // create the cracking threads for CPU
@@ -364,12 +411,12 @@ int main(int argc, char** argv)
       flag = pthread_create(&tid_vector[i], NULL, crack_cpu_thread, arg);
       if (flag)
       {
-         printf("Can't create thread on cpu core %d: %s\n", i, strerror(flag));
+	 printf("Can't create thread on cpu core %d: %s\n", i, strerror(flag));
       }
       else
       {
-         printf("Created CPU %d thread\n",i); 
-         cpu_working++;
+	 printf("Created CPU %d thread\n",i); 
+	 cpu_working++;
       }
    }
 
@@ -391,15 +438,15 @@ int main(int argc, char** argv)
       //if successfully connected to the database, so we can make queries, process
       if(connect_to_db(cpu_num+i)==0)
       {
-         printf("DB_connector_index: %d GPU %d: Connecting to DB: ",cpu_num+i,i);
-         printf("Successful\n");
-         //   printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
+	 printf("DB_connector_index: %d GPU %d: Connecting to DB: ",cpu_num+i,i);
+	 printf("Successful\n");
+	 //   printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
       }
       else
       {
-         printf("GPU %d: Cnnecting to DB: ",i);
-         printf("fail\n");
-         exit(0);
+	 printf("GPU %d: Cnnecting to DB: ",i);
+	 printf("fail\n");
+	 exit(0);
       }
    }
    flag = pthread_create(&tid_vector[cpu_num], NULL, crack_gpu_thread, arg);
@@ -426,20 +473,20 @@ int main(int argc, char** argv)
 
       for (i=0; i<cpu_num; ++i)
       {
-         if (calc_speed[i] == -1)
-         {
-            calc_speed[i] = -2;
-            cpu_working--;
-         }
-         //else if (calc_speed[i] > 0)
-         //cpu_speed_all += calc_speed[i];
+	 if (calc_speed[i] == -1)
+	 {
+	    calc_speed[i] = -2;
+	    cpu_working--;
+	 }
+	 //else if (calc_speed[i] > 0)
+	 //cpu_speed_all += calc_speed[i];
       }
 
       // Speed of all GPUs
       if (calc_speed[cpu_num] == -1)
       {
-         calc_speed[cpu_num] = -2;
-         gpu_working--;
+	 calc_speed[cpu_num] = -2;
+	 gpu_working--;
       }
       //else if (calc_speed[cpu_num] > 0)
       //gpu_speed_all += calc_speed[cpu_num];
@@ -459,53 +506,53 @@ int main(int argc, char** argv)
       // check if the correct key is found
       if (final_key_flag)
       {
-         printf("!!! key found !!! [%s]\n", final_key);
+	 printf("!!! key found !!! [%s]\n", final_key);
 
-         // End time of computation
-         gettimeofday ( &tnow , NULL );
-         // Report total time
-         float total_time = tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F;
-         printf ( "Time Taken: %.2f seconds, i.e. %.2f hours\n" , total_time , total_time / 3600 );
+	 // End time of computation
+	 gettimeofday ( &tnow , NULL );
+	 // Report total time
+	 float total_time = tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F;
+	 printf ( "Time Taken: %.2f seconds, i.e. %.2f hours\n" , total_time , total_time / 3600 );
 
-         printf("Sending the key back to the master ... ");
-         flag = master_answer(sd, final_key);
-         if (flag)
-         {
-            printf("done\n");
-            close(sd);
-            free(calc_speed);
-            printf("Final key has been found, quitting\n");
-            exit(0);
-         }
-         else
-         {
-            printf("failed\n");
-            char name_of_file[256];
-            fprintf(stderr,"Unable to send key to master\n");
-            sprintf(name_of_file,"%s_WPA_PASSWORD_%.2f",essid,total_time);
-            fprintf(stderr,"Writing to file (%s)\n",name_of_file);
-            FILE *f = fopen(name_of_file, "w");
-            if (f == NULL)
-            {
-               fprintf(stderr,"Error opening %s\n",name_of_file);
-               exit(1);
-            }
-            /* write password to file*/
-            fprintf(f, "%s",final_key);
-            fclose(f);
-            close(sd);
-            free(calc_speed);
-            exit(1);
-         }
+	 printf("Sending the key back to the master ... ");
+	 flag = master_answer(sd, final_key);
+	 if (flag)
+	 {
+	    printf("done\n");
+	    close(sd);
+	    free(calc_speed);
+	    printf("Final key has been found, quitting\n");
+	    exit(0);
+	 }
+	 else
+	 {
+	    printf("failed\n");
+	    char name_of_file[256];
+	    fprintf(stderr,"Unable to send key to master\n");
+	    sprintf(name_of_file,"%s_WPA_PASSWORD_%.2f",essid,total_time);
+	    fprintf(stderr,"Writing to file (%s)\n",name_of_file);
+	    FILE *f = fopen(name_of_file, "w");
+	    if (f == NULL)
+	    {
+	       fprintf(stderr,"Error opening %s\n",name_of_file);
+	       exit(1);
+	    }
+	    /* write password to file*/
+	    fprintf(f, "%s",final_key);
+	    fclose(f);
+	    close(sd);
+	    free(calc_speed);
+	    exit(1);
+	 }
       }
       // if there are no remaining cpu or gpu thread, then exit
       if (cpu_working<=0 && gpu_working<=0)
       {
-         printf("no thread calculating, exit\n");
-         close(sd);
-        // free(calc_speed);
-         break;
-         //  exit(0);
+	 printf("no thread calculating, exit\n");
+	 close(sd);
+	 // free(calc_speed);
+	 break;
+	 //  exit(0);
       }
    }
    printf("Key not found\n");
