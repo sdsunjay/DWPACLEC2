@@ -15,26 +15,73 @@
 #include "headers/cpu-crack.h"
 #include "headers/gpu-crack.h"
 
-class FFError
-{
-   public:
-      std::string    Label;
+#include <iostream>
+using std::cout;
+using std::endl;
 
-      FFError( ) { Label = (char *)"Generic Error"; }
-      FFError( char *message ) { Label = message; }
-      ~FFError() { }
-      inline const char*   GetMessage  ( void )   { return Label.c_str(); }
-};
+#include <fstream>
+using std::ifstream;
 
+#include <cstring>
+
+const int MAX_CHARS_PER_LINE = 25;
+const int MIN_CHARS_PER_LINE = 8;
 using namespace std;
 //in case there are 8 cpu threads + 1 for 1 GPU
 //global db connector
 MYSQL* MySQLConnection[NUM_DB_CONNECTIONS];
 
-int connect_to_db(int id)
+int read_from_file(char* name_of_file)
 {
 
+   //the number of words we have skipped due to length.
+   int skipped = 0;
+   //the number of words greater than 7 and less than 63
+   int wordsAdded = 0;
+   // create a file-reading object
+   ifstream fin;
+   fin.open(name_of_file); // open a file
+   if (!fin.good())
+   {
+      fprintf(stderr,"File not found\n");
+      return wordsAdded;
+   }
+   // read each line of the file
+   while (!fin.eof())
+   {
+      // read an entire line into memory
+      char buf[MAX_CHARS_PER_LINE];
+      fin.getline(buf, MAX_CHARS_PER_LINE);
+      int length = strnlen(buf,MAX_CHARS_PER_LINE);
 
+      /* Test length of word.  IEEE 802.11i indicates the passphrase must be
+       * at least 8 characters in length, and no more than 63 characters in
+       * length.
+       */
+      if (length < MIN_CHARS_PER_LINE || length > MAX_CHARS_PER_LINE) {
+	 /*if (verbose) {
+	   printf("Invalid passphrase length: %s (%d).\n",
+	   passphrase, (int)strlen(passphrase));
+	   } */
+	 /*
+	  *                           * Output message to user*/
+	 // fprintf(stderr, "Skipped a word\n");
+	 skipped++;
+	 //continue;
+      } else {
+	 /* This word is good, increment the words tested counter */
+	 wordsAdded++;
+	 // printf("Added a word\n");
+	 printf("Length: %d\tWord: %s\n",length,buf);
+      }
+   }
+   printf("Skipped %d words due to length\n",skipped);
+   printf("Added %d words to the database\n",wordsAdded);
+   return wordsAdded;
+}
+
+int connect_to_db(int id)
+{
    // --------------------------------------------------------------------
    //     // Connect to the database
 
@@ -67,22 +114,25 @@ int connect_to_db(int id)
 	 else if(c=='y')
 	 {
 	    printf("What would you like to do?\n");
-	    printf("1 - Retry\n2 - read passwords from a file\n3 - Specific different database\n4 - Quit" );
+	    printf("1 - Retry\n2 - read passwords from a file\n3 - Specific different database\n4 - Quit\n" );
 	    c = getchar();
 	    getchar();
 	    if(c=='2')
 	    {
+	       printf("File must have 1 password per line\n");
 	       char user_entered_filename[30];
 	       printf("Name of file to read from: \n");
 	       if(read(STDIN_FILENO,user_entered_filename,25)<=0)
 	       {
 		  fprintf(stderr,"You messed up\n");
 	       }
-	       FILE *f = fopen(user_entered_filename, "r");
-	       if (f == NULL)
+	       if(read_from_file(user_entered_filename)!=0)
 	       {
-		  fprintf(stderr,"Error opening %s\n",user_entered_filename);
-		  exit(1);
+		  printf("Sucess\n");
+	       }
+	       else
+	       {
+		  printf("Fail\n");
 	       }
 	       return 1;
 
