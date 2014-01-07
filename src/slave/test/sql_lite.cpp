@@ -17,16 +17,9 @@ const int MAX_CHARS_PER_LINE = 25;
 const int MIN_CHARS_PER_LINE = 8;
 using namespace std;
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName){
-   int i;
-   for(i=0; i<argc; i++){
-      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-   }
-   printf("\n");
-   return 0;
-}
-
-
+// read an entire line into memory
+char buf[MAX_CHARS_PER_LINE];
+int verbose=1;
 int read_from_file(char* name_of_file,sqlite3_stmt* stmt)
 {
    //the number of words we have skipped due to length.
@@ -44,23 +37,20 @@ int read_from_file(char* name_of_file,sqlite3_stmt* stmt)
    // read each line of the file
    while (!fin.eof())
    {
-      // read an entire line into memory
-      char buf[MAX_CHARS_PER_LINE];
-      fin.getline(buf, MAX_CHARS_PER_LINE);
-      int length = strnlen(buf,MAX_CHARS_PER_LINE);
+      fin.getline(buf,12);
+      int length = strnlen(buf,12);
 
       /* Test length of word.  IEEE 802.11i indicates the passphrase must be
        * at least 8 characters in length, and no more than 63 characters in
        * length.
        */
       if (length < MIN_CHARS_PER_LINE || length > MAX_CHARS_PER_LINE) {
-	 /*if (verbose) {
-	   printf("Invalid passphrase length: %s (%d).\n",
-	   passphrase, (int)strlen(passphrase));
-	   } */
+	 if (verbose) {
+	    fprintf(stderr, "Invalid passphrase length: %s (%d).\n",buf, length);
+	    fprintf(stderr, "Skipped a word\n");
+	 } 
 	 /*
 	  *                           * Output message to user*/
-	 // fprintf(stderr, "Skipped a word\n");
 	 skipped++;
 	 //continue;
       } else {
@@ -68,17 +58,62 @@ int read_from_file(char* name_of_file,sqlite3_stmt* stmt)
 	 wordsAdded++;
 
 	 sqlite3_bind_text(stmt, 1, buf, -1, SQLITE_TRANSIENT);
-	// sqlite3_bind_int(stmt, 2, 10, -1, SQLITE_TRANSIENT);
+	 sqlite3_bind_int(stmt, 2, length);
 	 sqlite3_step(stmt);     /* Execute the SQL Statement */
 	 sqlite3_clear_bindings(stmt);   /* Clear bindings */
 	 sqlite3_reset(stmt);        /* Reset VDBE */
-	 // printf("Added a word\n");
-	 printf("Length: %d\tWord: %s\n",length,buf);
+	 if(verbose)
+	 {
+	    printf("Length: %d\tWord: %s\n",length,buf);
+	 }
       }
    }
    printf("Skipped %d words due to length\n",skipped);
    printf("Added %d words to the database\n",wordsAdded);
    return wordsAdded;
+}
+int select_from_db(sqlite3 * db)
+{    
+   char * selectQuery;
+   sqlite3_stmt * stmt;
+   int i;
+   int row = 0;
+   int s = 0;
+   const unsigned char * text;
+   //LIMIT 10,5
+   //equivalent to LIMIT <count> OFFSET <skip>
+   selectQuery = "select WORD from DICT1 LIMIT 10,5";
+   if(verbose)
+   {
+      printf("query: ");
+      printf("%s",selectQuery);
+      printf("\n");
+   }
+   sqlite3_stmt *selectStmt;
+   sqlite3_prepare(db, selectQuery, strlen(selectQuery)+1, &selectStmt, NULL);
+   while (1) {
+      s = sqlite3_step (selectStmt);
+      if (s == SQLITE_ROW) {
+	 text  = sqlite3_column_text (selectStmt, 0);
+	 printf ("%s\n",text);
+      }
+      else if (s == SQLITE_DONE) {
+	 break;
+      }
+      else if(s == SQLITE_BUSY ) {
+	 fprintf (stderr, "Busy.\n");
+      }
+      else if(s == SQLITE_MISUSE )
+      {
+	 fprintf(stderr,"Misue\n");
+	 return 0;
+      }
+      else {
+	 fprintf (stderr, "Failed.\n");
+	 return 0;
+      }
+   }
+   return 0;
 }
 int main(int argc, char **argv){
    sqlite3 *db;
@@ -107,10 +142,11 @@ int main(int argc, char **argv){
    sqlite3_exec(db, "PRAGMA journal_mode = MEMORY", NULL, NULL, &zErrMsg);
    char sSQL [BUFFER_SIZE] = "\0";
    char* tail = 0;
-   sprintf(sSQL, "INSERT INTO DICT1(WORD,LENGTH) VALUES (@RT, @BR)");
+   sprintf(sSQL, "INSERT INTO DICT1(WORD,LENGTH) VALUES (@buf, @length)");
    sqlite3_prepare(db,  sSQL, BUFFER_SIZE, &stmt, NULL);
    sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &zErrMsg);
    read_from_file(argv[2],stmt);
+   select_from_db(db);
    /* 
       string insertQuery = "INSERT INTO DICT1 (WORD,LENGTH) VALUES('8050000000',10);";
       sqlite3_stmt *insertStmt;
@@ -121,9 +157,5 @@ int main(int argc, char **argv){
       */
 
    sqlite3_close(db);
-
-
-
-
    return 0;
 }

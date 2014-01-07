@@ -359,7 +359,7 @@ int main(int argc, char** argv)
    unsigned long last_pwd = 0;
 
    int port;
-
+   int db_flag;
 
    // get the number of CPU processors
    cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
@@ -379,6 +379,22 @@ int main(int argc, char** argv)
    {
       port=atoi(argv[1]);
    }
+   printf("Testing connection to database\n");
+
+   if(connect_to_db(0)==0)
+   {
+      printf("DB_connector_index: %d Connecting to DB: ",0);
+      printf("Successful\n");
+      db_flag=1;
+      // printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
+   }
+   else
+   {
+      printf("Connecting to DB: ");
+      printf("fail\n");
+      db_flag=0;
+   }
+
    // connect to the master
    printf("wait for connection from master on port %d ...\n", port);
    flag = wait_connect(&sd,port);
@@ -427,21 +443,23 @@ int main(int argc, char** argv)
    gettimeofday ( &tprev , NULL );
 
    //open db connections for each CPU thread
-
-   for (i=0; i<cpu_num; ++i)
+   if(db_flag)
    {
-      //if successfully connected to the database, so we can make queries, process
-      if(connect_to_db(i)==0)
+      for (i=1; i<cpu_num; ++i)
       {
-	 printf("DB_connector_index: %d CPU %d: Connecting to DB: ",i,i);
-	 printf("Successful\n");
-	 // printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
-      }
-      else
-      {
-	 printf("Connecting to DB: ");
-	 printf("fail\n");
-	 exit(0);
+	 //if successfully connected to the database, so we can make queries, process
+	 if(connect_to_db(i)==0)
+	 {
+	    printf("DB_connector_index: %d CPU %d: Connecting to DB: ",i,i);
+	    printf("Successful\n");
+	    // printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
+	 }
+	 else
+	 {
+	    printf("Connecting to DB: ");
+	    printf("fail\n");
+	    exit(0);
+	 }
       }
    }
    // create the cracking threads for CPU
@@ -482,21 +500,24 @@ int main(int argc, char** argv)
    arg->final_key = final_key;
    arg->final_key_flag = &final_key_flag;
 
-   //open db connections for each GPU thread
-   for (i=0; i<gpu_num; ++i)
+   if(db_flag)
    {
-      //if successfully connected to the database, so we can make queries, process
-      if(connect_to_db(cpu_num+i)==0)
+      //open db connections for each GPU thread
+      for (i=0; i<gpu_num; ++i)
       {
-	 printf("DB_connector_index: %d GPU %d: Connecting to DB: ",cpu_num+i,i);
-	 printf("Successful\n");
-	 //   printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
-      }
-      else
-      {
-	 printf("GPU %d: Cnnecting to DB: ",i);
-	 printf("fail\n");
-	 exit(0);
+	 //if successfully connected to the database, so we can make queries, process
+	 if(connect_to_db(cpu_num+i)==0)
+	 {
+	    printf("DB_connector_index: %d GPU %d: Connecting to DB: ",cpu_num+i,i);
+	    printf("Successful\n");
+	    //   printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
+	 }
+	 else
+	 {
+	    printf("GPU %d: Cnnecting to DB: ",i);
+	    printf("fail\n");
+	    exit(0);
+	 }
       }
    }
    flag = pthread_create(&tid_vector[cpu_num], NULL, crack_gpu_thread, arg);
