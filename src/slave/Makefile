@@ -58,7 +58,7 @@ TEST := $(findstring arch,$(MYOS))
 ifeq ($(TEST),arch)
    include SDK/arch_common.mk  
    #THIS WORKS ONLY FOR ARCH
-   LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /opt/cuda/lib64 `mysql_config --cflags` `mysql_config --libs`
+   LIB += -lcrypto -lpthread -lsqlite3 -L SDK/I_AM_LIB -L /opt/cuda/lib64 `mysql_config --cflags` `mysql_config --libs`
 else
    include SDK/common.mk  
    #THIS WORKS FOR OTHER OS's.

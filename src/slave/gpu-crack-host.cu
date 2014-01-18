@@ -326,7 +326,6 @@ void cleanUp(int cpu_num,int gpu_num,int num_keys)
 
    printf("GPU thread: closing DB connection\n");
    mysql_close(MySQLConnection[cpu_num]);
-   int i;
    char total_number_of_keys[128];
    sprintf(total_number_of_keys,"%d",num_keys);
    printf("GPU(s) tested ");

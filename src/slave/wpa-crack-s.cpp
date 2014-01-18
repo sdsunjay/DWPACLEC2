@@ -117,7 +117,8 @@ int open_lite_db(char* output_file, char* input_file)
    sprintf(sSQL, "INSERT INTO DICT1(WORD,LENGTH) VALUES (@buf, @length)");
    sqlite3_prepare(db,  sSQL, BUFFER_SIZE, &stmt, NULL);
    sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &zErrMsg);
-   read_from_file(input_file,stmt);
+   return read_from_file(input_file,stmt);
+
 }
 int handle_db_connect(int c)
 {
@@ -160,11 +161,11 @@ int handle_db_connect(int c)
    else if (c=='3')
    {
       printf("Not yet supported\n");
-      return 0;
+      exit(1);
    }
    else if ( c=='4')
    {
-      return 0;
+      exit(1);
 
    }
    return 0;
@@ -177,14 +178,14 @@ int connect_to_db(int id)
    MySQLConnection[id] = mysql_init( NULL );
 
    //read user input   
-   int c;
+//   int c;
 
    //timeout after this many seconds of trying to connect
    int timeout = 4;
 
    mysql_options(MySQLConnection[id], MYSQL_OPT_CONNECT_TIMEOUT, (const char *)&timeout);
-   do
-   {
+   //do
+   //{
       if(!mysql_real_connect(MySQLConnection[id], // MySQL obeject
 	       hostName, // Server Host
 	       userId,// User name of user
@@ -195,23 +196,27 @@ int connect_to_db(int id)
 	       0))
       {
 	 printf("Error %u: %s\n", mysql_errno(MySQLConnection[id]), mysql_error(MySQLConnection[id]));
-	 printf("Proceed anyway? (y | n)");
-	 c = getchar();
-	 getchar();
-	 if(c=='n')
-	    return(1);
-	 else if(c=='y')
-	 {
-	    c=handle_db_connect(c);
+	 printf("proceeding anyway\n\n");
+         //c='y';
+         //printf("Proceed anyway? (y | n)");
+	 //c = getchar();
+	 //getchar();
+	 //if(c=='n')
+	   // return(1);
+	 //else if(c=='y')
+	// {
+	 //   c=handle_db_connect(c);
 	 }
 	 else
 	 {
-	    printf("Invalid. Quitting\n");
-	    return(1);
+	    printf("no errors\n");
+            // printf("Invalid. Quitting\n");
+	    //exit(1);
+            //return(1);
 	 }
-      }
+      //}
       //	 throw FFError( (char*) mysql_error(MySQLConnection[id]) );
-   }while(c=='y');
+   //}while(c=='y');
    ///  printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection));
    //printf("MySQL Client Info: %s \n", mysql_get_client_info());
    //printf("MySQL Server Info: %s \n", mysql_get_server_info(MySQLConnection));
