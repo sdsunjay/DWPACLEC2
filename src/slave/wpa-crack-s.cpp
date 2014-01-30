@@ -64,7 +64,7 @@ int read_from_file(char* name_of_file,sqlite3_stmt* stmt)
 	 if (verbose) {
 	    fprintf(stderr, "Invalid passphrase length: %s (%d).\n",buf, length);
 	    fprintf(stderr, "Skipped a word\n");
-	 } 
+	 }
 	 /*
 	  *                           * Output message to user*/
 	 skipped++;
@@ -177,8 +177,8 @@ int connect_to_db(int id)
 
    MySQLConnection[id] = mysql_init( NULL );
 
-   //read user input   
-//   int c;
+   //read user input
+   int c;
 
    //timeout after this many seconds of trying to connect
    int timeout = 4;
@@ -191,18 +191,18 @@ int connect_to_db(int id)
 	       userId,// User name of user
 	       password,// Password of the database
 	       DB_NAME,// Database name
-	       0,// port number
+	       PORT_NUMBER,// port number
 	       NULL,// Unix socket  ( for us it is Null )
 	       0))
       {
 	 printf("Error %u: %s\n", mysql_errno(MySQLConnection[id]), mysql_error(MySQLConnection[id]));
-	 printf("proceeding anyway\n\n");
+	 printf("proceed anyway\n\n");
          //c='y';
          //printf("Proceed anyway? (y | n)");
-	 //c = getchar();
-	 //getchar();
-	 //if(c=='n')
-	   // return(1);
+	 c = getchar();
+	 getchar();
+	 if(c=='n')
+	    return(1);
 	 //else if(c=='y')
 	// {
 	 //   c=handle_db_connect(c);
@@ -384,7 +384,7 @@ void INThandler(int sig)
    write(1,message,128);
    c = getchar();
    if (c == 'y' || c == 'Y')
-   {   
+   {
       //int i;
       //'agressive loop optimization' complains about this
 
@@ -492,7 +492,7 @@ int main(int argc, char** argv)
    memset(final_key, 0, sizeof(final_key));
    char final_key_flag = 0;
    // Number of Host threads = Number of CPU Crack Threads + 1 GPU Managing Thread for all GPUs
-   // For GPU, it is wasteful to have a separate host thread for each GPU, since the host thread *could* 
+   // For GPU, it is wasteful to have a separate host thread for each GPU, since the host thread *could*
    // spin wait for the GPU to finish, wasting precious CPU cycles
    pthread_t* tid_vector = (pthread_t*)malloc((cpu_num+1)*sizeof(pthread_t));
    memset(tid_vector, 0, (cpu_num+1)*sizeof(pthread_t));
@@ -545,7 +545,7 @@ int main(int argc, char** argv)
       }
       else
       {
-	 printf("Created CPU %d thread\n",i); 
+	 printf("Created CPU %d thread\n",i);
 	 cpu_working++;
       }
    }
@@ -596,7 +596,7 @@ int main(int argc, char** argv)
    //float cpu_speed_all = 0;
    //float gpu_speed_all = 0;
    //printf ( "...\n" );
-   printf("In WPS-cack-s (before loop)\n");   
+   printf("In WPS-cack-s (before loop)\n");
    while (1)
    {
       signal(SIGINT, INThandler);
