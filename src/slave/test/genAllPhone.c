@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
    num[0]=8;
    num[1]=0;
    num[2]=5;
-
+   num[3]=5;
 
    FILE *fp=NULL;
    ans='0';
@@ -20,7 +20,8 @@ int main(int argc, char* argv[])
    else if(argc==2)
    {
       printf("output to %s? (y | n) \n ",argv[1]);
-      fp = fopen(argv[1], "w");
+      
+	fp = fopen(argv[1], "w");
    }
    else if(argc>2)
    {
@@ -44,9 +45,9 @@ int main(int argc, char* argv[])
 
       if(ans=='y' || ans=='Y') 
       {
-         for(i=0;i<10;i++)
-         {
-            num[3]=i;
+        // for(i=0;i<10;i++)
+         //{
+           // num[3]=i;
             for(j=0;j<10;j++)
             { 
                num[4]=j;
@@ -78,7 +79,7 @@ int main(int argc, char* argv[])
                      }
                   }
                }
-            }
+            //}
          }
       }
       else
