@@ -3,11 +3,30 @@
 #define _COMMON_H_
 
 #include <pthread.h>
+#include <mysql/mysql.h>
 
 // how many passwords to feed to a CPU/GPU crack thread every time
 #define PWD_BATCH_SIZE_CPU 1000
-#define PWD_BATCH_SIZE_GPU 50000
-//#define PWD_BATCH_SIZE_GPU 100000
+#define PWD_BATCH_SIZE_GPU 100000
+//#define PWD_BATCH_SIZE_GPU 10000
+
+//SUNJAY
+//FOR DATABASE
+#define hostName "204.236.149.65"
+//#define hostName "localhost"
+//define userId "root"
+//define password "1fYegM6Dw157"
+
+#define userId "calpoly"
+#define password "7751DW6MegYf1"
+//#define password "6f141H64TyPi"
+#define DB_NAME "DWPA"
+#define PORT_NUMBER 3306
+#define TABLE_NAME "DICT"
+#define COLUMN_NAME "WORD"
+#define LONGEST_PASSWORD 128
+//for test machine we have 8 cpu threads and 1 gpu thread for a total of 9 connections
+#define NUM_DB_CONNECTIONS 9 
 
 // WPA 4-way handshake structure
 typedef struct _wpa_hdsk
@@ -40,6 +59,5 @@ typedef struct _pwd_range
   unsigned long start;
   unsigned long end;
 } pwd_range;
-
 #endif
 
