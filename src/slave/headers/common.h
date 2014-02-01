@@ -12,14 +12,17 @@
 
 //SUNJAY
 //FOR DATABASE
-//#define hostName "54.219.126.14"
-#define hostName "localhost"
-#define userId "root"
-//#define userId "calpoly"
-//#define password "751DW6MegYf1"
-#define password "6f141H64TyPi"
+#define hostName "204.236.149.65"
+//#define hostName "localhost"
+//define userId "root"
+//define password "1fYegM6Dw157"
+
+#define userId "calpoly"
+#define password "7751DW6MegYf1"
+//#define password "6f141H64TyPi"
 #define DB_NAME "DWPA"
-#define TABLE_NAME "DICT1"
+#define PORT_NUMBER 3306
+#define TABLE_NAME "DICT"
 #define COLUMN_NAME "WORD"
 #define LONGEST_PASSWORD 128
 //for test machine we have 8 cpu threads and 1 gpu thread for a total of 9 connections
