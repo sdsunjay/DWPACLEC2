@@ -279,40 +279,40 @@ public class WPAMaster  {
 	       slaveSocket.close();
 	    }catch(FatalException e)
 	    {
-	       e.printStackTrace();
-	       e.getCause(); 
+	       //e.printStackTrace();
+	       //e.getCause(); 
 	       System.err.println(e);
 	       System.err.println("A fatal error occurred. Quitting");
 	       System.exit(1);
 	    }
-            catch(Exception e)
-            {
-               try
-               {
-                  //e.printStackTrace();
-                  System.err.println("Sleeping for 2 seconds");
-                  Thread.sleep(2 * 1000);
-                  System.err.println("Unable to connect\nInstance Not Ready..Press any key to try again.");
-                  /*read 1 input from stdin*/
-                  char c = (char) System.in.read();
-                  run();
-               }
-               catch (InterruptedException ex)
-               {
-                  //Do stuff here
-                  System.err.println("Sleep interrupted");
-               }
-               catch(Exception exx)
-               {
-                  System.err.println("How do you mess up entering 1 character?!");
-                  System.err.println("Quitting");
-                  System.exit(0);
-               }
-            }
-         }
-      }
-      Thread slave = new slaveThread(IP,Port,wpa_hdsk,rangeStart,rangeEnd);
-      System.out.println("SLAVE START");
-      slave.start();
-   }	
-}
+	    catch(Exception e)
+	    {
+	       e.printStackTrace();
+	       System.err.println("Unable to connect\nInstance Not Ready..Press any key to try again.");
+	       try
+	       {
+		  /*read 1 input from stdin*/
+		  char c = (char) System.in.read();
+		  System.err.println("Sleeping for 3 seconds");
+		  Thread.sleep(3 * 1000);
+		  run();
+	       }
+	       catch (InterruptedException ex)
+	       {
+		  //Do stuff here
+		  System.err.println("Sleep interrupted");
+	       }
+	       catch(Exception exx)
+	       {
+		  System.err.println("How do you mess up entering 1 character?!");
+		  System.err.println("Quitting");
+		  System.exit(0);
+	       }
+	    }
+	 }
+	 }
+	 Thread slave = new slaveThread(IP,Port,wpa_hdsk,rangeStart,rangeEnd);
+	 System.out.println("SLAVE START");
+	 slave.start();
+      }	
+   }
