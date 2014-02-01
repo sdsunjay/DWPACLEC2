@@ -22,12 +22,12 @@
 //#define password "6f141H64TyPi"
 #define DB_NAME "DWPA"
 #define PORT_NUMBER 3306
-#define TABLE_NAME "DICT"
+#define TABLE_NAME "DICT1"
 #define COLUMN_NAME "WORD"
 #define LONGEST_PASSWORD 128
-//for test machine we have 8 cpu threads and 1 gpu thread for a total of 9 connections
-#define NUM_DB_CONNECTIONS 9 
-
+//for test machine we have 
+//8 cpu threads and 1 gpu thread for a total of 9 connections 
+ #define NUM_DB_CONNECTIONS 9 
 // WPA 4-way handshake structure
 typedef struct _wpa_hdsk
 {

@@ -181,7 +181,7 @@ int connect_to_db(int id)
    int c;
 
    //timeout after this many seconds of trying to connect
-   int timeout = 4;
+   int timeout = 10;
 
    mysql_options(MySQLConnection[id], MYSQL_OPT_CONNECT_TIMEOUT, (const char *)&timeout);
    //do
