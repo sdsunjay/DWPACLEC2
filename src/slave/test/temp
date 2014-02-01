@@ -1,2 +1,0 @@
-LOAD DATA LOCAL INFILE '/home/calpoly/DWPACLEC2/src/slave/test/tiny_file' INTO TABLE DICT LINES TERMINATED BY '\n' IGNORE 10 LINES (@word) SET WORD=@word,LENGTH = CHAR_LENGTH(word(), FILENAM    E = 'tinyFile';
-

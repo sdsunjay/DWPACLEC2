@@ -26,7 +26,7 @@ WPA_DEBUG := no
 ifeq (yes, ${WPA_DEBUG})
   USER_CFLAGS += -g
 else
-  USER_CFLAGS += -O3
+  USER_CFLAGS += -O3 
 endif
 
 # Do not link with CUTIL
@@ -46,17 +46,25 @@ verbose := 1
 MYOS := $(shell uname --all)
 TEST := $(findstring arch,$(MYOS))
 #GUESS := $(shell uname --all\ | awk -v N=2 \'{echo $$N}\')
+#ifeq ($(TEST),arch)
+   #THIS WORKS ONLY FOR ARCH
+   #include SDK/arch_common.mk  
+   #LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /usr/local/cuda/lib64 `mysql_config --cflags` `mysql_config --libs`
+#else
+   #THIS WORKS FOR OTHER LINUS OS's
+   #include SDK/common.mk  
+   #LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /usr/local/cuda/lib64 `mysql_config --cflags` `mysql_config --libs`
+#endif
 ifeq ($(TEST),arch)
    include SDK/arch_common.mk  
    #THIS WORKS ONLY FOR ARCH
-   LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /opt/cuda/lib64
+   LIB += -lcrypto -lpthread -lsqlite3 -L SDK/I_AM_LIB -L /opt/cuda/lib64 `mysql_config --cflags` `mysql_config --libs`
 else
    include SDK/common.mk  
-   LIB += -lcrypto -lpthread -L SDK/I_AM_LIB -L /usr/local/cuda/lib64
+   #THIS WORKS FOR OTHER OS's.
+   LIB += -lcrypto -lpthread -lsqlite3 -L SDK/I_AM_LIB -L /usr/local/cuda/lib64 `mysql_config --cflags` `mysql_config --libs`
 endif
 # Extra libs (Should be specified AFTER common.mk)
-#THIS OWRKS FOR OTHER LINUS OS's
-
 
 #include /home/calpoly/DWPACLEC2/src/slave/findcudalib.mk
 #LIB += -lcrypto -lpthread -L /opt/cuda/lib
@@ -64,7 +72,18 @@ endif
 #LIB += -lcrypto -lpthread  -L /opt/cuda
 #/opt/cuda/lib /opt/cuda/lib64 /media/disk/cudarun/NVIDIA_GPU_Computing_SDK/shared/lib
 # Rules for WPA Crack
-all: $(TARGET) 
+all: 
+	$(TARGET) 
+run:
+	ifeq ($(TEST),arch)
+		sudo ../../bin/linux/release/wpa-crack-s 7373
+	else
+		../../bin/linux/release/wpa-crack-s 7373
+	endif
+cuda-memcheck:
+	sudo cuda-memcheck --leak-check full ../../bin/linux/release/wpa-crack-s 7373
+nvprof:
+	sudo nvprof -o nvprof_output --print-gpu-trace --print-api-trace  ../../bin/linux/release/wpa-crack-s 7373	
 #dummy-server dummy-master
 
 #dummy-server: test.c
@@ -72,7 +91,8 @@ all: $(TARGET)
 
 #dummy-master: test1.c
 #	gcc ${USER_CFLAGS} $^ -o $@
-
+love: 
+	@echo "Not now, I'm too tired love."	
 user_clean: clean
 	rm -rf *~ wpa-crack-s ../../bin
 

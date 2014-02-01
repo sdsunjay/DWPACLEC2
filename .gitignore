@@ -26,9 +26,6 @@
 #swap files
 *.swp
 
-#text files
-*.txt
-
 #secret stuff
 *.pem
 *.properties

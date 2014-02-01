@@ -192,9 +192,11 @@ void crack_gpu_kernel ( kernel_input_buffer *inbuffer , kernel_output_buffer *ou
 
     // Thread ID
     const int id = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    //ORIGINAL
     // Is ID out of range?
-    if ( id >= max_num )
-        return;
+    //if ( id >= max_num )
+      //  return;
 
     // First round's hash (for PMK1) is stored in e1
     COPY_DEVCTX( prev_ctx , inbuffer[id].e1 );

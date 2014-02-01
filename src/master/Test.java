@@ -37,7 +37,7 @@ public class Test{
          File file = new File("AwsCredentials.properties");
          credentials = new PropertiesCredentials(file);
          //credentials = new PropertiesCredentials("AwsCredentials.properties");
-               //AmazonManager.class.getResourceAsStream("AwsCredentials.properties"));
+         //AmazonManager.class.getResourceAsStream("AwsCredentials.properties"));
 
          // Create the AmazonEC2Client object so we can call various APIs.
          ec2 = new AmazonEC2Client(credentials);
@@ -46,7 +46,7 @@ public class Test{
          System.out.println(e1.getMessage());
          System.exit(-1);
       }
-      System.out.println("HEREEEE\n\n");
+      System.out.println("Exitting\n\n");
 
    }
 }

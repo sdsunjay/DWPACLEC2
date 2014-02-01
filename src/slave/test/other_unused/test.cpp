@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include<string.h>
 #include <iostream>
-#define NUM_WORDS 100000000
+#define NUM_WORDS 1000000
 using namespace std;
 char** listOfWords;
 int main(int argc, char* argv[])
