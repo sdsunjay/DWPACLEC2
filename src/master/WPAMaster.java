@@ -282,8 +282,32 @@ public class WPAMaster  {
 	       //e.printStackTrace();
 	       //e.getCause(); 
 	       System.err.println(e);
-	       System.err.println("A fatal error occurred. Quitting");
-	       System.exit(1);
+	       
+	       System.err.println("A fatal error occurred with a slave at"+m_IP+".\n Quit? (1 - yes | 0 - no");
+	       /*read 1 input from stdin*/
+	       try{	  
+		  char in = (char) System.in.read();
+		  if(in=='1')
+		     System.exit(1);
+		  else
+		  {
+		     System.err.println("Retry to connect?");
+		     in=(char) System.in.read(); 
+		     if(in=='1')
+		     {
+			StartConnectingToSlave(m_IP,m_Port,m_rangeStart,m_rangeEnd); 
+		     }
+
+		  }
+
+	       }
+	       catch(Exception ef)
+	       {
+
+		  System.err.println("How do you mess up entering 1 character?!");
+		  System.err.println("Quitting");
+		  System.exit(0);
+	       }
 	    }
 	    catch(Exception e)
 	    {
@@ -291,10 +315,10 @@ public class WPAMaster  {
 	       System.err.println("Unable to connect\nInstance Not Ready..Press any key to try again.");
 	       try
 	       {
-		  /*read 1 input from stdin*/
-		  char c = (char) System.in.read();
 		  System.err.println("Sleeping for 3 seconds");
 		  Thread.sleep(3 * 1000);
+		  /*read 1 input from stdin*/
+		  char c = (char) System.in.read();
 		  run();
 	       }
 	       catch (InterruptedException ex)
@@ -310,9 +334,9 @@ public class WPAMaster  {
 	       }
 	    }
 	 }
-	 }
-	 Thread slave = new slaveThread(IP,Port,wpa_hdsk,rangeStart,rangeEnd);
-	 System.out.println("SLAVE START");
-	 slave.start();
-      }	
-   }
+      }
+      Thread slave = new slaveThread(IP,Port,wpa_hdsk,rangeStart,rangeEnd);
+      System.out.println("SLAVE START");
+      slave.start();
+   }	
+}
