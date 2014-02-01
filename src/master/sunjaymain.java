@@ -14,12 +14,14 @@
  */
 
 //package com.sdhama.DWPACLEC2;
-
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import java.util.Scanner;
+import java.io.FileReader;
 public class sunjaymain {
 
    //final static String IPADDRESS="ec2-54-241-241-203.us-west-1.compute.amazonaws.com";
@@ -28,9 +30,10 @@ public class sunjaymain {
 
 
    //THE LINE BELOW WORKS
-   final static String IPADDRESS = "66.214.64.87";
-   final static int PORTNUM = 7373; 
-   final static int slaveCount = 1; 
+   // "66.214.64.87";
+   static int slaveCount=0; 
+   static int portNum;
+   static String[] ipAdd;
    /**
     * @param args
     */
@@ -38,23 +41,47 @@ public class sunjaymain {
 
       //File Storing WPA Handshake Info
       String capFilePath;
-      capFilePath=null;
-      System.out.println("Enter name of .txt file for handshake.");
-      Scanner scan = new Scanner(System.in);
-      while(capFilePath == null)
-      {
+      capFilePath = null;
+      //read input from user
+      // Location of file to read
+      try{
+	 File file = new File("config.txt");
+	 Scanner scan = new Scanner(file);
 	 if(scan.hasNext())
 	 { 
-	    capFilePath = scan.nextLine();
+	    capFilePath = scan.next();
 	 }
+	 //System.out.println("Enter slave count.");
+	 if(scan.hasNext())
+	 { 
+	    slaveCount = scan.nextInt();
+	 }
+	 if(scan.hasNext())
+	 { 
+	    portNum = scan.nextInt();
+	 }
+	 ipAdd = new String[slaveCount];
+	 for(int i=0;i<slaveCount;i++)
+	 {
+	    //System.out.println("Enter IP Address.");
+	    if(scan.hasNext())
+	    { 
+	       ipAdd[i] = scan.next();
+	    }
 
-	 System.out.println("Scanning from "+capFilePath);
-      }	  
+	    System.out.println("IP Address of slave is "+ipAdd[i]);
+	    System.out.println("Port we will connect to slave is "+portNum);
+	 }
+      }catch(Exception e)
+      {
+	 System.err.println("You fucked up.");
+	 System.exit(0);
+      }
       System.out.println("****************");
+      System.out.println("Scanning from "+capFilePath);
       System.out.println("Slave count is "+slaveCount);
-      System.out.println("IP Address of slave is "+IPADDRESS);
-      System.out.println("Port we will connect to slave is "+PORTNUM);
       System.out.println("Is this okay? (1 - yes | 0 - no)");
+	 Scanner scan = new Scanner(System.in);
       if(scan.nextInt()==1)
       {
 	 System.out.println("Good.");
@@ -63,10 +90,6 @@ public class sunjaymain {
 	 WPAMaster master = new WPAMaster();
 	 //Read The Handshake File
 	 boolean isWPADataReady = master.readFile(capFilePath);
-	 //Number of Slaves Required
-	 //int slaveCount = 1;
-	 //Store IPs
-	 String[] IPList = new String[slaveCount];
 
 	 //Generate Password Space Range Basing on Slave Number
 	 Vector<String> spaceRange = new Vector<String> ();
@@ -90,17 +113,16 @@ public class sunjaymain {
 	    System.out.println("Range"+i+":");
 	    System.out.println(spaceRange.get(i*2).toString());
 	    System.out.println(spaceRange.get(i*2+1).toString());
+
+
+	    /**********************DOOOOOOOOOOO NOOOOOOOOOOOTTTTTT Delete*********************/
+
+	    //For debugging purposing, manually set the ip, port, and range of the slave
+	    if(isWPADataReady)
+	    {
+	       master.StartConnectingToSlave(ipAdd[i], portNum, spaceRange.get(i*2).toString(), spaceRange.get(i*2+1).toString());
+	    }
 	 }
-
-
-	 /**********************DOOOOOOOOOOO NOOOOOOOOOOOTTTTTT Delete*********************/
-
-	 //For debugging purposing, manually set the ip, port, and range of the slave
-	 if(isWPADataReady)
-	 {
-	    master.StartConnectingToSlave(IPADDRESS, PORTNUM, "00000000", "99999999");
-	 }
-
 	 //ALL AMAZON PART COMMENTED BECAUSE NO CREDENTIALS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
@@ -111,7 +133,7 @@ public class sunjaymain {
 	    try{
 	       if(master.WPAPassword=="")
 	       {
-		  Thread.sleep(1000);
+		  Thread.sleep(2000);
 	       }else
 	       {
 		  //Done
