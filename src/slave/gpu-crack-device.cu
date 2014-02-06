@@ -6,11 +6,14 @@
     (I added some comments to his code to explain the optimizations he did)
     
     Quote from his comments:
-    "This is a 'special-version' of the SHA1 round function. *ctx is the current state,
-     that gets updated by *data. Notice the lack of endianess-changes here.
-     This SHA1-implementation follows the more-instructions-less-space paradigm, since registers
-     and (fast) memory on the device are precious, threads are not. Only the starting values
-     of W[0] to W[4] are defined by parameters. We fix the rest to invariant values and leave
+    "This is a 'special-version' of the SHA1 round function. 
+     *ctx is the current state that gets updated by *data.
+     Notice the lack of endianess-changes here.
+     This SHA1-implementation follows the more-instructions-less-space paradigm,
+     since registers and (fast) memory on the device are precious, 
+     threads are not.
+     Only the starting values of W[0] to W[4] are defined by parameters.
+     We fix the rest to invariant values and leave
      the possible register allocation optimization to the compiler."
 */
 __device__

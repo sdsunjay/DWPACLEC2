@@ -2,7 +2,8 @@
 // Endianess, init values, speed report, finish report, spin lock on GPUs????, error checking
 // Optimization - Verifying MIC some parts are not required or can be done beforehand
 // TODOs
-// Check speed by not reporting finish, turn off cpus and see if gpu working, etc.
+// Check speed by not reporting finish, 
+// turn off cpus and see if gpu working, etc.
 // Set the THREADS_PER_BLOCK and BATCH_SIZE accordingly for different GPUs
 // Output total time to crack
 // GPU asynch calls what to do??
@@ -142,11 +143,6 @@ precompute ( const char *key, const char *essid_pre , kernel_input_buffer *gpu_i
    GET_BE( gpu_input -> e2.h3 , temp , 12 );
    GET_BE( gpu_input -> e2.h4 , temp , 16 );
 }
-
-//int areWeDone()
-//{
-
-//}
 // This is where the information from the .cap file is used
 // Check if the key was found, by verifying the MIC
 inline
@@ -207,12 +203,16 @@ is_key_found ( const kernel_output_buffer *gpu_output , const wpa_hdsk *phdsk ) 
    // Check if MIC agrees
    if ( memcmp ( mic , phdsk -> keymic , 16 ) == 0 )
    {
-      printf("YAY!\n");
+      printf("FOUND!\n");
       return 1;
    }
    // Return 0 if not found, 1 if found
    return 0;
 }
+/**
+* Used to get the password given a particular offset
+* Used to get the correct password at the end
+*/
 int get_password(int db_connector_index, int gpu_num,unsigned long offset)
 {
 
