@@ -170,7 +170,7 @@ int handle_db_connect(int c)
    }
    return 0;
 }
-int connect_to_db(int id)
+int connect_to_db(int id,char* hostName)
 {
    // --------------------------------------------------------------------
    //     // Connect to the database
@@ -186,6 +186,10 @@ int connect_to_db(int id)
    mysql_options(MySQLConnection[id], MYSQL_OPT_CONNECT_TIMEOUT, (const char *)&timeout);
    //do
    //{
+      //printf("HostName / DB_IP is %s\n",hostName);
+      //printf("Quitting\n");
+      //return(1);
+
       if(!mysql_real_connect(MySQLConnection[id], // MySQL obeject
 	       hostName, // Server Host
 	       userId,// User name of user
@@ -270,9 +274,9 @@ int wait_connect(int* psd,int port)
    return 0;
 }
 
-int master_request(int sd, unsigned long* pfpwd, unsigned long* plpwd, wpa_hdsk* phdsk, char* essid)
+int master_request(int sd, unsigned long* pfpwd, unsigned long* plpwd, wpa_hdsk* phdsk, char* essid,char* DB_IP)
 {
-   char buf[512];
+   char buf[1024];
    char buf2[32];
    char essid_len = 0;
    int count = 0, rc = 0;
@@ -293,12 +297,17 @@ int master_request(int sd, unsigned long* pfpwd, unsigned long* plpwd, wpa_hdsk*
       else
 	 count += rc;
    }
+   
    memset(buf2, 0, 32);
+   //copy range start
    memcpy(buf2, buf, 8);
    *pfpwd = atol(buf2);
    memset(buf2, 0, 32);
+   //copy range end
    memcpy(buf2, &buf[8], 8);
    *plpwd = atol(buf2);
+
+
    memcpy(phdsk, &buf[16], sizeof(wpa_hdsk));
    essid_len = buf[16+sizeof(wpa_hdsk)];
    while (count < tcnt+essid_len)
@@ -313,6 +322,10 @@ int master_request(int sd, unsigned long* pfpwd, unsigned long* plpwd, wpa_hdsk*
    memset(essid, 0, 32);
    memcpy(essid, &buf[17+sizeof(wpa_hdsk)], essid_len);
 
+   //copy DB ip address
+   memset(DB_IP, 0, 32);
+   memcpy(DB_IP, &buf[17+sizeof(wpa_hdsk)+essid_len], 16);
+   printf("\nm_DB is : %s\n",DB_IP);
    // reset the key mic field in eapol frame to zero for later calculation
    memset(&(phdsk->eapol[81]), 0, 16);
 
@@ -414,12 +427,14 @@ int main(int argc, char** argv)
 
    wpa_hdsk hdsk;
    char essid[32];
+   /**DB IP Adress */
+   char hostName[128];
    pwd_range range;
    unsigned long first_pwd = 0;
    unsigned long last_pwd = 0;
 
    int port;
-   int db_flag;
+   //int db_flag;
 
    // get the number of CPU processors
    cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
@@ -439,9 +454,10 @@ int main(int argc, char** argv)
    {
       port=atoi(argv[1]);
    }
-   printf("Testing connection to database\n");
+   //printf("Testing connection to database\n");
 
-   if(connect_to_db(0)==0)
+   //   db_flag=1;
+  /* if(connect_to_db(0)==0)
    {
       printf("DB_connector_index: %d Connecting to DB: ",0);
       printf("Successful\n");
@@ -455,7 +471,7 @@ int main(int argc, char** argv)
       printf("Will not attempt to connect to %s DB again\n",DB_NAME);
       db_flag=0;
       return 0;
-   }
+   }*/
 
    // connect to the master
    printf("wait for connection from master on port %d ...\n", port);
@@ -466,7 +482,7 @@ int main(int argc, char** argv)
 
    // request for work from the master
    printf("requesting for work from the master ... ");
-   flag = master_request(sd, &first_pwd, &last_pwd, &hdsk, essid);
+   flag = master_request(sd, &first_pwd, &last_pwd, &hdsk, essid, hostName);
    printf("%s\n", flag==0?"done":"failed");
    if (flag)
    {
@@ -505,12 +521,10 @@ int main(int argc, char** argv)
    gettimeofday ( &tprev , NULL );
 
    //open db connections for each CPU thread
-   if(db_flag)
-   {
-      for (i=1; i<cpu_num; ++i)
+      for (i=0; i<cpu_num; ++i)
       {
 	 //if successfully connected to the database, so we can make queries, process
-	 if(connect_to_db(i)==0)
+	 if(connect_to_db(i,hostName)==0)
 	 {
 	    printf("DB_connector_index: %d CPU %d: Connecting to DB: ",i,i);
 	    printf("Successful\n");
@@ -523,7 +537,6 @@ int main(int argc, char** argv)
 	    exit(0);
 	 }
       }
-   }
    // create the cracking threads for CPU
    for (i=0; i<cpu_num; ++i)
    {
@@ -562,13 +575,11 @@ int main(int argc, char** argv)
    arg->final_key = final_key;
    arg->final_key_flag = &final_key_flag;
 
-   if(db_flag)
-   {
       //open db connections for each GPU thread
       for (i=0; i<gpu_num; ++i)
       {
 	 //if successfully connected to the database, so we can make queries, process
-	 if(connect_to_db(cpu_num+i)==0)
+	 if(connect_to_db(cpu_num+i,hostName)==0)
 	 {
 	    printf("DB_connector_index: %d GPU %d: Connecting to DB: ",cpu_num+i,i);
 	    printf("Successful\n");
@@ -581,7 +592,6 @@ int main(int argc, char** argv)
 	    exit(0);
 	 }
       }
-   }
    flag = pthread_create(&tid_vector[cpu_num], NULL, crack_gpu_thread, arg);
    if (flag)
    {
