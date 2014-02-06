@@ -208,22 +208,26 @@ public class WPAMaster  {
     *
     * @param IP	Public IP address of the slave
     * @param Port	Port number
+    * @param DB Public IP address of the Database
     * @param rangeStart  Password Space Staring Point
     * @param rangeEnd	Password Space Ending Point
     */
-   public void StartConnectingToSlave(String IP, int Port, String rangeStart, String rangeEnd) 
+   public void StartConnectingToSlave(String IP, int Port,String DB, String rangeStart, String rangeEnd) 
    {
       class slaveThread extends Thread { 
 	 private String m_IP;
 	 private int m_Port;
+	 private String m_DB;
 	 private byte[] m_wpa_hs;
 	 private String m_rangeStart;
 	 private String m_rangeEnd;
+
 	 int ii=0;
-	 slaveThread(String ip, int port, byte[] wpa_hs, String rangeStart, String rangeEnd)
+	 slaveThread(String ip, int port,String DB, byte[] wpa_hs, String rangeStart, String rangeEnd)
 	 {
 	    this.m_IP = ip;
 	    this.m_Port = port;
+	    this.m_DB = DB;
 	    this.m_wpa_hs = wpa_hs;
 	    this.m_rangeStart = rangeStart;
 	    this.m_rangeEnd = rangeEnd;
@@ -233,7 +237,6 @@ public class WPAMaster  {
 	    try{
 	       System.out.println("IP is "+m_IP+"\nPort is : "+m_Port);
 	       Socket slaveSocket = new Socket(m_IP, m_Port);
-	       System.out.println("IP is "+m_IP+"\nPort is : "+m_Port);
 	       DataOutputStream outToServer = new DataOutputStream(slaveSocket.getOutputStream());
 	       BufferedReader inFromServer = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
 
@@ -249,13 +252,19 @@ public class WPAMaster  {
 		     outToServer.flush();
 		     outToServer.write(m_rangeEnd.getBytes());
 		     outToServer.flush();
+
+
 		     outToServer.write(m_wpa_hs);
 		     outToServer.flush();
+		     //length of ESSID
 		     outToServer.write(SSIDLength);
 		     outToServer.flush();
 		     outToServer.write(SSID);
 		     outToServer.flush();
-		     //length of ESSID
+		     //DATABASE IP
+		     outToServer.write(m_DB.getBytes());
+		     outToServer.flush();
+		     
 		  }
 		  else if(cmdChar[0] == 'a')
 		  {
@@ -295,7 +304,7 @@ public class WPAMaster  {
 		     in=(char) System.in.read(); 
 		     if(in=='1')
 		     {
-			StartConnectingToSlave(m_IP,m_Port,m_rangeStart,m_rangeEnd); 
+			StartConnectingToSlave(m_IP,m_Port,m_DB,m_rangeStart,m_rangeEnd); 
 		     }
 
 		  }
@@ -335,7 +344,8 @@ public class WPAMaster  {
 	    }
 	 }
       }
-      Thread slave = new slaveThread(IP,Port,wpa_hdsk,rangeStart,rangeEnd);
+      //code starts here
+      Thread slave = new slaveThread(IP,Port,DB,wpa_hdsk,rangeStart,rangeEnd);
       System.out.println("SLAVE START");
       slave.start();
    }	

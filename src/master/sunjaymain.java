@@ -34,6 +34,7 @@ public class sunjaymain {
    static int slaveCount=0; 
    static int portNum;
    static String[] ipAdd;
+   static String DB;
    /**
     * @param args
     */
@@ -42,11 +43,18 @@ public class sunjaymain {
       //File Storing WPA Handshake Info
       String capFilePath;
       capFilePath = null;
+      int DB_Length;
+	 
+      //file to read from
+      File file;
+
+      Scanner scan;
       //read input from user
       // Location of file to read
       try{
-	 File file = new File("config.txt");
-	 Scanner scan = new Scanner(file);
+	
+	 file  = new File("config.txt"); 
+	 scan  = new Scanner(file);
 	 if(scan.hasNext())
 	 { 
 	    capFilePath = scan.next();
@@ -72,16 +80,19 @@ public class sunjaymain {
 	    System.out.println("IP Address of slave is "+ipAdd[i]);
 	    System.out.println("Port we will connect to slave is "+portNum);
 	 }
+	 DB_Length = scan.nextInt();
+	 DB = scan.next();
       }catch(Exception e)
       {
-	 System.err.println("You fucked up.");
+	 System.err.println("You messed up.");
 	 System.exit(0);
       }
       System.out.println("****************");
       System.out.println("Scanning from "+capFilePath);
       System.out.println("Slave count is "+slaveCount);
+      System.out.println("DB ip is "+DB);
       System.out.println("Is this okay? (1 - yes | 0 - no)");
-	 Scanner scan = new Scanner(System.in);
+      scan = new Scanner(System.in);
       if(scan.nextInt()==1)
       {
 	 System.out.println("Good.");
@@ -120,7 +131,7 @@ public class sunjaymain {
 	    //For debugging purposing, manually set the ip, port, and range of the slave
 	    if(isWPADataReady)
 	    {
-	       master.StartConnectingToSlave(ipAdd[i], portNum, spaceRange.get(i*2).toString(), spaceRange.get(i*2+1).toString());
+	       master.StartConnectingToSlave(ipAdd[i], portNum, DB, spaceRange.get(i*2).toString(), spaceRange.get(i*2+1).toString());
 	    }
 	 }
 	 //ALL AMAZON PART COMMENTED BECAUSE NO CREDENTIALS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
