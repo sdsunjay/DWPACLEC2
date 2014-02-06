@@ -389,31 +389,27 @@ void print_work(unsigned long* pfpwd, unsigned long* plpwd, wpa_hdsk* phdsk, cha
 }
 void INThandler(int sig)
 {
-   char  c;
-   char message[128];
-
+   //char  c;
+   //char message[128];
+   int i;
    signal(sig, SIG_IGN);
-   snprintf(message,128,"OUCH, did you hit Ctrl-C?\nDo you really want to quit? [y/n] ");
-   write(1,message,128);
-   c = getchar();
-   if (c == 'y' || c == 'Y')
-   {
+   //snprintf(message,128,"OUCH, did you hit Ctrl-C?\nDo you really want to quit? [y/n] ");
+   //write(1,message,128);
+   //c = getchar();
+   //if (c == 'y' || c == 'Y')
+   //{
       //int i;
       //'agressive loop optimization' complains about this
 
       //not sure how to have cpu_num passed in
 
-      //for(i=0;i<=10;i++)
-      //{
-      // mysql_close(MySQLConnection[i]);
-      //}
+      for(i=0;i<=10;i++)
+      {
+	  mysql_close(MySQLConnection[i]);
+      }
       exit(0);
-   }
-   else
-   {
-      signal(SIGINT, INThandler);
-   }
-   getchar(); // Get new line character
+  // }
+   //getchar(); // Get new line character
 }
 int main(int argc, char** argv)
 {
@@ -439,7 +435,7 @@ int main(int argc, char** argv)
    // get the number of CPU processors
    cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
    printf("number of CPU processors: %d\n", cpu_num);
-   gpu_num = num_of_gpus();
+   //gpu_num = num_of_gpus();
    printf("number of GPU devices: %d\n", gpu_num);
 
    // check and parse arguments

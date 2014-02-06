@@ -242,10 +242,46 @@ void crack_gpu_kernel ( kernel_input_buffer *inbuffer , kernel_output_buffer *ou
     
     // Store PMK Part 2 in the output buffer
     COPY_DEVCTX( outbuffer[id].pmk2 , pmk_ctx );
-}
 
-// Function that triggers the GPU Kernel (Device Thread)
-void invoke_gpu_kernel ( int blocksPerGrid , int threadsPerBlock , 
-                         kernel_input_buffer *inbuffer , kernel_output_buffer *outbuffer , int max_num ) {
-    crack_gpu_kernel<<<blocksPerGrid, threadsPerBlock>>>( inbuffer , outbuffer , max_num );
+    }
+/*
+__global__ void crack_gpu_kernel1( kernel_input_buffer *inbuffer , kernel_output_buffer *outbuffer , int max_num ) {
+
+    // Loop variable
+    int i;
+
+    // Hash value of previous round
+    SHA_DEV_CTX prev_ctx;
+    // Part of the PMK (20 bytes first part, 12 bytes second part)
+    SHA_DEV_CTX pmk_ctx;
+
+    // Thread ID
+    const int id = blockIdx.x * blockDim.x + threadIdx.x;
+    // First round's hash (for PMK2) is stored in e2
+    COPY_DEVCTX( prev_ctx , inbuffer[id].e2 );
+    COPY_DEVCTX( pmk_ctx , prev_ctx );
+    
+    // PMK Part 2 (12 bytes): Finish the remaining 4095 rounds
+    for ( i = 1 ; i <= 4095 ; i++ ) {
+    
+        sha1_process ( &inbuffer[id].ctx_ipad , &prev_ctx );
+        sha1_process ( &inbuffer[id].ctx_opad , &prev_ctx );
+        
+        // Keep XORing all the rounds
+        pmk_ctx.h0 ^= prev_ctx.h0;
+        pmk_ctx.h1 ^= prev_ctx.h1;
+        pmk_ctx.h2 ^= prev_ctx.h2; 
+        pmk_ctx.h3 ^= prev_ctx.h3;
+        pmk_ctx.h4 ^= prev_ctx.h4;
+    }
+    
+    // Store PMK Part 2 in the output buffer
+    COPY_DEVCTX( outbuffer[id].pmk2 , pmk_ctx );
+}*/
+   // Function that triggers the GPU Kernel (Device Thread)
+void invoke_gpu_kernel ( int blocksPerGrid , int threadsPerBlock , kernel_input_buffer *inbuffer , kernel_output_buffer *outbuffer , int max_num ) {
+   //blocksPerGrid*=2; 
+   //threadsPerBlock*=2; 
+   crack_gpu_kernel<<<blocksPerGrid, threadsPerBlock>>>( inbuffer , outbuffer , max_num );
+  // crack_gpu_kernel1<<<blocksPerGrid, threadsPerBlock>>>( inbuffer , outbuffer , max_num );
 }

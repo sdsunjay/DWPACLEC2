@@ -405,6 +405,7 @@ void* crack_cpu_thread(void *arg)
       }
       //total up how many keys we have read
       num_keys+=numRows;
+      printf("total keys: %d\n",num_keys);
       //close the big while
    }
    //gettimeofday(&tnow, NULL);

@@ -23,11 +23,11 @@ C_DEPS		:=  \
 
 # C Compiler Flags
 WPA_DEBUG := no
-ifeq (yes, ${WPA_DEBUG})
+#ifeq (yes, ${WPA_DEBUG})
   USER_CFLAGS += -g
-else
-  USER_CFLAGS += -O3 
-endif
+#else
+  USER_CFLAGS += -O2
+#endif
 
 # Do not link with CUTIL
 OMIT_CUTIL_LIB := 1
