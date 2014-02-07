@@ -459,6 +459,7 @@ int main(int argc, char** argv)
       port=atoi(argv[1]);
       if(argv[2]!=NULL)
       {
+	 
 	 if(strcmp(argv[2],"-v")==0)
 	 {
 	    vflag=1;
@@ -683,6 +684,7 @@ int main(int argc, char** argv)
 	    close(sd);
 	    free(calc_speed);
 	    printf("Final key has been found, quitting\n");
+	    mysql_library_end();
 	    exit(0);
 	 }
 	 else
@@ -725,5 +727,6 @@ int main(int argc, char** argv)
    // release resources
    close(sd);
    free(calc_speed);
+    mysql_library_end();
    return 0;
 }
