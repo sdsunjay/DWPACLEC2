@@ -25,6 +25,7 @@
 struct timeval start_time, end_time;
 float elapsed_time = 0;
 extern MYSQL* MySQLConnection[NUM_DB_CONNECTIONS];
+extern int vflag;
 int num_keys;
 class FFError
 {
@@ -265,9 +266,11 @@ void* crack_cpu_thread(void *arg)
       // Perform a SQL SELECT and retrieve data
       // There should not be a terminating ';'
       sprintf(query, "SELECT %s FROM %s LIMIT %d OFFSET %lu",COLUMN_NAME,TABLE_NAME,PWD_BATCH_SIZE_CPU,range.start);
-      //printf("Query is: %s\n",query);
-      //printf("Range start is : %lu\n",range.start);
-
+      if(vflag)
+      {
+	 printf("Query is: %s\n",query);
+	 printf("Range start is : %lu\n",range.start);
+      }
       mysqlStatus = mysql_query(MySQLConnection[cpu_core_id],query);
       if (mysqlStatus)
       {
@@ -294,16 +297,18 @@ void* crack_cpu_thread(void *arg)
       }
       else
       {  calc_speed[cpu_core_id]=-1; 
-         printf("Result set is empty");
+         printf("Result set is null");
          mysql_close(MySQLConnection[cpu_core_id]);
+         //exit(0);
          break;
       }
       if(numRows==0)
       { 
          calc_speed[cpu_core_id]=-1; 
-         printf("Result set is empty\n");
-         //mysql_close(MySQLConnection[cpu_core_id]);
+         printf("Number of rows is 0\n");
          break;
+	 //mysql_close(MySQLConnection[cpu_core_id]);
+         //exit(0);
 
       }
       //loop through all the rows in the result set
@@ -400,12 +405,12 @@ void* crack_cpu_thread(void *arg)
       // check if the final key is found
       if (*final_key_flag)
       {
-         printf("final key found\n");
+         printf("CPU found key!\n");
          break;
       }
       //total up how many keys we have read
       num_keys+=numRows;
-      printf("total keys: %d\n",num_keys);
+      printf("CPU Total Keys: %d\n",num_keys);
       //close the big while
    }
    //gettimeofday(&tnow, NULL);
@@ -419,7 +424,7 @@ void* crack_cpu_thread(void *arg)
    printf("CPU thread has checked %d keys total.\n",num_keys);
    printf("Leaving CPU-crack\n");
    // Close database connection
-   mysql_close(MySQLConnection[cpu_core_id]);
-   return NULL;
+   //mysql_close(MySQLConnection[cpu_core_id]);
+   //return;
 }
 

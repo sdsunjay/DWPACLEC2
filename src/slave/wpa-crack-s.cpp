@@ -32,7 +32,7 @@ using namespace std;
 //in case there are 8 cpu threads + 1 for 1 GPU
 //global db connector
 MYSQL* MySQLConnection[NUM_DB_CONNECTIONS];
-
+int vflag;
 // read an entire line into memory
 char buf[MAX_CHARS_PER_LINE];
 int verbose=1;
@@ -435,20 +435,42 @@ int main(int argc, char** argv)
    // get the number of CPU processors
    cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
    printf("number of CPU processors: %d\n", cpu_num);
-   //gpu_num = num_of_gpus();
+   gpu_num = num_of_gpus();
    printf("number of GPU devices: %d\n", gpu_num);
 
    // check and parse arguments
-   if (argc != 2)
+   if (argc > 3)
    {
-      printf("usage: %s <port>\n", argv[0]);
-      printf("Sunjay has opened port# 7373 for this\n");
-      printf("Enter a port number\n");
-      scanf("%d", &port);
+     fprintf(stderr,"Too many args\n");
+      fprintf(stderr,"usage: %s <port>\n", argv[0]);
+      exit(0);
+      //printf("Sunjay has opened port# 7373 for this\n");
+      //printf("Enter a port number\n");
+      //scanf("%d", &port);
    }
    else
    {
+      if(argv[1]==NULL)
+      {
+	 printf("Sunjay has opened port# 7373 for this\n");
+	 printf("Enter a port number\n");
+	 scanf("%d", &port);
+      }
       port=atoi(argv[1]);
+      if(argv[2]!=NULL)
+      {
+	 if(strcmp(argv[2],"-v")==0)
+	 {
+	    vflag=1;
+	    printf("Verbose flag is set\n");
+	 }
+	 else
+	 {
+	    printf("usage: %s <port>\n", argv[0]);
+	    exit(0);
+
+	 }
+      }
    }
    //printf("Testing connection to database\n");
 

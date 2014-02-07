@@ -157,14 +157,15 @@ public class WPAMaster  {
 	    }else if(lineCount==7)
 	    {
 	       //EAPOL frame
-	       System.out.print("EAPOL_Frame:");
+	      System.out.print("Not printing EAPOL_Frame");
+	      /* System.out.print("EAPOL_Frame:");
 	       byte[] buf = adapter.unmarshal(tokens[1]);
 	       for(int i=0; i<buf.length; i++)
 	       {
 		  wpa_hdsk[94+i] = buf[i]; //EAPOL frame contents (2nd key frame)
 		  System.out.printf(String.format("%x",buf[i]>>4 & 0x0F));
 		  System.out.print(String.format("%x",buf[i] & 0x0F));
-	       }
+	       }*/
 	       System.out.println("");
 	       lineCount++;
 	    }else if(lineCount==8)
@@ -184,21 +185,23 @@ public class WPAMaster  {
 	    }
 
 	 }
-	 //originally commented out
-	 System.out.print("WPA Structure:");
+      	
+      	
+	  System.out.print("Not printing WPA Structure");
+	 /* System.out.print("WPA Structure:");
 	 for(int i=0; i<wpa_hdsk.length; i++)
 	 {
 	    System.out.printf(String.format("%x",wpa_hdsk[i]>>4 & 0x0F));
 	    System.out.print(String.format("%x",wpa_hdsk[i] & 0x0F));
 	    System.out.print(' ');
 	 }
+	 */
 	 System.out.println("");
-
 	 return true;
       }catch(Exception e)
       {
 	 System.out.println("Read Capture File Error:");
-	 e.printStackTrace();
+	 //e.printStackTrace();
 	 return false;
       }
    }
@@ -320,21 +323,21 @@ public class WPAMaster  {
 	    }
 	    catch(Exception e)
 	    {
-	       e.printStackTrace();
+	      // e.printStackTrace();
+	       //System.err.println("Sleeping for 3 seconds");
+	       //Thread.sleep(3 * 1000);
 	       System.err.println("Unable to connect\nInstance Not Ready..Press any key to try again.");
 	       try
 	       {
-		  System.err.println("Sleeping for 3 seconds");
-		  Thread.sleep(3 * 1000);
 		  /*read 1 input from stdin*/
 		  char c = (char) System.in.read();
 		  run();
 	       }
-	       catch (InterruptedException ex)
+	      /* catch (InterruptedException ex)
 	       {
 		  //Do stuff here
 		  System.err.println("Sleep interrupted");
-	       }
+	       }*/
 	       catch(Exception exx)
 	       {
 		  System.err.println("How do you mess up entering 1 character?!");

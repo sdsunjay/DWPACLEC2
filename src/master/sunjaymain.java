@@ -43,12 +43,13 @@ public class sunjaymain {
       //File Storing WPA Handshake Info
       String capFilePath;
       capFilePath = null;
-      int DB_Length;
 	 
       //file to read from
       File file;
 
       Scanner scan;
+      long startLong=0;
+      long endLong=0;
       //read input from user
       // Location of file to read
       try{
@@ -80,8 +81,9 @@ public class sunjaymain {
 	    System.out.println("IP Address of slave is "+ipAdd[i]);
 	    System.out.println("Port we will connect to slave is "+portNum);
 	 }
-	 DB_Length = scan.nextInt();
 	 DB = scan.next();
+         startLong=scan.nextLong();
+	 endLong=scan.nextLong();
       }catch(Exception e)
       {
 	 System.err.println("You messed up.");
@@ -91,6 +93,7 @@ public class sunjaymain {
       System.out.println("Scanning from "+capFilePath);
       System.out.println("Slave count is "+slaveCount);
       System.out.println("DB ip is "+DB);
+      System.out.println("Range is "+startLong+" to "+endLong);
       System.out.println("Is this okay? (1 - yes | 0 - no)");
       scan = new Scanner(System.in);
       if(scan.nextInt()==1)
@@ -106,9 +109,9 @@ public class sunjaymain {
 	 Vector<String> spaceRange = new Vector<String> ();
 	 byte[] start = new byte[8];
 	 byte[] end = new byte[8];
-	 long startLong = 0;
+	 //long startLong = 0;
 	 long stepLong = 100000000/slaveCount;    //[0~99999999]
-	 long endLong = startLong + stepLong - 1;
+	 //long endLong = startLong + stepLong - 1;
 	 for(int i = 0; i<slaveCount; i++)
 	 {
 	    for(int j=0; j<8; j++)
@@ -121,8 +124,8 @@ public class sunjaymain {
 	    startLong += stepLong;
 	    endLong += stepLong;
 
-	    System.out.println("Range"+i+":");
-	    System.out.println(spaceRange.get(i*2).toString());
+	    System.out.print("Slave "+(i+1)+ " Range :");
+	    System.out.print(spaceRange.get(i*2).toString()+" to ");
 	    System.out.println(spaceRange.get(i*2+1).toString());
 
 

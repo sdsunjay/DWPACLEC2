@@ -474,7 +474,7 @@ crack_gpu_thread ( void *arg ) {
          goto stop;
       }
       num_keys+=temp;
-      printf("Total keys: %d\n",num_keys);
+      printf("GPU Total keys: %d\n",num_keys);
       //for the number of GPUs working
       // for ( gpu_iter = 0 ; gpu_iter < gpu_working ; ++gpu_iter ) {
       //for each unique password in our range
