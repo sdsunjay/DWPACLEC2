@@ -52,9 +52,11 @@ public class sunjaymain {
       long endLong=0;
       //read input from user
       // Location of file to read
+      if(args.length > 0)
+      {
       try{
 	
-	 file  = new File("config.txt"); 
+	 file  = new File(args[0]); 
 	 scan  = new Scanner(file);
 	 if(scan.hasNext())
 	 { 
@@ -84,9 +86,19 @@ public class sunjaymain {
 	 DB = scan.next();
          startLong=scan.nextLong();
 	 endLong=scan.nextLong();
+      }catch(FileNotFoundException ee)
+      {
+	 System.err.println("File not found");
+	 System.exit(0);
       }catch(Exception e)
       {
 	 System.err.println("You messed up.");
+	 System.exit(0);
+      }
+      }
+      else
+      {
+	 System.err.println("Usage: java sunjaymain <name_of_config_file>");
 	 System.exit(0);
       }
       System.out.println("****************");
@@ -94,11 +106,12 @@ public class sunjaymain {
       System.out.println("Slave count is "+slaveCount);
       System.out.println("DB ip is "+DB);
       System.out.println("Range is "+startLong+" to "+endLong);
-      System.out.println("Is this okay? (1 - yes | 0 - no)");
+    /*  System.out.println("Is this okay? (1 - yes | 0 - no)");
       scan = new Scanner(System.in);
       if(scan.nextInt()==1)
       {
 	 System.out.println("Good.");
+*/
 	 System.out.println("****************");
 	 //Master object to control slave machines
 	 WPAMaster master = new WPAMaster();
@@ -159,11 +172,11 @@ public class sunjaymain {
 	       e.printStackTrace();
 	    }
 	 }
-      }
+     /* }
       else
       {
 	 System.out.println("Exitting");
-      }
+      }*/
 
    }
 }

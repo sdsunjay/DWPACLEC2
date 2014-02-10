@@ -324,20 +324,20 @@ public class WPAMaster  {
 	    catch(Exception e)
 	    {
 	      // e.printStackTrace();
-	       //System.err.println("Sleeping for 3 seconds");
-	       //Thread.sleep(3 * 1000);
-	       System.err.println("Unable to connect\nInstance Not Ready..Press any key to try again.");
+	       System.err.println("Unable to connect\nInstance Not Ready...");
 	       try
 	       {
+		  System.err.println("Sleeping for 2 seconds");
+		  Thread.sleep(2 * 1000);
 		  /*read 1 input from stdin*/
-		  char c = (char) System.in.read();
+		  //char c = (char) System.in.read();
 		  run();
 	       }
-	      /* catch (InterruptedException ex)
+	      catch (InterruptedException ex)
 	       {
 		  //Do stuff here
 		  System.err.println("Sleep interrupted");
-	       }*/
+	       }
 	       catch(Exception exx)
 	       {
 		  System.err.println("How do you mess up entering 1 character?!");
