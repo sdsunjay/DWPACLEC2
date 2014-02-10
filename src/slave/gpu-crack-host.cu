@@ -72,6 +72,7 @@ inline void __getLastCudaError(const char *errorMessage, const char *file, const
 extern MYSQL* MySQLConnection[NUM_DB_CONNECTIONS];
 //Stores the list of passwords we queried for
 //char **passwordList;
+extern int keys;
 char* final_key; 
 // Returns the number of GPUs (possibly 0)
 int 
@@ -326,10 +327,10 @@ void cleanUp(int cpu_num,int gpu_num,int num_keys)
 
    printf("GPU thread: closing DB connection\n");
    mysql_close(MySQLConnection[cpu_num]);
-   char total_number_of_keys[128];
-   sprintf(total_number_of_keys,"%d",num_keys);
-   printf("GPU(s) tested ");
-   printf("%d",num_keys);
+   //char total_number_of_keys[128];
+   //sprintf(total_number_of_keys,"%d",num_keys);
+   printf("Tested ");
+   printf("%d",keys);
    printf(" keys total.\n");
    printf("GPU thread exitting\n");
 
@@ -473,8 +474,8 @@ crack_gpu_thread ( void *arg ) {
          gpu_working=0;
          goto stop;
       }
-      num_keys+=temp;
-      printf("GPU Total keys: %d\n",num_keys);
+      keys+=temp;
+      printf("Total number of passwords checked: %d\n",keys);
       //for the number of GPUs working
       // for ( gpu_iter = 0 ; gpu_iter < gpu_working ; ++gpu_iter ) {
       //for each unique password in our range

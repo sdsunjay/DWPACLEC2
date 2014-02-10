@@ -32,6 +32,7 @@ using namespace std;
 //in case there are 8 cpu threads + 1 for 1 GPU
 //global db connector
 MYSQL* MySQLConnection[NUM_DB_CONNECTIONS];
+int keys;
 int vflag;
 // read an entire line into memory
 char buf[MAX_CHARS_PER_LINE];
@@ -420,7 +421,7 @@ int main(int argc, char** argv)
    int sd = -1;
    int flag = -1;
    int i = 0;
-
+   keys=0;
    wpa_hdsk hdsk;
    char essid[32];
    /**DB IP Adress */

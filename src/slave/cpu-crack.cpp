@@ -26,7 +26,7 @@ struct timeval start_time, end_time;
 float elapsed_time = 0;
 extern MYSQL* MySQLConnection[NUM_DB_CONNECTIONS];
 extern int vflag;
-int num_keys;
+extern int keys;
 class FFError
 {
    public:
@@ -198,7 +198,7 @@ void* crack_cpu_thread(void *arg)
    uchar mic[20];
 
    //number of passwords CPU has checked, thread independent
-   num_keys=0;
+   //num_keys=0;
 
    //connection to DB
    MYSQL_RES      *mysqlResult = NULL;
@@ -411,8 +411,8 @@ void* crack_cpu_thread(void *arg)
          break;
       }
       //total up how many keys we have read
-      num_keys+=numRows;
-      printf("CPU Total Keys: %d\n",num_keys);
+      keys+=numRows;
+      //printf("CPU Total Keys: %d\n",num_keys);
       //close the big while
    }
    //gettimeofday(&tnow, NULL);
@@ -423,7 +423,7 @@ void* crack_cpu_thread(void *arg)
       //mysqlResult = NULL;
    }*/
    calc_speed[cpu_core_id] = -1; // this indicates the thread is returned
-   printf("CPU thread has checked %d keys total.\n",num_keys);
+   //printf("CPU thread has checked %d keys total.\n",num_keys);
    printf("Leaving CPU-crack\n");
    // Close database connection
    //mysql_close(MySQLConnection[cpu_core_id]);
