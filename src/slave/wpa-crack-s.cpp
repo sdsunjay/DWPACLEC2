@@ -297,7 +297,7 @@ int master_request(int sd, unsigned long* pfpwd, unsigned long* plpwd, wpa_hdsk*
       else
 	 count += rc;
    }
-   
+
    memset(buf2, 0, 32);
    //copy range start
    memcpy(buf2, buf, 8);
@@ -391,7 +391,7 @@ void INThandler(int sig)
 {
    //char  c;
    //char message[128];
-   int i;
+ //  int i;
    signal(sig, SIG_IGN);
    //snprintf(message,128,"OUCH, did you hit Ctrl-C?\nDo you really want to quit? [y/n] ");
    //write(1,message,128);
@@ -403,10 +403,10 @@ void INThandler(int sig)
 
       //not sure how to have cpu_num passed in
 
-      for(i=0;i<=10;i++)
-      {
-	  mysql_close(MySQLConnection[i]);
-      }
+     // for(i=0;i<=10;i++)
+      //{
+	  mysql_close(MySQLConnection[0]);
+//      }
       exit(0);
   // }
    //getchar(); // Get new line character
@@ -456,10 +456,13 @@ int main(int argc, char** argv)
 	 printf("Enter a port number\n");
 	 scanf("%d", &port);
       }
-      port=atoi(argv[1]);
+      else
+      {
+         port=atoi(argv[1]);
+      }
       if(argv[2]!=NULL)
       {
-	 
+
 	 if(strcmp(argv[2],"-v")==0)
 	 {
 	    vflag=1;

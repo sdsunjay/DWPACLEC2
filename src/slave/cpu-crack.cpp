@@ -205,7 +205,7 @@ void* crack_cpu_thread(void *arg)
    MYSQL_ROW       mysqlRow;
    int mysqlStatus = 0;
    unsigned int numRows;
-   //unsigned int numFields;
+   unsigned int numFields;
    //for the query
    char query[50];
 
@@ -244,7 +244,7 @@ void* crack_cpu_thread(void *arg)
       if (flag)
       {
          printf("thread %u set setaffinity failed: %s\n", (unsigned)tid, strerror(flag));
-         exit(1);   
+         exit(1);
       }
    }
 
@@ -285,26 +285,28 @@ void* crack_cpu_thread(void *arg)
       {
          // # of rows in the result set
          numRows = mysql_num_rows(mysqlResult);
-
+         if(vflag)
+         {
          // # of Columns (mFields) in the latest results set
-         //       numFields = mysql_field_count(MySQLConnection);
+                numFields = mysql_field_count(MySQLConnection[cpu_core_id]);
 
          // Returns the number of columns in a result set specified
-         //numFields = mysql_num_fields(mysqlResult);
+         numFields = mysql_num_fields(mysqlResult);
 
-         //printf("Number of rows=%u  Number of fields=%u \n",numRows,numFields);
-         //printf("Number of rows=%u \n",numRows);
+         printf("Number of rows=%u  Number of fields=%u \n",numRows,numFields);
+         printf("Number of rows=%u \n",numRows);
+         }
       }
       else
-      {  calc_speed[cpu_core_id]=-1; 
+      {  calc_speed[cpu_core_id]=-1;
          printf("Result set is null");
          mysql_close(MySQLConnection[cpu_core_id]);
          //exit(0);
          break;
       }
       if(numRows==0)
-      { 
-         calc_speed[cpu_core_id]=-1; 
+      {
+         calc_speed[cpu_core_id]=-1;
          printf("Number of rows is 0\n");
          break;
 	 //mysql_close(MySQLConnection[cpu_core_id]);
