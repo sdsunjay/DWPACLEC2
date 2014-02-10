@@ -474,7 +474,8 @@ crack_gpu_thread ( void *arg ) {
          goto stop;
       }
       num_keys+=temp;
-      printf("Total keys: %d\n",num_keys);
+      //printf("Total keys: %d\n",num_keys);
+      printf("GPU Total keys: %d\n",num_keys);      
       //for the number of GPUs working
       // for ( gpu_iter = 0 ; gpu_iter < gpu_working ; ++gpu_iter ) {
       //for each unique password in our range
@@ -483,10 +484,10 @@ crack_gpu_thread ( void *arg ) {
       //FIX THE REST...later
 
       /*
-         THIS IS NOW BEING DONE IN QUERY_AND_FILL
+	 THIS IS NOW BEING DONE IN QUERY_AND_FILL
 
-         for(i=0;i<total_num_passwords;i++)
-         {
+	 for(i=0;i<total_num_passwords;i++)
+	 {
       //ORIGINAL
       // Convert the key from digit to string
       //             sprintf ( key , "%08lu" , cur_key_digit );
@@ -512,11 +513,11 @@ crack_gpu_thread ( void *arg ) {
       //  printf("Total number of passwords we precomputed: %d\n",num_keys);
       // }
       /*if(num_keys!=total_num_passwords)
-        {
-        printf("We did NOT precompute all the passwords\n");
-        printf("Total number of passwords we got from the DB: %d\n",total_num_passwords);
-        printf("Total number of passwords we precomputed: %d\n",num_keys);
-        }*/
+	{
+	printf("We did NOT precompute all the passwords\n");
+	printf("Total number of passwords we got from the DB: %d\n",total_num_passwords);
+	printf("Total number of passwords we precomputed: %d\n",num_keys);
+	}*/
       // Now let the GPUs do the work
       /*
 
@@ -536,110 +537,110 @@ crack_gpu_thread ( void *arg ) {
       //printf("There are %d GPUs working\n",gpu_working);
       for ( gpu_iter = 0 ; gpu_iter < gpu_working ; ++gpu_iter ) 
       {
-         // Set the GPU Device we are currently dispatching work to crack
-         checkCudaErrors ( cudaSetDevice ( gpu_iter ) );
+	      // Set the GPU Device we are currently dispatching work to crack
+	      checkCudaErrors ( cudaSetDevice ( gpu_iter ) );
 
-         // Copy the Input buffers from the Host to Device (GPU) Memory
-         devMemSize = sizeof ( kernel_input_buffer ) * PWD_BATCH_SIZE_GPU;
-         checkCudaErrors ( cudaMemcpy ( device_input[gpu_iter] , gpu_input + (gpu_iter * PWD_BATCH_SIZE_GPU) , devMemSize , cudaMemcpyHostToDevice ) );
+	      // Copy the Input buffers from the Host to Device (GPU) Memory
+	      devMemSize = sizeof ( kernel_input_buffer ) * PWD_BATCH_SIZE_GPU;
+	      checkCudaErrors ( cudaMemcpy ( device_input[gpu_iter] , gpu_input + (gpu_iter * PWD_BATCH_SIZE_GPU) , devMemSize , cudaMemcpyHostToDevice ) );
 
-         // Calculate the PMKs using GPU
-         //int max_num = range[gpu_iter].end - range[gpu_iter].start + 1;
-         //GPU ALWAYS HAS MAX NUMBER OF THREADS, regardless of number of passwords
-         int blocksPerGrid = (PWD_BATCH_SIZE_GPU + THREADS_PER_BLOCK - 1 ) / THREADS_PER_BLOCK;
+	      // Calculate the PMKs using GPU
+	      //int max_num = range[gpu_iter].end - range[gpu_iter].start + 1;
+	      //GPU ALWAYS HAS MAX NUMBER OF THREADS, regardless of number of passwords
+	      int blocksPerGrid = (PWD_BATCH_SIZE_GPU + THREADS_PER_BLOCK - 1 ) / THREADS_PER_BLOCK;
 
-         invoke_gpu_kernel ( blocksPerGrid , THREADS_PER_BLOCK , device_input[gpu_iter] , device_output[gpu_iter] , PWD_BATCH_SIZE_GPU);
-         getLastCudaError ( "Kernel launch failure!!" );
+	      invoke_gpu_kernel ( blocksPerGrid , THREADS_PER_BLOCK , device_input[gpu_iter] , device_output[gpu_iter] , PWD_BATCH_SIZE_GPU);
+	      getLastCudaError ( "Kernel launch failure!!" );
       }
 
       // Copy the Output buffers to the Host from Device (GPU) Memory in SEPARATE FOR LOOP
       for ( gpu_iter = 0 ; gpu_iter < gpu_working ; ++gpu_iter ) {
 
-         // Set the GPU Device we are currently dispatching work to crack
-         checkCudaErrors ( cudaSetDevice ( gpu_iter ) );
+	      // Set the GPU Device we are currently dispatching work to crack
+	      checkCudaErrors ( cudaSetDevice ( gpu_iter ) );
 
-         // Copy the Output buffers to the Host from Device (GPU) Memory
-         devMemSize = sizeof ( kernel_output_buffer ) * PWD_BATCH_SIZE_GPU;
-         checkCudaErrors ( cudaMemcpy ( gpu_output + (gpu_iter * PWD_BATCH_SIZE_GPU) , device_output[gpu_iter] , devMemSize , cudaMemcpyDeviceToHost ) );
+	      // Copy the Output buffers to the Host from Device (GPU) Memory
+	      devMemSize = sizeof ( kernel_output_buffer ) * PWD_BATCH_SIZE_GPU;
+	      checkCudaErrors ( cudaMemcpy ( gpu_output + (gpu_iter * PWD_BATCH_SIZE_GPU) , device_output[gpu_iter] , devMemSize , cudaMemcpyDeviceToHost ) );
       }
 
       // Check if the key (password) was found
       for ( gpu_iter = 0 ; gpu_iter < gpu_working ; ++gpu_iter ) {
-         //ORIGINAL
-         //loop through all passwords for a particular gpu
-         //for (i = range[gpu_iter].start; i <= range[gpu_iter].end; ++i ) {
-         //printf("Checking if passwords from %d to %d are the password\n",(gpu_iter*PWD_BATCH_SIZE_GPU),(PWD_BATCH_SIZE_GPU*(gpu_iter+1)-1));
-         for(i=gpu_iter*PWD_BATCH_SIZE_GPU;i<PWD_BATCH_SIZE_GPU*(gpu_iter+1);i++){
-            // Verify the MIC
-            //ORIGINAL
-            //if ( is_key_found ( & gpu_output[ ( gpu_iter * PWD_BATCH_SIZE_GPU ) + ( i - range[gpu_iter].start ) ] , phdsk ) ) {
-            if ( is_key_found (&gpu_output[i] , phdsk) ) {
+	      //ORIGINAL
+	      //loop through all passwords for a particular gpu
+	      //for (i = range[gpu_iter].start; i <= range[gpu_iter].end; ++i ) {
+	      //printf("Checking if passwords from %d to %d are the password\n",(gpu_iter*PWD_BATCH_SIZE_GPU),(PWD_BATCH_SIZE_GPU*(gpu_iter+1)-1));
+	      for(i=gpu_iter*PWD_BATCH_SIZE_GPU;i<PWD_BATCH_SIZE_GPU*(gpu_iter+1);i++){
+		      // Verify the MIC
+		      //ORIGINAL
+		      //if ( is_key_found ( & gpu_output[ ( gpu_iter * PWD_BATCH_SIZE_GPU ) + ( i - range[gpu_iter].start ) ] , phdsk ) ) {
+		      if ( is_key_found (&gpu_output[i] , phdsk) ) {
 
-               //printf("GPU found the key\nPassword: %s\n",passwordList[i]);
-               int password_index=(range[gpu_iter].start+i);
-               printf("GPU found the key\nPassword is at index %d\n",password_index);
-               if(get_password(cpu_num,gpu_num,password_index))
-               {
-                  printf("Successfully looked up password.\n");
-               }
-               else
-               {
-                  printf("Error in get_password() function\n");
-               }
+			      //printf("GPU found the key\nPassword: %s\n",passwordList[i]);
+			      int password_index=(range[gpu_iter].start+i);
+			      printf("GPU found the key\nPassword is at index %d\n",password_index);
+			      if(get_password(cpu_num,gpu_num,password_index))
+			      {
+				      printf("Successfully looked up password.\n");
+			      }
+			      else
+			      {
+				      printf("Error in get_password() function\n");
+			      }
 
-               // !!!!! We found the key !!!!!
+			      // !!!!! We found the key !!!!!
 
-               // End time of computation (including memory transfers Host mem <==> Device mem)
-               gettimeofday ( &tnow , NULL );
+			      // End time of computation (including memory transfers Host mem <==> Device mem)
+			      gettimeofday ( &tnow , NULL );
 
-               // Report speed to main thread
-               //calc_speed[ cpu_num ] = (float) num_keys / ( tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F );
+			      // Report speed to main thread
+			      //calc_speed[ cpu_num ] = (float) num_keys / ( tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F );
 
-               // Sleep a little so that the main thread will read the speed
-               // sleep ( 1 );
+			      // Sleep a little so that the main thread will read the speed
+			      // sleep ( 1 );
 
-               // Convert the key from digit to string
-               //ORIGINAL
-               //sprintf ( key , "%08lu" , cur_key_digit );
-               //SUNJAY
-               //sprintf ( final_key , "%08lu" , cur_key_digit );
+			      // Convert the key from digit to string
+			      //ORIGINAL
+			      //sprintf ( key , "%08lu" , cur_key_digit );
+			      //SUNJAY
+			      //sprintf ( final_key , "%08lu" , cur_key_digit );
 
-               // Report the key to the main thread
-               //ORIGINALLY WAS NOT COMMENTED OUT
+			      // Report the key to the main thread
+			      //ORIGINALLY WAS NOT COMMENTED OUT
 
-               //memcpy ( final_key , passwordList[i] , strlen (passwordList[i] ) );
-               *final_key_flag = 1;
+			      //memcpy ( final_key , passwordList[i] , strlen (passwordList[i] ) );
+			      *final_key_flag = 1;
 
-               // Tell main thread we are terminating
-               // calc_speed[ cpu_num ] = -1;
+			      // Tell main thread we are terminating
+			      // calc_speed[ cpu_num ] = -1;
 
-               // Free resources
-               free ( range );
-               free ( gpu_input );
-               free ( gpu_output );
+			      // Free resources
+			      free ( range );
+			      free ( gpu_input );
+			      free ( gpu_output );
 
-               int ii;
-               for ( ii = 0 ; ii < gpu_num ; ++ii ) {
-                  checkCudaErrors ( cudaSetDevice ( ii ) );
-                  checkCudaErrors ( cudaFree ( (void*) device_input[ii] ) );
-                  checkCudaErrors ( cudaFree ( (void*) device_output[ii] ) );
-               }
-               free ( device_input );
-               free ( device_output );
-               goto stop;
-               //  return NULL;
-               //closes if key is found
-            }
-            //closes for loop for iterating through generated pmks
-         }
-         //closes for loop for passwords generated by a single gpu, incrementing by GPU_PWD_BATCH_SIZE
-         }
+			      int ii;
+			      for ( ii = 0 ; ii < gpu_num ; ++ii ) {
+				      checkCudaErrors ( cudaSetDevice ( ii ) );
+				      checkCudaErrors ( cudaFree ( (void*) device_input[ii] ) );
+				      checkCudaErrors ( cudaFree ( (void*) device_output[ii] ) );
+			      }
+			      free ( device_input );
+			      free ( device_output );
+			      goto stop;
+			      //  return NULL;
+			      //closes if key is found
+		      }
+		      //closes for loop for iterating through generated pmks
+	      }
+	      //closes for loop for passwords generated by a single gpu, incrementing by GPU_PWD_BATCH_SIZE
+	      }
 
-         // End time of computation (including memory transfers Host mem <==> Device mem)
-         gettimeofday ( &tnow , NULL );
+	      // End time of computation (including memory transfers Host mem <==> Device mem)
+	      gettimeofday ( &tnow , NULL );
 
-         // Report speed to main thread
-         // calc_speed[ cpu_num ] = (float) num_keys / ( tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F );
+	      // Report speed to main thread
+	      // calc_speed[ cpu_num ] = (float) num_keys / ( tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F );
       }
 stop: 
       // Tell main thread we are terminating
