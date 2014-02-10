@@ -23,7 +23,7 @@
 //#define password "6f141H64TyPi"
 #define DB_NAME "DWPA"
 #define PORT_NUMBER 3306
-#define TABLE_NAME "DICT1"
+#define TABLE_NAME "DICT"
 #define COLUMN_NAME "WORD"
 #define LONGEST_PASSWORD 128
 //for test machine we have 
