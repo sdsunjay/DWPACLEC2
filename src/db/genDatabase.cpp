@@ -269,7 +269,7 @@ int main(int argc, char* argv[] )
 
    if(argv[1])
    {
-      printf("SET GLOBAL max_allowed_packet = 1024 * 1024 * 1024;\n");
+      printf("SET GLOBAL max_allowed_packet = 1024 * 1024 * 1024\n");
       if (mysql_query(MySQLConnection,"SET GLOBAL max_allowed_packet = 1024 * 1024 * 1024") )
       {
 	 printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
