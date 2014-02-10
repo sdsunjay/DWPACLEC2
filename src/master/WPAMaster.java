@@ -197,13 +197,13 @@ public class WPAMaster  {
 	 }
 	 */
 	 System.out.println("");
-	 return true;
       }catch(Exception e)
       {
-	 System.out.println("Read Capture File Error:");
+	 System.out.println("Unable to read "+path);
+	 System.exit(0);
 	 //e.printStackTrace();
-	 return false;
       }
+	 return true;
    }
 
    /**
