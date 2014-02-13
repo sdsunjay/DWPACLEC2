@@ -32,17 +32,6 @@ int checkSize(char* name)
    return 1;
 }
 
-int makeSpace(char* query,int size)
-{
-
-   query = (char*) calloc (size,sizeof(char));
-   if (query==NULL)
-   {	
-      fprintf(stderr,"Error with calloc\n");
-      exit (1);
-   }
-}
-
 int main(int argc, char* argv[] )
 {
 
@@ -50,6 +39,8 @@ int main(int argc, char* argv[] )
    char c;
    char* path;
    char u;
+   char* realPath;
+   char* realPath1;
    if(geteuid()!=0)
    {
       fprintf(stderr,"Must run as root or segfault WILL occur!\n");
@@ -68,19 +59,21 @@ int main(int argc, char* argv[] )
    }
    else if(argc==2)
    {
-      makeSpace(path,200);
+      //makeSpace(path,200);
       fprintf(stderr,"You entered %s %s\n",argv[0],argv[1]);
-      argv[1]=realpath(argv[1],path);	
-      printf("Absolute path %s\n",argv[1]);
-      free(path);
+      realPath=argv[1];
+      //realPath=realpath(argv[1],path);	
+      printf("Absolute path %s\n",realPath);
+      //free(path);
    }
    else if(argc==3)
    {
-      makeSpace(path,200);
+      //makeSpace(path,200);
       fprintf(stderr,"You entered %s %s %s\n",argv[0],argv[1],argv[2]);
-      argv[2]=realpath(argv[2],path);	
-      printf("Absolute path %s\n",argv[2]);
-      free(path);
+      realPath1=argv[2];
+      //realPath1=realpath(argv[2],path);	
+      printf("Absolute path %s\n",realPath1);
+      //free(path);
    }
    else
    {
@@ -154,7 +147,7 @@ int main(int argc, char* argv[] )
    getchar();
    if(u=='y')
    {
-      printf("CREATE USER 'calpoly'@'localhost' IDENTIFIED BY '751DW6MegYf1'\n");
+      printf("CREATE USER 'calpoly'@'localhost' IDENTIFIED BY '7751DW6MegYf1'\n");
       if(mysql_query(MySQLConnection, "CREATE USER 'calpoly'@'localhost' IDENTIFIED BY '7751DW6MegYf1'")) 
       {
 	 printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
@@ -231,8 +224,8 @@ int main(int argc, char* argv[] )
 
    // --------------------------------------------------------------------
    //  Create tables 
-   printf("CREATE TABLE IF NOT EXISTS  DICT1 (WORD CHAR(20) NOT NULL UNIQUE,LENGTH TINYINT UNSIGNED NOT NULL,CHECK (LENGTH>7), PRIMARY KEY (WORD)) CHARACTER SET ascii\n");
-   if (mysql_query(MySQLConnection, "CREATE TABLE IF NOT EXISTS DICT1 (WORD CHAR(20) NOT NULL UNIQUE,LENGTH TINYINT UNSIGNED NOT NULL,CHECK (LENGTH>7), PRIMARY KEY (WORD)) CHARACTER SET ascii") )
+   printf("CREATE TABLE IF NOT EXISTS DICT1 (WORD CHAR(20) NOT NULL UNIQUE,PRIMARY KEY (WORD)) CHARACTER SET ascii\n");
+   if (mysql_query(MySQLConnection, "CREATE TABLE IF NOT EXISTS DICT1 (WORD CHAR(20) NOT NULL UNIQUE, PRIMARY KEY (WORD)) CHARACTER SET ascii") )
    {
       printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
       printf("Proceed anyway? (y | n)");
@@ -241,8 +234,8 @@ int main(int argc, char* argv[] )
       if(c=='n')
 	 return(1);
    }
-   printf("CREATE TABLE IF NOT EXISTS DICT (WORD CHAR(20) NOT NULL UNIQUE,LENGTH TINYINT UNSIGNED NOT NULL,CHECK (LENGTH>7), PRIMARY KEY (WORD)) CHARACTER SET ascii\n");
-   if (mysql_query(MySQLConnection, "CREATE TABLE IF NOT EXISTS DICT (WORD CHAR(20) NOT NULL UNIQUE,LENGTH TINYINT UNSIGNED NOT NULL,CHECK (LENGTH>7), PRIMARY KEY (WORD)) CHARACTER SET ascii") )
+   printf("CREATE TABLE IF NOT EXISTS DICT (WORD CHAR(20) NOT NULL UNIQUE,PRIMARY KEY (WORD)) CHARACTER SET ascii\n");
+   if (mysql_query(MySQLConnection, "CREATE TABLE IF NOT EXISTS DICT (WORD CHAR(20) NOT NULL UNIQUE,PRIMARY KEY (WORD)) CHARACTER SET ascii") )
    {
       printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
       printf("Proceed anyway? (y | n)");
@@ -276,50 +269,61 @@ int main(int argc, char* argv[] )
 	 return(1);
       }
 
-      makeSpace(query,100);
-      if (checkSize(argv[1]))
+
+      query = (char*) calloc (500,sizeof(char));
+      if (query==NULL)
+      {	
+	      fprintf(stderr,"Error with calloc\n");
+	      exit (1);
+      } 
+      if (checkSize(realPath))
       {
-	 printf("Inserting from %s\n",argv[1]);
-	 sprintf (query, "LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE DICT1 CHARACTER SET ascii LINES TERMINATED BY '\n' (@word) SET WORD=@word,LENGTH = CHAR_LENGTH(word)", argv[1]);
-	 //sprintf (query, "LOAD DATA LOCAL INFILE '/home/ec2-user/DWPACLEC2/src/slave/test/small' IGNORE INTO TABLE DICT1 CHARACTER SET ascii LINES TERMINATED BY '\n' (@word) SET WORD=@word,LENGTH = CHAR_LENGTH(word)");
-	 printf("%s\n",query);
-	 if (mysql_query(MySQLConnection, query) )
-	 {
-	    printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
-	    return(1);
-	 }
+	      printf("Inserting from %s\n",realPath);
+	      sprintf (query, "LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE DICT CHARACTER SET ascii LINES TERMINATED BY '\n' (@word) SET WORD=@word", realPath);
+	      //sprintf (query, "LOAD DATA LOCAL INFILE '/home/ec2-user/DWPACLEC2/src/slave/test/small' IGNORE INTO TABLE DICT1 CHARACTER SET ascii LINES TERMINATED BY '\n' (@word) SET WORD=@word,LENGTH = CHAR_LENGTH(word)");
+	      printf("%s\n",query);
+	      if (mysql_query(MySQLConnection, query) )
+	      {
+		      printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
+		      return(1);
+	      }
       }
       else
       {
-	 printf("Did not insert\n");
+	      printf("Did not insert\n");
       }
       free(query);
    }
 
    if(argv[2])
    {
-      makeSpace(query,100);
+   query = (char*) calloc (500,sizeof(char));
+   if (query==NULL)
+   {	
+      fprintf(stderr,"Error with calloc\n");
+      exit (1);
+   } 
 
-      if(checkSize(argv[1]))
-      {
-	 printf("Inserting from %s\n",argv[2]);
-	 sprintf(query,"LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE DICT CHARACTER SET ascii LINES TERMINATED BY '\n' (@word) SET WORD=@word,LENGTH = CHAR_LENGTH(word)",argv[2]);
-	 printf("%s\n",query);	
-	 if (mysql_query(MySQLConnection,query))
-	 {
-	    printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
-	    return(1);
-	 }
-      }
-      else
-      {
-	 printf("Did not insert\n");
-      }
-      free(query);
+	   if(checkSize(realPath1))
+	   {
+		   printf("Inserting from %s\n",realPath1);
+		   sprintf(query,"LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE DICT1 CHARACTER SET ascii LINES TERMINATED BY '\n' (@word) SET WORD=@word",realPath1);
+		   printf("%s\n",query);	
+		   if (mysql_query(MySQLConnection,query))
+		   {
+			   printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
+			   return(1);
+		   }
+	   }
+	   else
+	   {
+		   printf("Did not insert\n");
+	   }
+	   free(query);
    }
    //readFile(argv[2]);
    //call function to do inserting
-   //insertIntoDB(MySQLConnection,word,strlen(word),filename);
+   //insertIntoDB(MySQLConnection,word);
 
    // --------------------------------------------------------------------
    // Close datbase connection
@@ -328,14 +332,14 @@ int main(int argc, char* argv[] )
 
    return 0;
 }
-int insertIntoDB(MYSQL *MySQLConnection,char* word,int length,char* filename)
+int insertIntoDB(MYSQL *MySQLConnection,char* word)
 {
 
-   char q[1024];
-   sprintf(q,"INSERT INTO dict(WORD,LENGTH,FILENAME) VALUES ('%s',%d,'%s')",word,length,filename);
-   if (mysql_query(MySQLConnection,q) )
-   {
-      printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
-      return(1);
-   }
+	char q[1024];
+	sprintf(q,"INSERT INTO dict(WORD) VALUES ('%s')",word);
+	if (mysql_query(MySQLConnection,q) )
+	{
+		printf("Error %u: %s\n", mysql_errno(MySQLConnection), mysql_error(MySQLConnection));
+		return(1);
+	}
 }

@@ -136,11 +136,11 @@ int main(int argc, char* argv[])
 				printf("You said: %c\n\n",ans);
 				if(ans=='y' || ans=='Y') 
 				{
-
-					for(i[0] =0;i[0]<10;i[0]++)
+					printf("Only printing phone number starting with 80******** and going to 84******** .. too bad\n");
+					for(i[0] =8;i[0]<9;i[0]++)
 					{
 						num[0]=i[0];
-						for(i[1]=0;i[1]<10;i[1]++)
+						for(i[1]=0;i[1]<5;i[1]++)
 						{ 
 							num[1]=i[1];
 							for(i[2]=0;i[2]<10;i[2]++)
