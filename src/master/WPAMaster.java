@@ -295,21 +295,26 @@ public class WPAMaster  {
 	       //e.getCause(); 
 	       System.err.println(e);
 	       
-	       System.err.println("A fatal error occurred with a slave at"+m_IP+".\n Quit? (1 - yes | 0 - no");
+	       System.err.println("A fatal error occurred with slave at "+m_IP+".\n Quit? (1 - yes | 0 - no)");
 	       /*read 1 input from stdin*/
 	       try{	  
 		  char in = (char) System.in.read();
 		  if(in=='1')
+		  {
 		     System.exit(1);
+		  }
 		  else
 		  {
-		     System.err.println("Retry to connect?");
+		     System.err.println("Retry to connect? (1 - yes | 0 - no)");
 		     in=(char) System.in.read(); 
 		     if(in=='1')
 		     {
 			StartConnectingToSlave(m_IP,m_Port,m_DB,m_rangeStart,m_rangeEnd); 
 		     }
-
+		     else
+		     {
+			System.exit(1);
+		     }
 		  }
 
 	       }
@@ -327,8 +332,8 @@ public class WPAMaster  {
 	       System.err.println("Unable to connect\nInstance Not Ready...");
 	       try
 	       {
-		  System.err.println("Sleeping for 2 seconds");
-		  Thread.sleep(2 * 1000);
+		  System.err.println("Sleeping for 3 seconds");
+		  Thread.sleep(3 * 1000);
 		  /*read 1 input from stdin*/
 		  //char c = (char) System.in.read();
 		  run();
