@@ -32,7 +32,7 @@ using namespace std;
 //in case there are 8 cpu threads + 1 for 1 GPU
 //global db connector
 MYSQL* MySQLConnection[NUM_DB_CONNECTIONS];
-int keys;
+unsigned long keys;
 int vflag;
 // read an entire line into memory
 char buf[MAX_CHARS_PER_LINE];
@@ -429,11 +429,11 @@ int main(int argc, char** argv)
    pwd_range range;
    unsigned long first_pwd = 0;
    unsigned long last_pwd = 0;
-
+   //port number to open at
    int port;
-   //int db_flag;
 
    // get the number of CPU processors
+ //cpu_num=2;  
    cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
    printf("number of CPU processors: %d\n", cpu_num);
    gpu_num = num_of_gpus();
@@ -445,9 +445,6 @@ int main(int argc, char** argv)
      fprintf(stderr,"Too many args\n");
       fprintf(stderr,"usage: %s <port>\n", argv[0]);
       exit(0);
-      //printf("Sunjay has opened port# 7373 for this\n");
-      //printf("Enter a port number\n");
-      //scanf("%d", &port);
    }
    else
    {
@@ -518,7 +515,7 @@ int main(int argc, char** argv)
 
 
    // prepare for CPU and GPU thread creation
-   range = fetch_pwd('\0', &first_pwd, &last_pwd);
+   range = fetch_pwd('\0', &first_pwd, &last_pwd,0);
    if ( range.start != 0)
    {
       printf("error while preparing cpu/gpu thread creation\n");
@@ -598,129 +595,133 @@ int main(int argc, char** argv)
    arg->final_key = final_key;
    arg->final_key_flag = &final_key_flag;
 
-      //open db connections for each GPU thread
-      for (i=0; i<gpu_num; ++i)
-      {
-	 //if successfully connected to the database, so we can make queries, process
-	 if(connect_to_db(cpu_num+i,hostName)==0)
-	 {
-	    printf("DB_connector_index: %d GPU %d: Connecting to DB: ",cpu_num+i,i);
-	    printf("Successful\n");
-	    //   printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
-	 }
-	 else
-	 {
-	    printf("GPU %d: Cnnecting to DB: ",i);
-	    printf("fail\n");
-	    exit(0);
-	 }
-      }
+   //open db connections for each GPU thread
+   for (i=0; i<gpu_num; ++i)
+   {
+	   if(vflag==1)
+	   {
+		printf("testing connection to db for gpu at connection id %d\n",cpu_num+i);
+	   }
+	   //if successfully connected to the database, so we can make queries, process
+	   if(connect_to_db(cpu_num+i,hostName)==0)
+	   {
+		   printf("DB_connector_index: %d GPU %d: Connecting to DB: ",cpu_num+i,i);
+		   printf("Successful\n");
+		   //   printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
+	   }
+	   else
+	   {
+		   printf("GPU %d: Cnnecting to DB: ",i);
+		   printf("fail\n");
+		   exit(0);
+	   }
+   }
    flag = pthread_create(&tid_vector[cpu_num], NULL, crack_gpu_thread, arg);
    if (flag)
    {
-      printf("can't create thread for gpu: %s\n", strerror(flag));
+	   printf("can't create thread for gpu: %s\n", strerror(flag));
    }
    else
    {
-      printf("created thread for gpu\n");
-      gpu_working++;
+	   printf("created thread for gpu\n");
+	   gpu_working++;
    }
    // monitor the runtime status
    //float cpu_speed_all = 0;
    //float gpu_speed_all = 0;
    //printf ( "...\n" );
-   printf("In WPS-cack-s (before loop)\n");
+   printf("Starting WPS-cack-s loop\n");
    while (1)
    {
-      signal(SIGINT, INThandler);
-      // print the calculation speed
-      //cpu_speed_all = 0;
-      //gpu_speed_all = 0;
+	   signal(SIGINT, INThandler);
+	   // print the calculation speed
+	   //cpu_speed_all = 0;
+	   //gpu_speed_all = 0;
 
-      for (i=0; i<cpu_num; ++i)
-      {
-	 if (calc_speed[i] == -1)
-	 {
-	    calc_speed[i] = -2;
-	    cpu_working--;
-	 }
-	 //else if (calc_speed[i] > 0)
-	 //cpu_speed_all += calc_speed[i];
-      }
+	   for (i=0; i<cpu_num; ++i)
+	   {
+		   if (calc_speed[i] == -1)
+		   {
+			   calc_speed[i] = -2;
+			   cpu_working--;
+		   }
+		   //else if (calc_speed[i] > 0)
+		   //cpu_speed_all += calc_speed[i];
+	   }
 
-      // Speed of all GPUs
-      if (calc_speed[cpu_num] == -1)
-      {
-	 calc_speed[cpu_num] = -2;
-	 gpu_working--;
-      }
-      //else if (calc_speed[cpu_num] > 0)
-      //gpu_speed_all += calc_speed[cpu_num];
+	   // Speed of all GPUs
+	   if (calc_speed[cpu_num] == -1)
+	   {
+		   calc_speed[cpu_num] = -2;
+		   gpu_working--;
+	   }
+	   //else if (calc_speed[cpu_num] > 0)
+	   //gpu_speed_all += calc_speed[cpu_num];
 
-      // delete the last output line (http://stackoverflow.com/questions/1348563)
-      //fputs("\033[A\033[2K",stdout);
-      //rewind(stdout);
-      //flag = ftruncate(1, 0);
+	   // delete the last output line (http://stackoverflow.com/questions/1348563)
+	   //fputs("\033[A\033[2K",stdout);
+	   //rewind(stdout);
+	   //flag = ftruncate(1, 0);
 
-      range = fetch_pwd('\0', &first_pwd, NULL);
-      //printf("SPD: %08.1fPMK/S [CPU(%02d):%08.1f|GPU(%02d):%08.1f|G/C:%06.1f] CUR: %08lu\n",cpu_speed_all+gpu_speed_all, cpu_working, cpu_speed_all, gpu_working, gpu_speed_all, gpu_speed_all/cpu_speed_all, range.start);
+	   //range = fetch_pwd('\0', &first_pwd, NULL);
+	   //printf("SPD: %08.1fPMK/S [CPU(%02d):%08.1f|GPU(%02d):%08.1f|G/C:%06.1f] CUR: %08lu\n",cpu_speed_all+gpu_speed_all, cpu_working, cpu_speed_all, gpu_working, gpu_speed_all, gpu_speed_all/cpu_speed_all, range.start);
 
-      // reset for some time (this only blocks the current thread)
-      // this seems unnecessary..
-      // sleep(1);
+	   // reset for some time (this only blocks the current thread)
+	   // this seems unnecessary..
+	   // sleep(1);
 
-      // check if the correct key is found
-      if (final_key_flag)
-      {
-	 printf("!!! key found !!! [%s]\n", final_key);
+	   // check if the correct key is found
+	   if (final_key_flag)
+	   {
+		   printf("!!! key found !!! [%s]\n", final_key);
 
-	 // End time of computation
-	 gettimeofday ( &tnow , NULL );
-	 // Report total time
-	 float total_time = tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F;
-	 printf ( "Time Taken: %.2f seconds, i.e. %.2f hours\n" , total_time , total_time / 3600 );
+		   // End time of computation
+		   gettimeofday ( &tnow , NULL );
+		   // Report total time
+		   float total_time = tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F;
+		   printf ( "Time Taken: %.2f seconds, i.e. %.2f hours\n" , total_time , total_time / 3600 );
 
-	 printf("Sending the key back to the master ... ");
-	 flag = master_answer(sd, final_key);
-	 if (flag)
-	 {
-	    printf("done\n");
-	    close(sd);
-	    free(calc_speed);
-	    printf("Final key has been found, quitting\n");
-	    mysql_library_end();
-	    exit(0);
-	 }
-	 else
-	 {
-	    printf("failed\n");
-	    char name_of_file[256];
-	    fprintf(stderr,"Unable to send key to master\n");
-	    sprintf(name_of_file,"%s_WPA_PASSWORD_%.2f",essid,total_time);
-	    fprintf(stderr,"Writing to file (%s)\n",name_of_file);
-	    FILE *f = fopen(name_of_file, "w");
-	    if (f == NULL)
-	    {
-	       fprintf(stderr,"Error opening %s\n",name_of_file);
-	       exit(1);
-	    }
-	    /* write password to file*/
-	    fprintf(f, "%s",final_key);
-	    fclose(f);
-	    close(sd);
-	    free(calc_speed);
-	    exit(1);
-	 }
-      }
-      // if there are no remaining cpu or gpu thread, then exit
-      if (cpu_working<=0 && gpu_working<=0)
-      {
-	 printf("no thread calculating, exit\n");
-	 close(sd);
-	 // free(calc_speed);
-	 break;
-	 //  exit(0);
-      }
+		   printf("Sending the key back to the master ... ");
+		   flag = master_answer(sd, final_key);
+		   if (flag)
+		   {
+			   printf("done\n");
+			   close(sd);
+			   free(calc_speed);
+			   printf("Final key has been found, quitting\n");
+			   mysql_library_end();
+			   exit(0);
+		   }
+		   else
+		   {
+			   printf("failed\n");
+			   char name_of_file[256];
+			   fprintf(stderr,"Unable to send key to master\n");
+			   sprintf(name_of_file,"%s_WPA_PASSWORD_%.2f",essid,total_time);
+			   fprintf(stderr,"Writing to file (%s)\n",name_of_file);
+			   FILE *f = fopen(name_of_file, "w");
+			   if (f == NULL)
+			   {
+				   fprintf(stderr,"Error opening %s\n",name_of_file);
+				   exit(1);
+			   }
+			   /* write password to file*/
+			   fprintf(f, "%s",final_key);
+			   fclose(f);
+			   close(sd);
+			   free(calc_speed);
+			   exit(1);
+		   }
+	   }
+	   // if there are no remaining cpu or gpu thread, then exit
+	   if (cpu_working<=0 && gpu_working<=0)
+	   {
+		   printf("no thread calculating, exit\n");
+		   close(sd);
+		   // free(calc_speed);
+		   break;
+		   //  exit(0);
+	   }
    }
    printf("Key not found\n");
    // End time of computation
@@ -731,6 +732,6 @@ int main(int argc, char** argv)
    // release resources
    close(sd);
    free(calc_speed);
-    mysql_library_end();
+   mysql_library_end();
    return 0;
 }

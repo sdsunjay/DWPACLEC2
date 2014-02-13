@@ -56,10 +56,10 @@ COMMONDIR  := $(ROOTDIR)/../common
 SHAREDDIR  := $(ROOTDIR)/../../shared/
 
 # Compilers
-#for aws gpu
-NVCC := /usr/local/cuda-5.5/bin/nvcc
-#for tesla and probably everything else
-#NVCC       := /usr/local/cuda/bin/nvcc
+#old
+#NVCC := /usr/local/cuda-5.5/bin/nvcc
+#for AWS GPU
+NVCC       := /usr/local/cuda/bin/nvcc
 CXX        := g++ -fPIC
 CC         := gcc -fPIC
 LINK       := g++ -fPIC
@@ -362,9 +362,9 @@ ifdef maxregisters
 	NVCCFLAGS += -maxrregcount $(maxregisters)
 endif
 
-#ifeq ($(ptxas), 1)
-NVCCFLAGS += --ptxas-options=-v
-#endif
+ifeq ($(ptxas), 1)
+	NVCCFLAGS += --ptxas-options=-v
+endif
 
 # Add cudacc flags
 NVCCFLAGS += $(CUDACCFLAGS)

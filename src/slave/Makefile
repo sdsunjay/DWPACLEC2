@@ -24,7 +24,7 @@ C_DEPS		:=  \
 # C Compiler Flags
 WPA_DEBUG := no
 #ifeq (yes, ${WPA_DEBUG})
-  USER_CFLAGS += -g
+#  USER_CFLAGS += -g
 #else
   USER_CFLAGS += -O2
 #endif

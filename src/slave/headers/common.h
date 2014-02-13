@@ -7,8 +7,9 @@
 
 // how many passwords to feed to a CPU/GPU crack thread every time
 #define PWD_BATCH_SIZE_CPU 1000
-#define PWD_BATCH_SIZE_GPU 50000
-//#define PWD_BATCH_SIZE_GPU 10000
+#define PWD_BATCH_SIZE_GPU 100000
+#define QUERY_BUFFER 100
+
 
 //SUNJAY
 //FOR DATABASE
@@ -23,12 +24,13 @@
 //#define password "6f141H64TyPi"
 #define DB_NAME "DWPA"
 #define PORT_NUMBER 3306
-#define TABLE_NAME "DICT"
+#define TABLE_NAME "DICT1"
 #define COLUMN_NAME "WORD"
 #define LONGEST_PASSWORD 128
-//for test machine we have 
+//for SUNJAY test machine we have 
 //8 cpu threads and 1 gpu thread for a total of 9 connections 
- #define NUM_DB_CONNECTIONS 9 
+//for AWS GPU CG1 we have 16 CPU threads and 2 gpu threads
+ #define NUM_DB_CONNECTIONS 20 
 // WPA 4-way handshake structure
 typedef struct _wpa_hdsk
 {
