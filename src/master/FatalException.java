@@ -5,6 +5,6 @@ public class FatalException extends Exception {
    public FatalException(Throwable cause) { super(cause); }
    public String toString()
    {
-      return ("slave did not return cmdChar 'a' or 'r', so it may have died, so we quit");
+      return ("Slave did not return 'a' or 'r', so it may have died. Quitting");
    }
 }
