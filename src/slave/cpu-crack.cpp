@@ -132,7 +132,7 @@ pwd_range fetch_pwd(char type, const unsigned long* first, const unsigned long* 
       if (pthread_mutex_init(&mutex, NULL) != 0)
       {
          range.start = 0.5;
-         //range.end = 0.5;
+         range.end = 0.5;
       }
    }
    else if (first && !last) // called by master thread only to get current status
@@ -277,7 +277,7 @@ void* crack_cpu_thread(void *arg)
       mysqlStatus = mysql_query(MySQLConnection[cpu_core_id],query);
       if (mysqlStatus)
       {
-         printf("CPU Thread: MySQL Error:\nQuitting\n");
+         printf("CPU Thread: MySQL Error:\n");
          break;
       }
       else
@@ -317,7 +317,7 @@ void* crack_cpu_thread(void *arg)
       //loop through all the rows in the result set
       // mysqlRow = mysql_fetch_row(mysqlResult);
       //for (cur_key_digit = range.start; cur_key_digit <= range.end; ++cur_key_digit)
-      while((mysqlRow = mysql_fetch_row(mysqlResult))) // row pointer in the result se
+      while(mysqlRow = mysql_fetch_row(mysqlResult)) // row pointer in the result se
       {
 	      //printf("iterating through result\n");
 	      // calculate the calculation speed
@@ -425,7 +425,7 @@ void* crack_cpu_thread(void *arg)
    }*/
    calc_speed[cpu_core_id] = -1; // this indicates the thread is returned
    //printf("CPU thread has checked %d keys total.\n",num_keys);
-   printf("Leaving CPU-crack\n");
+   printf("%d is exiting CPU-crack\n",cpu_core_id);
    // Close database connection
    mysql_close(MySQLConnection[cpu_core_id]);
    return NULL;

@@ -212,13 +212,6 @@ int connect_to_db(int id,char* hostName)
 	// {
 	 //   c=handle_db_connect(c);
 	 }
-	 else
-	 {
-	    printf("no errors\n");
-            // printf("Invalid. Quitting\n");
-	    //exit(1);
-            //return(1);
-	 }
       //}
       //	 throw FFError( (char*) mysql_error(MySQLConnection[id]) );
    //}while(c=='y');
@@ -515,7 +508,7 @@ int main(int argc, char** argv)
 
 
    // prepare for CPU and GPU thread creation
-   range = fetch_pwd('\0', &first_pwd, &last_pwd,0);
+   range = fetch_pwd('\0', &first_pwd, &last_pwd,gpu_num);
    if ( range.start != 0)
    {
       printf("error while preparing cpu/gpu thread creation\n");
@@ -663,7 +656,7 @@ int main(int argc, char** argv)
 	   //rewind(stdout);
 	   //flag = ftruncate(1, 0);
 
-	   //range = fetch_pwd('\0', &first_pwd, NULL);
+	   range = fetch_pwd('\0', &first_pwd, NULL,0);
 	   //printf("SPD: %08.1fPMK/S [CPU(%02d):%08.1f|GPU(%02d):%08.1f|G/C:%06.1f] CUR: %08lu\n",cpu_speed_all+gpu_speed_all, cpu_working, cpu_speed_all, gpu_working, gpu_speed_all, gpu_speed_all/cpu_speed_all, range.start);
 
 	   // reset for some time (this only blocks the current thread)

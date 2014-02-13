@@ -276,7 +276,7 @@ void query_and_fill(int db_connector_index, int gpu_num,char* essid,pwd_range* r
 
 	//how many passwords we saved
 	//set back to 0	
-	password_index = 0;
+	*password_index = 0;
 	// --------------------------------------------------------------------
 	// Perform a SQL SELECT and retrieve data
 	// There should not be a terminating ';'
@@ -315,12 +315,12 @@ void query_and_fill(int db_connector_index, int gpu_num,char* essid,pwd_range* r
 		//no longer necessary to keep track of password, we just track index
 		// Precompute the iKeypads, oKeypads and 1st Round Hashes
 		//precompute(mysqlRow[0], essid, & gpu_input[password_index]);
-		precompute(mysqlRow[0], essid, & gpu_input[10]);
+		precompute(mysqlRow[0], essid, & gpu_input[*password_index]);
 
 		// Count the total number of keys
 		password_index++;
 	}
-	printf("GPU got %u number of rows\n",password_index);
+	printf("GPU got %u number of rows\n",*password_index);
 	return;
 }
 void cleanUp(int cpu_num,int gpu_num)
