@@ -426,16 +426,17 @@ int main(int argc, char** argv)
    int port;
 
    //for debugging
-   //cpu_num=2;  
+   cpu_num=2;  
    // get the number of CPU processors
-   cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
-   /*if(cpu_num > 8)
+  /* cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
+  if(cpu_num > 8)
    {
-	   cpu_num=1;
+	   cpu_num=8;
    }*/
+	cpu_num=0;
 //having each one connect to DB slows things down.
 //lets not have any
-  cpu_num=0;	   
+  //cpu_num=0;	   
    printf("number of CPU processors: %d\n", cpu_num);
    //for debugging
    //gpu_num=1;  
@@ -675,7 +676,7 @@ int main(int argc, char** argv)
 	   //rewind(stdout);
 	   //flag = ftruncate(1, 0);
 
-	   range = fetch_pwd('\0', &first_pwd, NULL);
+	   //range = fetch_pwd('\0', &first_pwd, NULL);
 	   //printf("SPD: %08.1fPMK/S [CPU(%02d):%08.1f|GPU(%02d):%08.1f|G/C:%06.1f] CUR: %08lu\n",cpu_speed_all+gpu_speed_all, cpu_working, cpu_speed_all, gpu_working, gpu_speed_all, gpu_speed_all/cpu_speed_all, range.start);
 
 	   // reset for some time (this only blocks the current thread)
@@ -726,8 +727,8 @@ int main(int argc, char** argv)
 		   }
 	   }
 	   // if there are no remaining cpu or gpu thread, then exit
-	 //  if (cpu_working<=0 || gpu_working<=0)
 	 	if (gpu_working<=0)
+//	   if (cpu_working<=0 || gpu_working<=0)
 	   {
 		   //printf("no thread calculating exit\n");
 		   close(sd);

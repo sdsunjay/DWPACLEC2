@@ -162,6 +162,7 @@ pwd_range fetch_pwd(char type, const unsigned long* first, const unsigned long* 
 	 range.start = current_self;
          range.end = (current_self+len-1>last_self)?last_self:(current_self+len-1);
          current_self += len;
+	sleep(2);
       }
       pthread_mutex_unlock(&mutex);
    }
@@ -288,15 +289,6 @@ void* crack_cpu_thread(void *arg)
       {
          // # of rows in the result set
          numRows = mysql_num_rows(mysqlResult);
-	 if(vflag)
-	 {
-		 // Returns the number of columns in a result set specified
-	//	 numFields = mysql_num_fields(mysqlResult);
-
-
-		//this just prints WAY too often, so commenting it out for now
-		printf("CPU id %d: Number of rows=%u  Number of fields=%u \n",numRows,mysql_num_fields(mysqlResult));
-	 }
       }
       else
       {  calc_speed[cpu_core_id]=-1;
