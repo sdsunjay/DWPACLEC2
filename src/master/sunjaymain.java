@@ -160,6 +160,7 @@ public class sunjaymain {
 	    try{
 	       if(master.WPAPassword=="")
 	       {
+
 		  Thread.sleep(2000);
 	       }else
 	       {
