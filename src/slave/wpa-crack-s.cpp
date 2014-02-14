@@ -425,8 +425,9 @@ int main(int argc, char** argv)
    //port number to open at
    int port;
 
+	 //for debugging
+	//cpu_num=2;  
    // get the number of CPU processors
- //cpu_num=2;  
    cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
    printf("number of CPU processors: %d\n", cpu_num);
    gpu_num = num_of_gpus();

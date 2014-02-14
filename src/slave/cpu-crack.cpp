@@ -271,8 +271,8 @@ void* crack_cpu_thread(void *arg)
       if(vflag)
       {
 	//this just prints WAY too often, so commenting it out for now
-	 //printf("CPU query is: %s\n",query);
-	 //printf("Range start is : %lu\n",range.start);
+	 printf("CPU query is: %s\n",query);
+	 printf("Range start is : %lu\n",range.start);
       }
       mysqlStatus = mysql_query(MySQLConnection[cpu_core_id],query);
       if (mysqlStatus)
@@ -291,11 +291,11 @@ void* crack_cpu_thread(void *arg)
 	 if(vflag)
 	 {
 		 // Returns the number of columns in a result set specified
-		 //numFields = mysql_num_fields(mysqlResult);
+	//	 numFields = mysql_num_fields(mysqlResult);
 
 
 		//this just prints WAY too often, so commenting it out for now
-		// printf("CPU id %d: Number of rows=%u  Number of fields=%u \n",numRows,numFields);
+		printf("CPU id %d: Number of rows=%u  Number of fields=%u \n",numRows,mysql_num_fields(mysqlResult));
 	 }
       }
       else

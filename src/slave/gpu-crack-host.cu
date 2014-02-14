@@ -281,13 +281,16 @@ void query_and_fill(int db_connector_index, int gpu_num,char* essid,pwd_range* r
 	// Perform a SQL SELECT and retrieve data
 	// There should not be a terminating ';'
 	sprintf(query, "SELECT %s FROM %s LIMIT %d OFFSET %lu",COLUMN_NAME,TABLE_NAME,(PWD_BATCH_SIZE_GPU*gpu_num),range->start);
-	printf("Query is %s\n",query);
+	if(vflag)
+	{
+		printf("Query is %s\n",query);
+	}
 	//printf("Range start is : %lu\n",range.start);
 
 	mysqlStatus = mysql_query(MySQLConnection[db_connector_index],query);
 	if (mysqlStatus)
 	{
-		printf("GPU Thread: MySQL Error:\nQuitting");
+		fprintf(stderr,"GPU Thread: MySQL Error:\nQuitting");
 		exit(1);
 	}
 	else
@@ -304,12 +307,11 @@ void query_and_fill(int db_connector_index, int gpu_num,char* essid,pwd_range* r
 	}*/
 	if(!mysqlResult)
 	{
-		printf("Result set is empty");
+		fprintf(stderr,"Result set is empty");
 		return;
 	}
 	while(mysqlRow = mysql_fetch_row(mysqlResult)) // row pointer in the result set
 	{
-
 		//IF we just kept track of the index of where the password was found,
 		//we THINK we could replace the two lines below with the following:
 		//no longer necessary to keep track of password, we just track index
@@ -318,9 +320,12 @@ void query_and_fill(int db_connector_index, int gpu_num,char* essid,pwd_range* r
 		precompute(mysqlRow[0], essid, & gpu_input[*password_index]);
 
 		// Count the total number of keys
-		password_index++;
+		(*password_index)++;
 	}
-	printf("GPU got %u number of rows\n",*password_index);
+	if(vflag)
+	{
+		printf("GPU got %u number of rows\n",*password_index);
+	}
 	return;
 }
 void cleanUp(int cpu_num,int gpu_num)
@@ -379,8 +384,9 @@ crack_gpu_thread ( void *arg ) {
 	pwd_range *range;
 	//this one range gets the range of passwords for all GPUs
 	range = (pwd_range*) malloc ( sizeof ( pwd_range )*1);
-
-
+	
+	//time that has passed
+	float total_time =0.00;
 	/*
 	//allocate password space
 
@@ -488,7 +494,7 @@ crack_gpu_thread ( void *arg ) {
 		keys+=password_index;
 
 		gettimeofday ( &tnow , NULL );
-		float total_time = tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F;
+		total_time = tnow.tv_sec - tprev.tv_sec + ( tnow.tv_usec - tprev.tv_usec ) * 0.000001F;
 		printf ( "Tested %lu passwords in %.2f seconds.\n" ,keys,total_time);
 
 		// Start time of the computation (including memory transfers Host mem <==> Device mem)
@@ -557,8 +563,10 @@ crack_gpu_thread ( void *arg ) {
 		 * dispatch work to the second GPU until the first GPU finishes computation :P
 		 */
 
-
-		printf("There are %d GPUs working\n",gpu_working);
+		if(vflag)
+		{
+			printf("There are %d GPUs working\n",gpu_working);
+		}
 		for ( gpu_iter = 0 ; gpu_iter < gpu_working ; ++gpu_iter ) 
 		{
 			// Set the GPU Device we are currently dispatching work to crack
