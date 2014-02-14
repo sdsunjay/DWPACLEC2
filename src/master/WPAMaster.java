@@ -157,15 +157,14 @@ public class WPAMaster  {
 	    }else if(lineCount==7)
 	    {
 	       //EAPOL frame
-	      System.out.print("Not printing EAPOL_Frame");
-	      /* System.out.print("EAPOL_Frame:");
+	       System.out.print("EAPOL_Frame:");
 	       byte[] buf = adapter.unmarshal(tokens[1]);
 	       for(int i=0; i<buf.length; i++)
 	       {
 		  wpa_hdsk[94+i] = buf[i]; //EAPOL frame contents (2nd key frame)
 		  System.out.printf(String.format("%x",buf[i]>>4 & 0x0F));
 		  System.out.print(String.format("%x",buf[i] & 0x0F));
-	       }*/
+	       }
 	       System.out.println("");
 	       lineCount++;
 	    }else if(lineCount==8)
@@ -187,15 +186,14 @@ public class WPAMaster  {
 	 }
       	
       	
-	  System.out.print("Not printing WPA Structure");
-	 /* System.out.print("WPA Structure:");
+	  System.out.print("WPA Structure:");
 	 for(int i=0; i<wpa_hdsk.length; i++)
 	 {
 	    System.out.printf(String.format("%x",wpa_hdsk[i]>>4 & 0x0F));
 	    System.out.print(String.format("%x",wpa_hdsk[i] & 0x0F));
 	    System.out.print(' ');
 	 }
-	 */
+	 
 	 System.out.println("");
       }catch(Exception e)
       {
