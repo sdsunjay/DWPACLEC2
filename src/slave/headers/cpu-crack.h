@@ -5,7 +5,7 @@
 #include "common.h"
 
 //extern "C"
-pwd_range fetch_pwd(char type, const unsigned long* first, const unsigned long* last,int num);
+pwd_range fetch_pwd(char type, const unsigned long* first, const unsigned long* last);
 
 //extern "C"
 void* crack_cpu_thread(void *arg);
