@@ -425,66 +425,76 @@ int main(int argc, char** argv)
    //port number to open at
    int port;
 
-	 //for debugging
-	//cpu_num=2;  
+   //for debugging
+   cpu_num=2;  
    // get the number of CPU processors
-   cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
+  /* cpu_num = sysconf(_SC_NPROCESSORS_ONLN );
+  if(cpu_num > 8)
+   {
+	   cpu_num=8;
+   }*/
+	cpu_num=0;
+//having each one connect to DB slows things down.
+//lets not have any
+  //cpu_num=0;	   
    printf("number of CPU processors: %d\n", cpu_num);
+   //for debugging
+   //gpu_num=1;  
    gpu_num = num_of_gpus();
    printf("number of GPU devices: %d\n", gpu_num);
 
    // check and parse arguments
    if (argc > 3)
    {
-     fprintf(stderr,"Too many args\n");
-      fprintf(stderr,"usage: %s <port>\n", argv[0]);
-      exit(0);
+	   fprintf(stderr,"Too many args\n");
+	   fprintf(stderr,"usage: %s <port>\n", argv[0]);
+	   exit(0);
    }
    else
    {
-      if(argv[1]==NULL)
-      {
-	 printf("Sunjay has opened port# 7373 for this\n");
-	 printf("Enter a port number\n");
-	 scanf("%d", &port);
-      }
-      else
-      {
-         port=atoi(argv[1]);
-      }
-      if(argv[2]!=NULL)
-      {
+	   if(argv[1]==NULL)
+	   {
+		   printf("Sunjay has opened port# 7373 for this\n");
+		   printf("Enter a port number\n");
+		   scanf("%d", &port);
+	   }
+	   else
+	   {
+		   port=atoi(argv[1]);
+	   }
+	   if(argv[2]!=NULL)
+	   {
 
-	 if(strcmp(argv[2],"-v")==0)
-	 {
-	    vflag=1;
-	    printf("Verbose flag is set\n");
-	 }
-	 else
-	 {
-	    printf("usage: %s <port>\n", argv[0]);
-	    exit(0);
+		   if(strcmp(argv[2],"-v")==0)
+		   {
+			   vflag=1;
+			   printf("Verbose flag is set\n");
+		   }
+		   else
+		   {
+			   printf("usage: %s <port>\n", argv[0]);
+			   exit(0);
 
-	 }
-      }
+		   }
+	   }
    }
    //printf("Testing connection to database\n");
 
    //   db_flag=1;
-  /* if(connect_to_db(0)==0)
-   {
+   /* if(connect_to_db(0)==0)
+      {
       printf("DB_connector_index: %d Connecting to DB: ",0);
       printf("Successful\n");
       db_flag=1;
-      // printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
+   // printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
    }
    else
    {
-      printf("Connecting to DB: ");
-      printf("fail\n");
-      printf("Will not attempt to connect to %s DB again\n",DB_NAME);
-      db_flag=0;
-      return 0;
+   printf("Connecting to DB: ");
+   printf("fail\n");
+   printf("Will not attempt to connect to %s DB again\n",DB_NAME);
+   db_flag=0;
+   return 0;
    }*/
 
    // connect to the master
@@ -492,7 +502,7 @@ int main(int argc, char** argv)
    flag = wait_connect(&sd,port);
    printf("%s\n", flag==0?"connection established":"failed");
    if (flag)
-      exit(0);
+	   exit(0);
 
    // request for work from the master
    printf("requesting for work from the master ... ");
@@ -500,8 +510,8 @@ int main(int argc, char** argv)
    printf("%s\n", flag==0?"done":"failed");
    if (flag)
    {
-      close(sd);
-      exit(0);
+	   close(sd);
+	   exit(0);
    }
 
    // print out the received information
@@ -509,12 +519,12 @@ int main(int argc, char** argv)
 
 
    // prepare for CPU and GPU thread creation
-   range = fetch_pwd('\0', &first_pwd, &last_pwd,gpu_num);
+   range = fetch_pwd('\0', &first_pwd, &last_pwd);
    if ( range.start != 0)
    {
-      printf("error while preparing cpu/gpu thread creation\n");
-      printf("Range does not start at 0\n");
-      exit(0);
+	   printf("error while preparing cpu/gpu thread creation\n");
+	   printf("Range does not start at 0\n");
+	   exit(0);
    }
    float* calc_speed = (float*)malloc((cpu_num+1)*sizeof(float));
    memset(calc_speed, 0, (cpu_num+1)*sizeof(float));
@@ -535,46 +545,52 @@ int main(int argc, char** argv)
    gettimeofday ( &tprev , NULL );
 
    //open db connections for each CPU thread
-      for (i=0; i<cpu_num; ++i)
-      {
-	 //if successfully connected to the database, so we can make queries, process
-	 if(connect_to_db(i,hostName)==0)
-	 {
-	    printf("DB_connector_index: %d CPU %d: Connecting to DB: ",i,i);
-	    printf("Successful\n");
-	    // printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
-	 }
-	 else
-	 {
-	    printf("Connecting to DB: ");
-	    printf("fail\n");
-	    exit(0);
-	 }
-      }
+   for (i=0; i<cpu_num; ++i)
+   {
+	   //if successfully connected to the database, so we can make queries, process
+	   if(connect_to_db(i,hostName)==0)
+	   {
+		   if(vflag)
+		   {
+			   printf("DB_connector_index: %d CPU %d: Connecting to DB: ",i,i);
+			   printf("Successful\n");
+		   }	 
+		   // printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
+	   }
+	   else
+	   {
+		   printf("Connecting to DB: ");
+		   printf("fail\n");
+		   exit(0);
+	   }
+   }
    // create the cracking threads for CPU
    for (i=0; i<cpu_num; ++i)
    {
-      ck_td_struct* arg = (ck_td_struct*)malloc(sizeof(ck_td_struct));
-      arg->cpu_core_id = i;
-      arg->gpu_core_id = -1;
-      arg->set_affinity = 1;
-      arg->essid = essid;
-      arg->phdsk = &hdsk;
-      arg->calc_speed = calc_speed;
-      arg->final_key = final_key;
-      arg->final_key_flag = &final_key_flag;
+	   ck_td_struct* arg = (ck_td_struct*)malloc(sizeof(ck_td_struct));
+	   arg->cpu_core_id = i;
+	   arg->gpu_core_id = -1;
+	   arg->set_affinity = 1;
+	   arg->essid = essid;
+	   arg->phdsk = &hdsk;
+	   arg->calc_speed = calc_speed;
+	   arg->final_key = final_key;
+	   arg->final_key_flag = &final_key_flag;
 
 
-      flag = pthread_create(&tid_vector[i], NULL, crack_cpu_thread, arg);
-      if (flag)
-      {
-	 printf("Can't create thread on cpu core %d: %s\n", i, strerror(flag));
-      }
-      else
-      {
-	 printf("Created CPU %d thread\n",i);
-	 cpu_working++;
-      }
+	   flag = pthread_create(&tid_vector[i], NULL, crack_cpu_thread, arg);
+	   if (flag)
+	   {
+		   printf("Can't create thread on cpu core %d: %s\n", i, strerror(flag));
+	   }
+	   else
+	   {
+		   if(vflag)
+		   {
+			   printf("Created CPU %d thread\n",i);
+		   }
+		   cpu_working++;
+	   }
    }
 
    // create the cracking host thread for GPU
@@ -594,13 +610,16 @@ int main(int argc, char** argv)
    {
 	   if(vflag==1)
 	   {
-		printf("testing connection to db for gpu at connection id %d\n",cpu_num+i);
+		   printf("testing connection to db for gpu at connection id %d\n",cpu_num+i);
 	   }
 	   //if successfully connected to the database, so we can make queries, process
 	   if(connect_to_db(cpu_num+i,hostName)==0)
 	   {
-		   printf("DB_connector_index: %d GPU %d: Connecting to DB: ",cpu_num+i,i);
-		   printf("Successful\n");
+		   if(vflag)
+		   {
+			   printf("DB_connector_index: %d GPU %d: Connecting to DB: ",cpu_num+i,i);
+			   printf("Successful\n");
+		   }
 		   //   printf("MySQL Connection Info: %s \n", mysql_get_host_info(MySQLConnection[i]));
 	   }
 	   else
@@ -657,7 +676,7 @@ int main(int argc, char** argv)
 	   //rewind(stdout);
 	   //flag = ftruncate(1, 0);
 
-	   range = fetch_pwd('\0', &first_pwd, NULL,0);
+	   //range = fetch_pwd('\0', &first_pwd, NULL);
 	   //printf("SPD: %08.1fPMK/S [CPU(%02d):%08.1f|GPU(%02d):%08.1f|G/C:%06.1f] CUR: %08lu\n",cpu_speed_all+gpu_speed_all, cpu_working, cpu_speed_all, gpu_working, gpu_speed_all, gpu_speed_all/cpu_speed_all, range.start);
 
 	   // reset for some time (this only blocks the current thread)
@@ -683,15 +702,15 @@ int main(int argc, char** argv)
 			   close(sd);
 			   free(calc_speed);
 			   printf("Final key has been found, quitting\n");
-			   mysql_library_end();
-			   exit(0);
+			   //mysql_library_end();
+			  // exit(0);
 		   }
 		   else
 		   {
 			   printf("failed\n");
 			   char name_of_file[256];
 			   fprintf(stderr,"Unable to send key to master\n");
-			   sprintf(name_of_file,"%s_WPA_PASSWORD_%.2f",essid,total_time);
+			   sprintf(name_of_file,"WPA_PASSWORD");
 			   fprintf(stderr,"Writing to file (%s)\n",name_of_file);
 			   FILE *f = fopen(name_of_file, "w");
 			   if (f == NULL)
@@ -702,18 +721,20 @@ int main(int argc, char** argv)
 			   /* write password to file*/
 			   fprintf(f, "%s",final_key);
 			   fclose(f);
-			   close(sd);
-			   free(calc_speed);
+			   //close(sd);
+			  // free(calc_speed);
 			   exit(1);
 		   }
 	   }
 	   // if there are no remaining cpu or gpu thread, then exit
-	   if (cpu_working<=0 && gpu_working<=0)
+	 	if (gpu_working<=0)
+//	   if (cpu_working<=0 || gpu_working<=0)
 	   {
-		   printf("no thread calculating, exit\n");
+		   //printf("no thread calculating exit\n");
 		   close(sd);
 		   // free(calc_speed);
 		   break;
+		   return 0;   
 		   //  exit(0);
 	   }
    }
@@ -726,6 +747,5 @@ int main(int argc, char** argv)
    // release resources
    close(sd);
    free(calc_speed);
-   mysql_library_end();
    return 0;
 }

@@ -118,7 +118,7 @@ inline void calc_pmk(const char *key,size_t len, char *essid_pre, uchar pmk[40])
 */
 /* used to fetch password segment */
 /* type is 'c' for CPU and 'g' for GPU, first and last should always be NULL  */
-pwd_range fetch_pwd(char type, const unsigned long* first, const unsigned long* last,int num)
+pwd_range fetch_pwd(char type, const unsigned long* first, const unsigned long* last)
 {
    static pthread_mutex_t mutex;
    static pwd_range range;
@@ -157,11 +157,12 @@ pwd_range fetch_pwd(char type, const unsigned long* first, const unsigned long* 
          }
          else
          {
-            len = PWD_BATCH_SIZE_GPU*num;
+            len = PWD_BATCH_SIZE_GPU;
          }
 	 range.start = current_self;
          range.end = (current_self+len-1>last_self)?last_self:(current_self+len-1);
          current_self += len;
+	sleep(2);
       }
       pthread_mutex_unlock(&mutex);
    }
@@ -257,7 +258,7 @@ void* crack_cpu_thread(void *arg)
    {
       //printf("in CPU crack loop\n");
       // get the password range
-      range = fetch_pwd('c', NULL, NULL,0);
+      range = fetch_pwd('c', NULL, NULL);
       if (range.start ==0.5)
       {
          printf("Range does not start at 0\n");
@@ -288,15 +289,6 @@ void* crack_cpu_thread(void *arg)
       {
          // # of rows in the result set
          numRows = mysql_num_rows(mysqlResult);
-	 if(vflag)
-	 {
-		 // Returns the number of columns in a result set specified
-	//	 numFields = mysql_num_fields(mysqlResult);
-
-
-		//this just prints WAY too often, so commenting it out for now
-		printf("CPU id %d: Number of rows=%u  Number of fields=%u \n",numRows,mysql_num_fields(mysqlResult));
-	 }
       }
       else
       {  calc_speed[cpu_core_id]=-1;
@@ -427,7 +419,7 @@ void* crack_cpu_thread(void *arg)
    //printf("CPU thread has checked %d keys total.\n",num_keys);
    printf("%d is exiting CPU-crack\n",cpu_core_id);
    // Close database connection
-   mysql_close(MySQLConnection[cpu_core_id]);
+  // mysql_close(MySQLConnection[cpu_core_id]);
    return NULL;
 }
 
