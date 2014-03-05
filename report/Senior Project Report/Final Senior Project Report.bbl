@@ -1,0 +1,178 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{#1}
+\csname url@rmstyle\endcsname
+\providecommand{\newblock}{\relax}
+\providecommand{\bibinfo}[2]{#2}
+\providecommand\BIBentrySTDinterwordspacing{\spaceskip=0pt\relax}
+\providecommand\BIBentryALTinterwordstretchfactor{4}
+\providecommand\BIBentryALTinterwordspacing{\spaceskip=\fontdimen2\font plus
+\BIBentryALTinterwordstretchfactor\fontdimen3\font minus
+  \fontdimen4\font\relax}
+\providecommand\BIBforeignlanguage[2]{{%
+\expandafter\ifx\csname l@#1\endcsname\relax
+\typeout{** WARNING: IEEEtran.bst: No hyphenation pattern has been}%
+\typeout{** loaded for the language `#1'. Using the pattern for}%
+\typeout{** the default language instead.}%
+\else
+\language=\csname l@#1\endcsname
+\fi
+#2}}
+
+\bibitem{ocl}
+\BIBentryALTinterwordspacing
+``oclhashcat-plus.'' [Online]. Available:
+  \url{http://hashcat.net/wiki/doku.php?id=oclhashcat_plus}
+\BIBentrySTDinterwordspacing
+ \begin{quotation}\noindent An explanation of oclHashcat-plus by the group that
+  created the software. \end{quotation}
+
+\bibitem{last}
+\BIBentryALTinterwordspacing
+``The secure and trusted way to store passwords,'' Online. [Online]. Available:
+  \url{https://lastpass.com/how-it-works}
+\BIBentrySTDinterwordspacing
+
+
+\bibitem{ocl1}
+\BIBentryALTinterwordspacing
+``oclhashcat v1.02 going for distributed cracking,'' January 2014. [Online].
+  Available: \url{http://hashcat.net/forum/thread-3047.html}
+\BIBentrySTDinterwordspacing
+ \begin{quotation}\noindent oclHashcat Administrator explains new support for
+  distributed cracking in the latest release of their software. \end{quotation}
+
+\bibitem{ec2}
+\BIBentryALTinterwordspacing
+Amazon, ``Amazon ec2,'' Online, 2014. [Online]. Available:
+  \url{http://aws.amazon.com/ec2}
+\BIBentrySTDinterwordspacing
+
+
+\bibitem{crypto}
+\BIBentryALTinterwordspacing
+Bitweasil, ``Cryptohaze multiforcer,'' Online, 2012. [Online]. Available:
+  \url{http://www.cryptohaze.com/multiforcer.php}
+\BIBentrySTDinterwordspacing
+
+
+\bibitem{dict}
+J.~Bonneau, ``The science of guessing: analyzing an anonymized corpus of 70
+  million passwords,'' in \emph{Security and Privacy (SP), 2012 IEEE Symposium
+  on}.\hskip 1em plus 0.5em minus 0.4em\relax IEEE, 2012, pp. 538--552.
+
+
+\bibitem{cassola}
+A.~Cassola, W.~Robertson, E.~Kirda, and G.~Noubir, ``A practical, targeted, and
+  stealthy attack against wpa enterprise authentication,'' in \emph{Proceedings
+  of NDSS}, vol. 2013, 2013.
+ \begin{quotation}\noindent This paper describes novel additions to the 'Evil
+  Twins' attack that prove to be very successful in duping users to transmit
+  their passwords to an attacker \end{quotation}
+
+\bibitem{sha1}
+D.~Eastlake and P.~Jones, ``Us secure hash algorithm 1 (sha1),'' 2001.
+
+
+\bibitem{ars}
+\BIBentryALTinterwordspacing
+D.~Goodin, ``Why passwords have never been weakerÑand crackers have never been
+  stronger,'' 8 2012. [Online]. Available:
+  \url{http://arstechnica.com/security/2012/08/passwords-under-assault/}
+\BIBentrySTDinterwordspacing
+
+
+\bibitem{gosney}
+J.~Gosney, ``Password cracking hpc,'' in \emph{Passwordsö12 Conference, Oslo},
+  2012.
+
+
+\bibitem{ieee}
+I.~.~W. Group \emph{et~al.}, ``Ieee standard for information
+  technology--telecommunications and information exchange between
+  systems--local and metropolitan area networks--specific requirements--part
+  11: Wireless lan medium access control (mac) and physical layer (phy)
+  specifications amendment 6: Wireless access in vehicular environments,''
+  \emph{IEEE Std}, vol. 802, pp. 1--51, 2010.
+
+
+\bibitem{cloud}
+G.~Korlam and D.~{\c{C}}.~K. Ko{\c{c}}, ``Password cracking in the cloud.''
+ \begin{quotation}\noindent Report on detailing the power and low-cost
+  effectiveness of various cloud crackers. \end{quotation}
+
+\bibitem{kurtz}
+A.~Kurtz, F.~Freiling, and D.~Metz, ``Department informatik,'' 2013.
+
+
+\bibitem{pyrit}
+\BIBentryALTinterwordspacing
+L.~Lueg, ``The twilight of wi-fi protected access,'' 2008. [Online]. Available:
+  \url{http://pyrit.wordpress.com/the-twilight-of-wi-fi-protected-access}
+\BIBentrySTDinterwordspacing
+ \begin{quotation}\noindent An explanation of Pyrit and it's uses by its
+  creator. \end{quotation}
+
+\bibitem{moxie}
+M.~R. Moxie~Marlinspike, David~Hulton, ``Defeating pptp vpns and wpa2
+  enterprise with ms-chapv2,'' in \emph{Defcon}, July 2012.
+
+
+\bibitem{practical}
+T.~Ohigashi and M.~Morii, ``A practical message falsification attack on wpa,''
+  in \emph{Procedings of Joint Workshop on Information Security, Cryptography
+  and Information Security Conference System}, 2009.
+ \begin{quotation}\noindent This paper presents a practice approach to cracking
+  WPA without GPU assistance \end{quotation}
+
+\bibitem{roth}
+T.~Roth, ``Breaking encryptions using gpu accelerated cloud instances.'' in
+  \emph{Black Hat Technical Security Conference}, 2011.
+
+
+\bibitem{abusing}
+V.~Tendulkar, R.~Snyder, J.~Pletcher, K.~Butler, A.~Shashidharan, and W.~Enck,
+  ``Abusing cloud-based browsers for fun and profit,'' in \emph{Proceedings of
+  the 28th Annual Computer Security Applications Conference}.\hskip 1em plus
+  0.5em minus 0.4em\relax ACM, 2012, pp. 219--228.
+
+
+\bibitem{tews}
+E.~Tews and M.~Beck, ``Practical attacks against wep and wpa,'' in
+  \emph{Proceedings of the second ACM conference on Wireless network
+  security}.\hskip 1em plus 0.5em minus 0.4em\relax ACM, 2009, pp. 79--86.
+
+
+\bibitem{wep}
+E.~Tews, R.-P. Weinmann, and A.~Pyshkin, ``Breaking 104 bit wep in less than 60
+  seconds,'' in \emph{Information Security Applications}.\hskip 1em plus 0.5em
+  minus 0.4em\relax Springer, 2007, pp. 188--202.
+
+
+\bibitem{cap}
+\BIBentryALTinterwordspacing
+tux mind, ``cap2hccap,'' Online. [Online]. Available:
+  \url{http://sourceforge.net/projects/cap2hccap}
+\BIBentrySTDinterwordspacing
+
+
+\bibitem{gpu}
+K.~T. Viet, ``Gpu - accelerated wpa psk cracking solutions,'' 2010.
+ \begin{quotation}\noindent This paper introduces GPUs into the realm of WPA
+  cracking. \end{quotation}
+
+\bibitem{yong}
+\BIBentryALTinterwordspacing
+L.~Yong-lei and J.~Zhi-gang, ``Distributed method for cracking wpa/wpa2-psk on
+  multi-core cpu and gpu architecture,'' \emph{International Journal of
+  Communication Systems}, pp. n/a--n/a, 2013. [Online]. Available:
+  \url{http://dx.doi.org/10.1002/dac.2699}
+\BIBentrySTDinterwordspacing
+
+
+\bibitem{cck}
+C.~{Zheng}, C.~{Luo}, and K.~{Sankaran}, ``Distributed wpa password cracking
+  system exploiting amazon gpu clusters,'' April 2012.
+ \begin{quotation}\noindent Report on implementation of Distributed WPA
+  cracking utilizing AWS GPU instances. \end{quotation}
+
+\end{thebibliography}

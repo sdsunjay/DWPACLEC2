@@ -1,0 +1,21 @@
+\contentsline {section}{\numberline {1}Introduction}{1}
+\contentsline {section}{\numberline {2}Background}{1}
+\contentsline {subsection}{\numberline {2.1}WPA}{1}
+\contentsline {subsection}{\numberline {2.2}CUDA}{2}
+\contentsline {subsection}{\numberline {2.3}AWS EC2}{3}
+\contentsline {section}{\numberline {3}Existing work}{3}
+\contentsline {subsection}{\numberline {3.1}Importance}{3}
+\contentsline {subsection}{\numberline {3.2}Summary}{4}
+\contentsline {section}{\numberline {4}Motivation}{4}
+\contentsline {subsection}{\numberline {4.1}Practicality}{4}
+\contentsline {subsection}{\numberline {4.2}Ease of Use}{5}
+\contentsline {section}{\numberline {5}System Architecture}{5}
+\contentsline {section}{\numberline {6}Implementation}{6}
+\contentsline {subsection}{\numberline {6.1}Master}{7}
+\contentsline {subsection}{\numberline {6.2}Slave}{7}
+\contentsline {subsection}{\numberline {6.3}Database}{8}
+\contentsline {section}{\numberline {7}Results}{9}
+\contentsline {subsection}{\numberline {7.1}Benchmarks}{9}
+\contentsline {section}{\numberline {8}Mitigation Techniques}{10}
+\contentsline {section}{\numberline {9}Conclusions}{10}
+\contentsline {section}{\numberline {10}Future Work}{11}

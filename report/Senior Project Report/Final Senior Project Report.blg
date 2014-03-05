@@ -1,0 +1,61 @@
+This is BibTeX, Version 0.99d (TeX Live 2011)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: Final Senior Project Report.aux
+The style file: IEEEannot.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Database file #1: Bib.bib
+Warning--to sort, need author, organization, or key in ocl
+Warning--to sort, need author, organization, or key in ocl1
+Warning--to sort, need author, organization, or key in last
+Warning--empty journal in cloud
+Warning--empty year in cloud
+Warning--empty journal in kurtz
+Warning--empty note in pyrit
+Warning--empty note in gpu
+Warning--empty note in cck
+You've used 24 entries,
+            4480 wiz_defined-function locations,
+            997 strings with 11737 characters,
+and the built_in function-call counts, 14407 in all, are:
+= -- 1245
+> -- 324
+< -- 51
++ -- 156
+- -- 82
+* -- 693
+:= -- 2361
+add.period$ -- 52
+call.type$ -- 24
+change.case$ -- 112
+chr.to.int$ -- 129
+cite$ -- 33
+duplicate$ -- 974
+empty$ -- 1244
+format.name$ -- 93
+if$ -- 3134
+int.to.chr$ -- 0
+int.to.str$ -- 24
+missing$ -- 176
+newline$ -- 134
+num.names$ -- 42
+pop$ -- 553
+preamble$ -- 1
+purify$ -- 88
+quote$ -- 0
+skip$ -- 1061
+stack$ -- 0
+substring$ -- 449
+swap$ -- 601
+text.length$ -- 8
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 208
+warning$ -- 9
+while$ -- 66
+width$ -- 26
+write$ -- 254
+(There were 9 warnings)
