@@ -10,15 +10,15 @@ DWPACLEC2 is a complex program that creates AWS EC2 GPU Instances to crack a giv
 
 ## How to Use
 Run DWPACLEC2 with:
-    1) Obtain 4 way handshake
-    2) Run run.sh in the test directory to obtain relevant information
-    3) Setup MySQL database on a server
-        - Use script.pl to load big dictionary file into database
-    4) Create slave instances (configure #)
-        If using AWS GPU instances, use startupAWS.sh and install_cuda5 (may need updating) for setting up
-    5) Create master instance
-    6) To Be Continued
-To see options run:
+    1) Obtain 4 way handshake <br>
+    2) Run run.sh in the test directory to obtain relevant information <br>
+    3) Setup MySQL database on a server <br>
+        - Use script.pl to load big dictionary file into database <br>
+    4) Create slave instances (configure #)<br>
+        If using AWS GPU instances, use startupAWS.sh and install_cuda5 (may need updating) for setting up <br>
+    5) Create master instance <br>
+    6) To Be Continued <br>
+To see options run:<br>
 
     ./helpMe --help
 
