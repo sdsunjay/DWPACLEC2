@@ -61,10 +61,10 @@ I discovered this has already been done, but not using a <a href="http://en.wiki
       <li>The Database</li>
       <ul>
          <li>Create a small EC2 instance 
-         <li>Download large WPA password list (for testing purposes use <a href="https://github.com/sdsunjay/DWPACLEC2/blob/master/src/db/genAllPhone.c">this script</a>
-         <li>Install a MySQL database, use <a href="https://github.com/sdsunjay/DWPACLEC2/blob/master/src/db/genDatabase.cpp">this script</a> to create everything.
+         <li>Download large WPA password list (for testing purposes, use <a href="https://github.com/sdsunjay/DWPACLEC2/blob/master/src/db/genAllPhone.c">this script</a>)
          <li>Remove any duplicates from the list
-         <li>Insert the list into the database, use <a href="https://github.com/sdsunjay/DWPACLEC2/blob/master/src/db/script.pl">this script</a>
+         <li>Install a MySQL database, use <a href="https://github.com/sdsunjay/DWPACLEC2/blob/master/src/db/genDatabase.cpp">this script</a> to create everything.
+         <li>To insert additional lists into the database, use <a href="https://github.com/sdsunjay/DWPACLEC2/blob/master/src/db/script.pl">this script</a>
       </ul>
    </ul>
    <ul>
@@ -83,8 +83,10 @@ I discovered this has already been done, but not using a <a href="http://en.wiki
       </ul>
    </ul>
    <h2>Outcome</h2>
-   <li>Lowered costs and difficulty associated with cracking WPA/2</li>
+   <ul>
+   <li>Lowered costs and difficulty associated with cracking WPA/2
    <li>Increased cost to speed ratio</li>
+   </ul>
    <h3>A complete explanation can be found <a href="https://github.com/sdsunjay/DWPACLEC2/blob/master/report/Senior%20Project%20Report/Final%20Senior%20Project%20Report.pdf">here</a>.</h3>
    
 ## Author
