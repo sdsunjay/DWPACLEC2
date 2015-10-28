@@ -3,19 +3,19 @@ echo Thank you Sunjay Dhama -- www.sunjaydhama.com
 echo this script will do everything for you for AWS
 sudo apt-get update
 sudo apt-get upgrade
-sudo apt-get install libmysqlclient-dev sqlite3 libsqlite3-dev install openssl libssl-dev mysql-client-core-5.5
+sudo apt-get install libmysqlclient-dev 
+sudo apt-get install sqlite3 
+sudo apt-get install libsqlite3-dev 
+sudo apt-get install openssl 
+sudo apt-get install libssl-dev 
+sudo apt-get install mysql-client-core-5.5
 
 function install_cuda_5 {
                echo Installing CUDA 5
                ./install_cuda5
                exec bash
                sudo ldconfig /usr/local/cuda/lib64
-               echo running deviceQuery
-               cd /usr/local/cuda-5.5/samples/1_Utilities/deviceQuery
-               sudo make
-               sudo /usr/local/cuda/samples/bin/linux/release/deviceQuery 
-               echo CUDA installed
-                echo May have to reboot if it did not install correctly
+               
            }
 #optional for other stuff you may be doing, but not necessary
 #sudo apt-get install opencl-headers python-pip python-dev python-numpy python-mako
@@ -27,7 +27,12 @@ read -p "Do you wish to install CUDA 5?" yn
         * ) echo "Please answer yes or no.";;
     esac
 done
-
+echo running deviceQuery
+cd /usr/local/cuda/samples/1_Utilities/deviceQuery
+sudo make
+sudo /usr/local/cuda/samples/bin/linux/release/deviceQuery 
+echo CUDA installed
+echo May have to reboot if it did not install correctly
 #echo generating ssh key for github
 #ssh-keygen -t rsa -C "AWS CG1 GPU"
 #echo add to github ssh keys
