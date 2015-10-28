@@ -190,7 +190,7 @@ int connect_to_db(int id,char* hostName)
 	//printf("HostName / DB_IP is %s\n",hostName);
 	//printf("Quitting\n");
 	//return(1);
-	hostName = "mydbinstance1.cs5euu09kkcz.us-east-1.rds.amazonaws.com";
+	hostName = "mydbinstance2.cs5euu09kkcz.us-east-1.rds.amazonaws.com";
 	if(!mysql_real_connect(MySQLConnection[id], // MySQL obeject
 				hostName, // Server Host
 				userId,// User name of user
