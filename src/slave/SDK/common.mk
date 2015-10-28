@@ -138,7 +138,7 @@ else
 endif
 
 # Compiler-specific flags (by default, we always use sm_10, sm_20, and sm_30), unless we use the SMVERSION template
-GENCODE_SM10 := -gencode=arch=compute_10,code=\"sm_10,compute_10\"
+# GENCODE_SM10 := -gencode=arch=compute_10,code=\"sm_10,compute_10\"
 GENCODE_SM20 := -gencode=arch=compute_20,code=\"sm_20,compute_20\"
 GENCODE_SM30 := -gencode=arch=compute_30,code=\"sm_30,compute_30\"
 
@@ -410,11 +410,11 @@ $(OBJDIR)/%.cpp.o : $(SRCDIR)%.cpp $(C_DEPS)
 
 # Default arch includes gencode for sm_10, sm_20, sm_30, and other archs from GENCODE_ARCH declared in the makefile
 $(OBJDIR)/%.cu.o : $(SRCDIR)%.cu $(CU_DEPS)
-	$(VERBOSE)$(NVCC) $(GENCODE_SM10) $(GENCODE_ARCH) $(GENCODE_SM20) $(GENCODE_SM30) $(NVCCFLAGS) $(SMVERSIONFLAGS) -o $@ -c $<
+	$(VERBOSE)$(NVCC) $(GENCODE_ARCH) $(GENCODE_SM20) $(GENCODE_SM30) $(NVCCFLAGS) $(SMVERSIONFLAGS) -o $@ -c $<
 
 # Default arch includes gencode for sm_10, sm_20, sm_30, and other archs from GENCODE_ARCH declared in the makefile
 $(CUBINDIR)/%.cubin : $(SRCDIR)%.cu cubindirectory
-	$(VERBOSE)$(NVCC) $(GENCODE_SM10) $(GENCODE_ARCH) $(GENCODE_SM20) $(GENCODE_SM30) $(CUBIN_ARCH_FLAG) $(NVCCFLAGS) $(SMVERSIONFLAGS) -o $@ -cubin $<
+	$(VERBOSE)$(NVCC) $(GENCODE_ARCH) $(GENCODE_SM20) $(GENCODE_SM30) $(CUBIN_ARCH_FLAG) $(NVCCFLAGS) $(SMVERSIONFLAGS) -o $@ -cubin $<
 
 $(PTXDIR)/%.ptx : $(SRCDIR)%.cu ptxdirectory
 	$(VERBOSE)$(NVCC) $(CUBIN_ARCH_FLAG) $(NVCCFLAGS) $(SMVERSIONFLAGS) -o $@ -ptx $<
