@@ -1,4 +1,6 @@
 //#define _GNU_SOURCE
+#include <iostream>
+#include <unistd.h>
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -162,7 +164,7 @@ pwd_range fetch_pwd(char type, const unsigned long* first, const unsigned long* 
 	 range.start = current_self;
          range.end = (current_self+len-1>last_self)?last_self:(current_self+len-1);
          current_self += len;
-	sleep(2);
+	 usleep(2000000);
       }
       pthread_mutex_unlock(&mutex);
    }
