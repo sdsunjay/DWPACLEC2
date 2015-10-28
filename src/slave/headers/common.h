@@ -7,7 +7,7 @@
 
 // how many passwords to feed to a CPU/GPU crack thread every time
 #define PWD_BATCH_SIZE_CPU 100000
-#define PWD_BATCH_SIZE_GPU 2000000
+#define PWD_BATCH_SIZE_GPU 1000000
 #define QUERY_BUFFER 100
 
 
@@ -24,7 +24,7 @@
 //#define password "6f141H64TyPi"
 #define DB_NAME "DWPA"
 #define PORT_NUMBER 3306
-#define TABLE_NAME "DICT1"
+#define TABLE_NAME "DICT"
 #define COLUMN_NAME "WORD"
 #define LONGEST_PASSWORD 128
 //for SUNJAY test machine we have 
